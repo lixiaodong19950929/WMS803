@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增设备')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-Device-add">
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>仓库名称：</label>
+                <div class="col-sm-8">
+                    <select name="whcode" id="whcode" class="form-control m-b" th:with="whList=${whList}" >
+                        <option value="">请选择</option>
+                        <option th:each="ware:${whList}" th:value="${ware.whcode}" th:text="${ware.whname}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>设备编码：</label>
+                <div class="col-sm-8">
+                    <input id="devicecode" name="devicecode" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>设备名称：</label>
+                <div class="col-sm-8">
+                    <input name="devicename" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">设备类型：</label>
+                <div class="col-sm-8">
+                    <input name="devicetype" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">设备型号：</label>
+                <div class="col-sm-8">
+                    <input name="devicemodel" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">设备参数：</label>
+                <div class="col-sm-8">
+                    <input name="deviceparameters" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">设备功率：</label>
+                <div class="col-sm-8">
+                    <input name="devicepower" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">生产厂家：</label>
+                <div class="col-sm-8">
+                    <input name="devicefactory" class="form-control" type="text">
+                </div>
+            </div>
+            <!--<div class="form-group">    -->
+                <!--<label class="col-sm-3 control-label">使用部门：</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<input name="usedepartment" class="form-control" type="text">-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="form-group">    -->
+                <!--<label class="col-sm-3 control-label">使用人员：</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<input name="useemployee" class="form-control" type="text">-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="form-group">    -->
+                <!--<label class="col-sm-3 control-label">使用位置：</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<input name="uselocation" class="form-control" type="text">-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="form-group">    -->
+                <!--<label class="col-sm-3 control-label">上次检定日期：</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<div class="input-group date">-->
+                        <!--<span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
+                        <!--<input name="inspectdate" class="form-control" placeholder="yyyy-MM-dd" type="text">-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="form-group">    -->
+                <!--<label class="col-sm-3 control-label">检定周期：</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<input name="inspectcycle" class="form-control" type="text">-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="form-group">    -->
+                <!--<label class="col-sm-3 control-label">检定周期单位：</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<select name="inspectcycleunit" class="form-control" id="inspectcycleunit">-->
+                        <!--<option th:value="天">天</option>-->
+                        <!--<option th:value="周">周</option>-->
+                        <!--<option th:value="月">月</option>-->
+                        <!--<option th:value="年">年</option>-->
+                    <!--</select>-->
+                    <!--&lt;!&ndash;<input name="inspectcycleunit" class="form-control" type="text">&ndash;&gt;-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="form-group">    -->
+                <!--<label class="col-sm-3 control-label">上次维保日期：</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<div class="input-group date">-->
+                        <!--<span class="input-group-addon"><i class="fa fa-calendar"></i></span>-->
+                        <!--<input name="repairdate" class="form-control" placeholder="yyyy-MM-dd" type="text">-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="form-group">    -->
+                <!--<label class="col-sm-3 control-label">维保周期：</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<input name="repaircycle" class="form-control" type="text">-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="form-group">    -->
+                <!--<label class="col-sm-3 control-label">维保周期单位：</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<select name="repaircycleunit" class="form-control" id="repaircycleunit">-->
+                        <!--<option th:value="天">天</option>-->
+                        <!--<option th:value="周">周</option>-->
+                        <!--<option th:value="月">月</option>-->
+                        <!--<option th:value="年">年</option>-->
+                    <!--</select>-->
+                    <!--&lt;!&ndash;<input name="repaircycleunit" class="form-control" type="text">&ndash;&gt;-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="form-group">    -->
+                <!--<label class="col-sm-3 control-label">重要设备：</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<div class="radio-box" th:each="dict:${@dict.getType('base_device_importance')}">-->
+                        <!--<input type="radio" th:id="${dict.dictCode}" name="isimportant" th:value="${dict.dictValue}" th:checked="${dict.default}">-->
+                        <!--<label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>状态：</label>
+                <div class="col-sm-8">
+                    <div class="radio-box" th:each="dict:${@dict.getType('base_normal_status')}">
+                        <input type="radio" th:id="${dict.dictCode}" name="isenable" th:value="${dict.dictValue}" th:checked="${dict.default}">
+                        <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">备注：</label>
+                <div class="col-sm-8">
+                    <input name="memo" class="form-control" type="text">
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script type="text/javascript">
+        var prefix = ctx + "base/device"
+        $("#form-Device-add").validate({
+            focusCleanup: true,
+            rules:{
+                whcode:{
+                    required:true,
+                },
+                devicecode:{
+                    required:true,
+                    remote:{
+                        url:prefix+"/checkDeviceCode",
+                        type:'post',
+                        dataType:'json',
+                        data:{
+                            'devicecode':function () {
+                                return $.common.trim($("#devicecode").val());
+                            }
+                        },
+                        dataFilter:function (data,type) {
+                            return $.validate.unique(data);
+                        }
+                    }
+                },
+                devicename:{
+                    required:true,
+                },
+                isenable:{
+                    required:true,
+                },
+                // inspectcycle:{
+                //     number:true,
+                // },
+                // repaircycle:{
+                //     number:true,
+                // }
+            },
+            messages:{
+                "devicecode":{
+                    remote:"设备编码已存在"
+                }
+            }
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/add", $('#form-Device-add').serialize());
+            }
+        }
+
+        $("input[name='inspectdate']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+
+        $("input[name='repairdate']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+    </script>
+</body>
+</html>

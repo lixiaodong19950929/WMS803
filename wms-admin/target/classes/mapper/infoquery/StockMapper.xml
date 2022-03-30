@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.infoquery.querystockstatus.mapper.StockMapper">
+
+    <resultMap type="Stock" id="StockResult">
+        <result property="id" column="Id"/>
+        <result property="producttype" column="ProductType"/>
+        <result property="productcode" column="ProductCode"/>
+        <result property="productname" column="ProductName"/>
+        <result property="productbatch" column="ProductBatch"/>
+        <result property="productmodel" column="ProductModel"/>
+        <result property="specification" column="Specification"/>
+        <result property="quantity" column="Quantity"/>
+        <result property="memo" column="Memo"/>
+        <result property="createuser" column="CreateUser"/>
+        <result property="createdate" column="CreateDate"/>
+        <result property="whcode" column="WhCode"/>
+        <result property="storehousecode" column="StorehouseCode"/>
+        <result property="trayCode" column="TrayCode"/>
+        <result property="otherProductCode" column="OtherProductCode"/>
+        <result property="kwNum" column="kwNum"/>
+    </resultMap>
+
+    <sql id="selectStockVo">
+        select Id, ProductType, ProductCode, ProductName, ProductBatch, ProductModel, Specification, Quantity, Memo, CreateUser, CreateDate, WhCode, StorehouseCode from T_Base_Stock
+    </sql>
+    
+    <select id="selectProStorehouseCount" parameterType="Stock" resultMap="StockResult">
+        SELECT ProductCode,ProductName,COUNT(id) AS kwNum FROM T_Base_Storehouse WHERE ProductName IS NOT NULL GROUP BY ProductCode,ProductName
+    </select>
+    
+    <select id="selectStockList" parameterType="Stock" resultMap="StockResult">
+        <include refid="selectStockVo"/>
+        <where>
+            <if test="id != null ">and Id = #{id}</if>
+            <if test="producttype != null  and producttype != ''">and ProductType = #{producttype}</if>
+            <if test="productcode != null  and productcode != ''">and ProductCode = #{productcode}</if>
+            <if test="productname != null  and productname != ''">and ProductName like concat('%', #{productname},
+                '%')
+            </if>
+            <if test="productbatch != null  and productbatch != ''">and ProductBatch = #{productbatch}</if>
+            <if test="productmodel != null  and productmodel != ''">and ProductModel = #{productmodel}</if>
+            <if test="specification != null  and specification != ''">and Specification = #{specification}</if>
+            <if test="quantity != null ">and Quantity = #{quantity}</if>
+            <if test="memo != null  and memo != ''">and Memo = #{memo}</if>
+            <if test="createuser != null  and createuser != ''">and CreateUser = #{createuser}</if>
+            <if test="createdate != null ">and CreateDate = #{createdate}</if>
+            <if test="whcode != null  and whcode != ''">and WhCode = #{whcode}</if>
+            <if test="storehousecode != null  and storehousecode != ''">and StorehouseCode = #{storehousecode}</if>
+        </where>
+    </select>
+
+    <select id="selectStockById" parameterType="Long" resultMap="StockResult">
+        <include refid="selectStockVo"/>
+        where Id = #{id}
+    </select>
+
+    <insert id="insertStock" parameterType="Stock">
+        insert into T_Base_Stock
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null ">Id,</if>
+            <if test="producttype != null  and producttype != ''">ProductType,</if>
+            <if test="productcode != null  and productcode != ''">ProductCode,</if>
+            <if test="productname != null  and productname != ''">ProductName,</if>
+            <if test="productbatch != null  and productbatch != ''">ProductBatch,</if>
+            <if test="productmodel != null  and productmodel != ''">ProductModel,</if>
+            <if test="specification != null  and specification != ''">Specification,</if>
+            <if test="quantity != null ">Quantity,</if>
+            <if test="memo != null  and memo != ''">Memo,</if>
+            <if test="createuser != null  and createuser != ''">CreateUser,</if>
+            <if test="createdate != null ">CreateDate,</if>
+            <if test="whcode != null  and whcode != ''">WhCode,</if>
+            <if test="storehousecode != null  and storehousecode != ''">StorehouseCode,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null ">#{id},</if>
+            <if test="producttype != null  and producttype != ''">#{producttype},</if>
+            <if test="productcode != null  and productcode != ''">#{productcode},</if>
+            <if test="productname != null  and productname != ''">#{productname},</if>
+            <if test="productbatch != null  and productbatch != ''">#{productbatch},</if>
+            <if test="productmodel != null  and productmodel != ''">#{productmodel},</if>
+            <if test="specification != null  and specification != ''">#{specification},</if>
+            <if test="quantity != null ">#{quantity},</if>
+            <if test="memo != null  and memo != ''">#{memo},</if>
+            <if test="createuser != null  and createuser != ''">#{createuser},</if>
+            <if test="createdate != null ">#{createdate},</if>
+            <if test="whcode != null  and whcode != ''">#{whcode},</if>
+            <if test="storehousecode != null  and storehousecode != ''">#{storehousecode},</if>
+        </trim>
+    </insert>
+
+    <update id="updateStock" parameterType="Stock">
+        update T_Base_Stock
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="producttype != null  and producttype != ''">ProductType = #{producttype},</if>
+            <if test="productcode != null  and productcode != ''">ProductCode = #{productcode},</if>
+            <if test="productname != null  and productname != ''">ProductName = #{productname},</if>
+            <if test="productbatch != null  and productbatch != ''">ProductBatch = #{productbatch},</if>
+            <if test="productmodel != null  and productmodel != ''">ProductModel = #{productmodel},</if>
+            <if test="specification != null  and specification != ''">Specification = #{specification},</if>
+            <if test="quantity != null ">Quantity = #{quantity},</if>
+            <if test="memo != null  and memo != ''">Memo = #{memo},</if>
+            <if test="createuser != null  and createuser != ''">CreateUser = #{createuser},</if>
+            <if test="createdate != null ">CreateDate = #{createdate},</if>
+            <if test="whcode != null  and whcode != ''">WhCode = #{whcode},</if>
+            <if test="storehousecode != null  and storehousecode != ''">StorehouseCode = #{storehousecode},</if>
+        </trim>
+        where Id = #{id}
+    </update>
+
+    <delete id="deleteStockById" parameterType="Long">
+        delete from T_Base_Stock where Id = #{id}
+    </delete>
+
+    <delete id="deleteStockByIds" parameterType="String">
+        delete from T_Base_Stock where Id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 不区分库位出库-->
+    <select id="selectByProductOut" parameterType="Stock" resultType="Stock">
+        select s.producttype, s.productcode, s.productname, s.productbatch, s.productmodel, s.specification,
+        sum(s.Quantity) as Quantity
+        from T_Base_Stock s
+        left join T_Base_Warehouse W on w.IsEnable=1 and w.IsDelete=0 and s.WhCode=w.WhCode
+        left join T_Base_Storehouse sh on sh.IsDelete=0 and sh.IsEnable=1 and sh.StorehouseCode=s.StorehouseCode
+        <where>
+            and s.IsDelete=0
+            and s.IsEnable=1
+            <if test="id != null ">and s.Id = #{id}</if>
+            <if test="producttype != null  and producttype != ''">and s.ProductType = #{producttype}</if>
+            <if test="productcode != null  and productcode != ''">and s.ProductCode = #{productcode}</if>
+            <if test="productname != null  and productname != ''">and s.ProductName like concat('%', #{productname},
+                '%')
+            </if>
+            <if test="productbatch != null  and productbatch != ''">and s.ProductBatch = #{productbatch}</if>
+            <if test="productmodel != null  and productmodel != ''">and s.ProductModel = #{productmodel}</if>
+            <if test="specification != null  and specification != ''">and s.Specification = #{specification}</if>
+            <if test="quantity != null ">and s.Quantity = #{quantity}</if>
+            <if test="memo != null  and memo != ''">and s.Memo = #{memo}</if>
+            <if test="createuser != null  and createuser != ''">and s.CreateUser = #{createuser}</if>
+            <if test="createdate != null ">and s.CreateDate = #{createdate}</if>
+            <if test="whcode != null  and whcode != ''">and s.WhCode = #{whcode}</if>
+            <if test="storehousecode != null  and storehousecode != ''">and s.StorehouseCode = #{storehousecode}</if>
+        </where>
+        group by s.producttype, s.productcode, s.productname, s.productbatch, s.productmodel, s.specification
+    </select>
+    <!-- 区分库位出库-->
+    <select id="selectByproductStoreOut" parameterType="Stock" resultType="Stock">
+        select s.id, s.producttype, s.productcode, s.productname, s.productbatch, s.productmodel, s.specification,
+        s.quantity, s.memo, s.createuser, s.createdate, s.whcode, s.storehousecode, s.isenable, s.isdelete, s.sern,
+        W.whname, sh.regioncode, sh.storehousename,s.OtherProductCode
+        from T_Base_Stock s
+        left join T_Base_Warehouse W on w.IsEnable=1 and w.IsDelete=0 and s.WhCode=w.WhCode
+        left join T_Base_Storehouse sh on sh.IsDelete=0 and sh.IsEnable=1 and sh.StorehouseCode=s.StorehouseCode
+        left join
+        (select s.ProductCode,s.StartCode,s.TaskState,s.OtherProductCode
+        from (
+        select ProductCode,StartCode,TaskState,OtherProductCode from T_Base_StoreIoSon where TaskState in ('0','1')
+        union all
+        select ProductCode,StartCode,Status,OtherProductCode from T_Base_StoreMoveSon where Status in ('0','1')) s
+        group by s.ProductCode,s.StartCode,s.TaskState,s.OtherProductCode) si on si.OtherProductCode=s.OtherProductCode and si.StartCode=s.StorehouseCode
+        <where>
+            and s.IsDelete=0
+            and s.IsEnable=1 and si.TaskState is null
+            <if test="id != null ">and s.Id = #{id}</if>
+            <if test="producttype != null  and producttype != ''">and s.ProductType = #{producttype}</if>
+            <if test="productcode != null  and productcode != ''">and s.ProductCode = #{productcode}</if>
+            <if test="productname != null  and productname != ''">and s.ProductName like concat('%', #{productname},'%')
+            </if>
+            <if test="otherProductCode != null  and otherProductCode != ''">and s.OtherProductCode like concat('%', #{otherProductCode},'%')
+          </if>
+            <if test="productbatch != null  and productbatch != ''">and s.ProductBatch = #{productbatch}</if>
+            <if test="productmodel != null  and productmodel != ''">and s.ProductModel = #{productmodel}</if>
+            <if test="specification != null  and specification != ''">and s.Specification = #{specification}</if>
+            <if test="quantity != null ">and s.Quantity = #{quantity}</if>
+            <if test="memo != null  and memo != ''">and s.Memo = #{memo}</if>
+            <if test="createuser != null  and createuser != ''">and s.CreateUser = #{createuser}</if>
+            <if test="createdate != null ">and s.CreateDate = #{createdate}</if>
+            <if test="whcode != null  and whcode != ''">and s.WhCode = #{whcode}</if>
+            <if test="storehousecode != null  and storehousecode != ''">and s.StorehouseCode = #{storehousecode}</if>
+        </where>
+    </select>
+
+
+    <select id="selectQueryStockList" parameterType="Stock" resultType="Stock">
+        select s.Id, s.ProductType, s.ProductCode, s.ProductName, s.ProductBatch, s.ProductModel,
+        s.Specification, s.Quantity, s.Memo, s.CreateUser, s.CreateDate, s.WhCode, s.StorehouseCode,
+        w.WhName, sh.StorehouseName, s.TopLimit, s.Lowerlimit,r.RegionCode,s.TrayCode,s.OtherProductCode
+        from T_Base_Stock s
+        left join T_Base_Warehouse w on w.WhCode = s.WhCode
+        left join T_Base_Storehouse sh on sh.StorehouseCode = s.StorehouseCode
+        left join T_Base_Sern bs on s.OtherProductCode=bs.OtherProductCode
+        LEFT JOIN t_Base_Region r on sh.RegionCode = r.RegionCode
+        <where>
+            <if test="id != null ">and s.Id = #{id}</if>
+            <if test="producttype != null  and producttype != ''">and s.ProductType = #{producttype}</if>
+            <if test="productcode != null  and productcode != ''">and s.ProductCode = #{productcode}</if>
+            <if test="productname != null  and productname != ''">and s.ProductName like concat('%', #{productname},
+                '%')
+            </if>
+            <if test="productbatch != null  and productbatch != ''">and s.ProductBatch = #{productbatch}</if>
+            <if test="productmodel != null  and productmodel != ''">and s.ProductModel = #{productmodel}</if>
+            <if test="specification != null  and specification != ''">and s.Specification = #{specification}</if>
+            <if test="whcode != null  and whcode != ''">and s.WhCode like concat('%',#{whcode},'%')</if>
+            <if test="whname != null  and whname != ''">and w.WhName like concat('%',#{whname},'%')</if>
+            <if test="storehousename != null  and storehousename != ''">and sh.StorehouseName like
+                concat('%',#{storehousename},'%')
+            </if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND datediff(dd,#{params.beginTime},s.CreateDate)>=0
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND datediff(dd,s.CreateDate,#{params.endTime})>=0
+            </if>
+            <if test="sern != null and sern != ''">and bs.Sern = #{sern}</if>
+            <if test="regioncode != null and regioncode != ''">and r.RegionCode like concat('%',#{regioncode}, '%')</if>
+            <if test="storehouseline != null and storehouseline != ''">and s.StorehouseCode like
+                concat(#{storehouseline}, '%')
+            </if>
+            <if test="storehousecolum != null and storehousecolum != ''">and s.StorehouseCode like
+                concat('__',#{storehousecolum} , '__')
+            </if>
+            <if test="storehouselayer != null and storehouselayer != ''">and s.StorehouseCode like
+                concat('%',#{storehouselayer})
+            </if>
+            <!--<if test="storehousecode != null  and storehousecode != ''"> and s.StorehouseCode  like concat('%',#{storehousecode},'%')</if>-->
+        </where>
+    </select>
+    <select id="selectProductByStock" parameterType="Stock" resultType="Stock">
+        select ProductCode,ProductName,ProductModel,ProductBatch,sum(Quantity) as Quantity from T_Base_Stock
+        <where>
+            and IsEnable=1
+            and IsDelete=0
+            <if test="productcode != null and productcode != ''">and ProductCode=#{productcode}</if>
+            <if test="productname != null and productname != ''">and ProductName=#{productname}</if>
+            <if test="productmodel != null and productmodel != ''">and ProductModel=#{productmodel}</if>
+            <if test="productbatch != null and productbatch != ''">and ProductBatch=#{productbatch}</if>
+            <if test="storehousecode != null and storehousecode != ''">and storehousecode=#{storehousecode}</if>
+            <if test="whcode != null  and whcode != ''">and WhCode=#{whcode}</if>
+        </where>
+        group by ProductCode,ProductName,ProductModel,ProductBatch
+    </select>
+
+    <select id="selectProductByStoreStock" parameterType="Stock" resultType="Stock">
+        select h.RegionCode,s.storehousecode,s.ProductCode,s.ProductName,s.ProductModel,s.ProductBatch,sum(s.Quantity)
+        as Quantity
+        from T_Base_Stock s
+        left join T_Base_Storehouse h on s.WhCode=h.WhCode and s.StorehouseCode=h.StorehouseCode
+        <where>
+            and s.IsEnable=1
+            and s.IsDelete=0
+            <if test="productcode != null and productcode != ''">and s.ProductCode=#{productcode}</if>
+            <if test="productname != null and productname != ''">and s.ProductName=#{productname}</if>
+            <if test="productmodel != null and productmodel != ''">and s.ProductModel=#{productmodel}</if>
+            <if test="productbatch != null and productbatch != ''">and s.ProductBatch=#{productbatch}</if>
+            <if test="storehousecode != null and storehousecode != ''">and s.storehousecode=#{storehousecode}</if>
+            <if test="whcode != null  and whcode != ''">and s.WhCode=#{whcode}</if>
+        </where>
+        group by h.RegionCode,s.storehousecode,s.ProductCode,s.ProductName,s.ProductModel,s.ProductBatch
+    </select>
+
+
+    <update id="updateStockBulk">
+            update T_Base_Stock set
+            TopLimit = #{toplimit}, LowerLimit = #{lowerlimit}
+            where  IsDelete = 0 and ProductCode in
+         <foreach collection="productcodes" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+
+    <select id="selectStockWarningList" resultType="Stock">
+        select distinct s.ProductCode, s.ProductName, s.ProductModel, w.WhName ,sum(s.Quantity) as Quantity , s.TopLimit, s.LowerLimit
+        from T_Base_Stock s
+        left join T_Base_Warehouse w on w.WhCode = s.WhCode
+        where s.IsDelete = 0
+        <if test="productname != null and productname != ''">
+            and s.ProductName like concat('%',#{productname},'%')
+        </if>
+        <if test="whname != null and whname != ''">
+            and w.WhName like concat('%',#{whname},'%')
+        </if>
+        group by s.ProductCode, s.ProductName, s.ProductModel, s.Quantity, w.WhName , s.TopLimit, s.LowerLimit
+    </select>
+
+</mapper>

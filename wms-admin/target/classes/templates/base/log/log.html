@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('任务日志列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <p>任务类型：</p>
+                                <select name="tasktype" th:with="type=${@dict.getType('')}">
+                                    <option value="">所有</option>
+                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                                </select>
+                            </li>
+                            <li>
+                                <p>条码：</p>
+                                <input type="text" name="sern"/>
+                            </li>
+                            <li>
+                                <p>任务号：</p>
+                                <input type="text" name="sern"/>
+                            </li>
+                            <li class="select-time">
+                                <p>开始时间：</p>
+                                <input type="text" class="time-input" id="startTime" placeholder="起始时间" name="startdateStart"/>
+                                <span>-</span>
+                                <input type="text" class="time-input" id="endTime" placeholder="结束时间" name="startdateEnd"/>
+                            </li>
+                            <li class="select-time">
+                                <p>结束时间：</p>
+                                <input type="text" class="time-input" id="startTime" placeholder="起始时间" name="finishdateStart"/>
+                                <span>-</span>
+                                <input type="text" class="time-input" id="endTime" placeholder="结束时间" name="finishdateEnd"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="base:taskLog:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="base:taskLog:edit">
+                    <i class="fa fa-edit"></i> 修改
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="base:taskLog:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="base:taskLog:export">
+                    <i class="fa fa-download"></i> 导出
+                 </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('base:taskLog:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('base:taskLog:remove')}]];
+        var prefix = ctx + "base/taskLog";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                modalName: "任务日志",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field : 'id', 
+                    title : '堆垛机执行的任务号(自增)',
+                    visible:false
+                },
+                {
+                    field : 'rowid', 
+                    title : '任务中的行号'
+                },
+                {
+                    field : 'tasktype', 
+                    title : '任务类型'
+                },
+                {
+                    field : 'taskcode', 
+                    title : '任务号'
+                },
+                {
+                    field : 'sern', 
+                    title : '条码'
+                },
+                {
+                    field : 'traycode', 
+                    title : '托盘号'
+                },
+                {
+                    field : 'deviceno', 
+                    title : '堆垛机号',
+                    visible:false
+                },
+                {
+                    field : 'rgvno', 
+                    title : 'RGV小车号',
+                    visible:false
+                },
+                {
+                    field : 'startpoint', 
+                    title : '起始库位'
+                },
+                {
+                    field : 'endpoint', 
+                    title : '目标库位'
+                },
+                {
+                    field : 'taskstate', 
+                    title : '任务状态'
+                },
+                {
+                    field : 'memo', 
+                    title : '备注'
+                },
+                {
+                    field : 'createuser', 
+                    title : '创建人',
+                    visible:false
+                },
+                {
+                    field : 'createdate', 
+                    title : '创建日期',
+                    visible:false
+                },
+                {
+                    field : 'startdate', 
+                    title : '开始时间'
+                },
+                {
+                    field : 'finishdate', 
+                    title : '结束时间'
+                },
+                {
+                    field : 'f1', 
+                    title : '备用1',
+                    visible:false
+                },
+                {
+                    field : 'f2', 
+                    title : '备用2',
+                    visible:false
+                },
+                {
+                    field : 'f3', 
+                    title : '备用3',
+                    visible:false
+                },
+                {
+                    field : 'isdelete', 
+                    title : '是否删除(默认0，1为已删除)',
+                    visible:false
+                },
+                {
+                    field : 'taskid', 
+                    title : '堆垛机执行的任务号(自增)',
+                    visible:false
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.detail(\'' + row.rowid + '\')"><i class="fa fa-search"></i>详情</a> ');
+                        // actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.rowid + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>

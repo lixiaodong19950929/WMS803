@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增库区')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-Region-add">
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>仓库名称：</label>
+                <div class="col-sm-8">
+                    <select name="whcode" id="whcode" class="form-control m-b" th:with="whList=${whList}">
+                        <option value="">请选择</option>
+                        <option th:each="ware:${whList}" th:value="${ware.whcode}" th:text="${ware.whname}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>区域名称：</label>
+                <div class="col-sm-8">
+                    <input name="regionname" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">区域说明：</label>
+                <div class="col-sm-8">
+                    <input name="regionexplain" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">备注：</label>
+                <div class="col-sm-8">
+                    <input name="memo" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>状态：</label>
+                <div class="col-sm-8">
+                    <!--<input name="isenable" class="form-control" type="text">-->
+                    <div class="radio-box" th:each="dict:${@dict.getType('base_normal_status')}">
+                        <input type="radio" th:id="${dict.dictCode}" name="isenable" th:value="${dict.dictValue}" th:checked="${dict.default}">
+                        <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script type="text/javascript">
+        var prefix = ctx + "base/region"
+        $("#form-Region-add").validate({
+            focusCleanup: true,
+            rules:{
+                whcode:{
+                    required:true,
+                },
+                regionname:{
+                    required:true,
+                },
+                isenable:{
+                    required:true,
+                },
+            }
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/add", $('#form-Region-add').serialize());
+            }
+        }
+
+        $("input[name='createdate']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+    </script>
+</body>
+</html>

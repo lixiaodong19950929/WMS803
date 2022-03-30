@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('选择要维护的产品类型')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+    <style type="text/css">
+        .fixed-table-pagination .pagination-detail, .fixed-table-pagination div.pagination{
+            display: none;
+        }
+    </style>
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-CodeDetailInfo-edit">
+            <div>共需要出：<span style="font-size: 21px;color:crimson" th:text="${quantity}"></span> 个</div>
+            <input name="productcode" id="productcode" class="form-control" th:field="${productcode}" type="hidden">
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </form>
+    </div>
+
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <th:block th:include="include :: select2-js" />
+
+    <script th:inline="javascript">
+        var prefix = ctx + "warehouse/storeio";
+        var productcode = [[${productcode}]];//产品代号
+        var quantity = '[[${quantity}]]'; //当前任务 当前产品的总出库数量
+        var rowid = '[[${rowid}]]';//行号
+        var taskcode = [[${taskcode}]];//任务代号
+        var modelDatas = [[${@dict.getType("base_product_model")}]];
+        $(function() {
+            var options = {
+                url:ctx+"base/storeson/getOutTaskInfo",
+                modalName: "产品库存",
+                queryParams: function(params) {
+                    return{
+                        // 传递参数查询参数
+                        pageSize:       params.limit,
+                        pageNum:        params.offset / params.limit + 1,
+                        searchValue:    params.search,
+                        orderByColumn:  params.sort,
+                        isAsc:          params.order,
+                        taskcode:taskcode,
+                        productcode:productcode
+                    };
+                },
+                showSearch: false,
+                showRefresh: false,
+                showColumns: false,
+                showToggle: false,
+                showExport: false,
+                uniqueId:"rowid",
+                columns: [
+                    {
+                        checkbox: true
+                    },
+                    {
+                        field : 'num',
+                        title : '序号',
+                        formatter:function (value, row, index) {
+                            row.num=index+1;
+                            return index+1;
+                        }
+                    },
+                    // {
+                    //     field : 'rowid',
+                    //     title : '行号'
+                    // },
+                    // {
+                    //     field : 'taskcode',
+                    //     title : '任务号'
+                    // },
+                    {
+                        field : 'storehousecode',
+                        title : '库位'
+                    },
+                    // {
+                    //     field : 'rowid',
+                    //     title : 'rowid',
+                    //     visible:false,
+                    //     formatter:function (value, row, index) {
+                    //         row.rowid=index+1;
+                    //         return row.rowid;
+                    //     },
+                    // },
+                    {
+                        field : 'productcode',
+                        title : '产品编码'
+                    },
+                    {
+                        field : 'productname',
+                        title : '产品名称'
+                    },
+                    // {
+                    //     field : 'productmodel',
+                    //     title : '产品型号',
+                    //     formatter : function (value, row, index) {
+                    //         return $.table.selectDictLabel(modelDatas, value)
+                    //     }
+                    // },
+                    {
+                        field : 'quantity',
+                        title : '存放数量'
+                    },
+                    {
+                        field : 'devicecode',
+                        title : 'RGV小车号'
+                    },
+                    {
+                        field : 'rgvdevicecode',
+                        title : '堆垛机号'
+                    },
+                    {
+                        field : 'actualquantity',
+                        title : '出库数量'
+                    }
+                ],
+                onDblClickCell: function (field, value, row, $element) {
+                    var indexRow = $element[0].parentElement.rowIndex - 1;
+                    if (field == 'actualquantity') {
+                        $element.attr('contenteditable', true);
+                        $element.blur(function () {
+                            let tdValue = $element.text();
+                            // $.common.isNotEmpty(tdValue)
+                            if(tdValue<0){
+                                $.modal.msgError("请正确填写出库数量");
+                                tdValue = 0
+                            }if(tdValue>row.quantity){
+                                $.modal.msgError("超出库存数量！");
+                                tdValue = 0
+                            }
+                            $('#bootstrap-table').bootstrapTable("updateCell", {
+                                index: indexRow,
+                                field: field,
+                                value: tdValue
+                            });
+                            //数量可变的时候使用此处
+                            // var rows=$('#bootstrap-table').bootstrapTable("getData");
+                            // var sum=0;
+                            // for (var i=0;i<rows.length;i++){
+                            //     sum+=Number(rows[i].quantity);
+                            // }
+                            // $('#quantity').val(sum);
+                        })
+                    }
+
+                    //如果点击层数弹出下拉框
+                    // if(field == 'layer') {
+                    //     clickListIndex = $element[0].parentElement.rowIndex - 1;
+                    //     $("#layerBox").css('display','block')
+                    // }
+                },
+                onLoadSuccess:function (){
+                    let tablerows=$('#bootstrap-table').bootstrapTable("getData");
+                    var checkArr = new Array();
+                    for (var i=0;i<tablerows.length;i++){
+                        checkArr.push(tablerows[i].storehousecode)
+                    }
+                    $("#bootstrap-table").bootstrapTable("checkBy",{field: 'storehousecode', values:checkArr});
+                }
+            };
+            $.table.init(options);
+
+
+
+            var config = {
+                url: ctx + "warehouse/inventroyManager/getinventroyManagerByStock",
+                type: "post",
+                dataType: "json",
+                data:{
+                    "whcode":'WH0003'
+                },
+                beforeSend: function () {
+                    $.modal.loading("正在处理中，请稍后...");
+                    // $.modal.disable();
+                },
+                success: function(result) {
+                    $.modal.closeLoading();
+                    if (typeof callback == "function") {
+                        callback(result);
+                    }
+                    // $.operate.ajaxSuccess(result);
+                }
+            };
+            $.ajax(config)
+        })
+
+        function callback(res){
+            let data = res.data.list.filter(item => {
+                return item.productcode==productcode.replace(/\"/g, "")
+            })
+            data.forEach((item,index) => {
+                //首先从所有库存中一一去出库任务明细表里找如果有一样的 就不用再次插入
+                let tablerows=$('#bootstrap-table').bootstrapTable("getData");
+                if(tablerows.some(item1 =>item1.storehousecode==item.storehousecode)){
+                    return;
+                }else{
+                    $("#bootstrap-table").bootstrapTable("insertRow",{
+                        index:index,
+                        row:{
+                            rowid:rowid,
+                            quantity :item.quantity,
+                            taskcode:taskcode.replace(/\"/g, ""),
+                            productcode:productcode.replace(/\"/g, ""),
+                            storehousecode:item.storehousecode,
+                            productname:item.productname,
+                            devicecode:item.devicecode,
+                            rgvdevicecode:item.rgvdevicecode,
+                            actualquantity:0
+                        }
+                    });
+                }
+
+            })
+
+        }
+
+        function submitHandler() {
+            var row=$("#bootstrap-table").bootstrapTable("getSelections");
+            var ckzs = 0;
+            if(row.length==0){
+                $.modal.msgError("请选择出库的库位");
+            }else{
+                for(let i = 0;i<row.length;i++){
+                    if(row[i].actualquantity==0){
+                        $.modal.msgError("选中库位的出库数量不能为0");
+                        return;
+                    }
+                    ckzs += parseInt(row[i].actualquantity)
+                }
+                if(ckzs>quantity){
+                    $.modal.msgError("超出已维护的本类产品出库总数量");
+                    return;
+                }
+
+                var listArr = new Array();
+                for (var i=0;i<row.length;i++){
+                    var param = {
+                        rowid:row[i].rowid,
+                        quantity :row[i].quantity,
+                        taskcode:row[i].taskcode,
+                        productcode:row[i].productcode,
+                        storehousecode:row[i].storehousecode,
+                        productname:row[i].productname,
+                        devicecode:row[i].devicecode,
+                        rgvdevicecode:row[i].rgvdevicecode,
+                        actualquantity:row[i].actualquantity
+                    }
+                    listArr.push(param)
+                }
+                var params={
+                    list:JSON.stringify(listArr)
+                }
+                $.operate.save(ctx + "base/storeson/adds",params);
+                $.modal.close();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改仓库')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-Warehouse-edit" th:object="${warehouse}">
+            <input name="whcode" th:field="*{whcode}" type="hidden">
+            <input name="id" id="id" th:field="*{id}" type="hidden">
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>仓库名称：</label>
+                <div class="col-sm-8">
+                    <input name="whname" th:field="*{whname}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">仓库地址：</label>
+                <div class="col-sm-8">
+                    <input name="whaddress" th:field="*{whaddress}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>仓库电话：</label>
+                <div class="col-sm-8">
+                    <input name="whphone" th:field="*{whphone}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>仓库负责人：</label>
+                <div class="col-sm-8">
+                    <input name="whperson" th:field="*{whperson}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>仓库条码：</label>
+                <div class="col-sm-8">
+                    <input name="cbarcode" th:field="*{cbarcode}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>盘点周期：</label>
+                <div class="col-sm-8">
+                    <input name="inventorycycle" th:field="*{inventorycycle}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>盘点周期单位：</label>
+                <div class="col-sm-8">
+                    <select name="inventorycycleunit" class="form-control" id="inventorycycleunit" th:field="*{inventorycycleunit}">
+                        <option th:value="天">天</option>
+                        <option th:value="周">周</option>
+                        <option th:value="月">月</option>
+                        <option th:value="年">年</option>
+                    </select>
+                    <!--<input name="inventorycycleunit" th:field="*{inventorycycleunit}" class="form-control" type="text">-->
+                </div>
+            </div>
+
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">上次盘点日期：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input name="lastcheckdate" th:value="${#dates.format(warehouse.lastcheckdate, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                    </div>
+                </div>
+            </div>
+             <div class="form-group">
+                <label class="col-sm-3 control-label">备注：</label>
+                <div class="col-sm-8">
+                    <input name="memo" th:field="*{memo}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">外部编码：</label>
+                <div class="col-sm-8">
+                    <input name="f1" th:field="*{f1}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>状态：</label>
+                <div class="col-sm-8">
+                    <!--<input name="isenable" th:field="*{isenable}" class="form-control" type="text">-->
+                    <div class="radio-box" th:each="dict : ${@dict.getType('base_normal_status')}">
+						<input type="radio" th:id="${dict.dictCode}" name="isenable" th:value="${dict.dictValue}" th:field="*{isenable}">
+						<label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+					</div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script type="text/javascript">
+        var prefix = ctx + "base/warehouse";
+        $("#form-Warehouse-edit").validate({
+            focusCleanup: true,
+            rules:{
+                whname:{
+                    required:true
+                },
+                whphone:{
+                    required:true
+                },
+                whperson:{
+                    required:true
+                },
+                cbarcode:{
+                    required:true,
+                    remote:{
+                        url:prefix+"/checkCbarCode",
+                        type:'post',
+                        dataType:'json',
+                        data:{
+                            'id':$("#id").val(),
+                            'cbarcode':function () {
+                                return $.common.trim($("#cbarcode").val());
+                            }
+                        },
+                        dataFilter:function (data,type) {
+                            return $.validate.unique(data);
+                        }
+                    }
+                },
+                inventorycycle :{
+                    required:true,
+                    number:true
+                },
+                inventorycycleunit :{
+                    required:true
+                },
+                isenable:{
+                    required:true
+                },
+            },
+            messages:{
+                "cbarcode":{
+                    remote:"仓库条码已存在"
+                }
+            }
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/edit", $('#form-Warehouse-edit').serialize());
+            }
+        }
+
+        $("input[name='lastcheckdate']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+
+    </script>
+</body>
+</html>

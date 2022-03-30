@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('盘点子列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="id"/>
+                            </li>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="taskname"/>
+                            </li>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="whcode"/>
+                            </li>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="regioncode"/>
+                            </li>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="storehousecode"/>
+                            </li>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="productcode"/>
+                            </li>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="productname"/>
+                            </li>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="productmodel"/>
+                            </li>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="quantity"/>
+                            </li>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="pdresult"/>
+                            </li>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="memo"/>
+                            </li>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="createuser"/>
+                            </li>
+                            <li class="select-time">
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" class="time-input" id="startTime" placeholder="开始时间" name="params[beginCreatedate]"/>
+                                <span>-</span>
+                                <input type="text" class="time-input" id="endTime" placeholder="结束时间" name="params[endCreatedate]"/>
+                            </li>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="f1"/>
+                            </li>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="f2"/>
+                            </li>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="f3"/>
+                            </li>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="f4"/>
+                            </li>
+                            <li>
+                                <p>1:启用，0:停用：</p>
+                                <input type="text" name="isenable"/>
+                            </li>
+                            <li>
+                                <p>1:删除，0:正常：</p>
+                                <input type="text" name="isdelete"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="warehouse:storecheckson:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="warehouse:storecheckson:edit">
+                    <i class="fa fa-edit"></i> 修改
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="warehouse:storecheckson:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="warehouse:storecheckson:export">
+                    <i class="fa fa-download"></i> 导出
+                 </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('warehouse:storecheckson:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('warehouse:storecheckson:remove')}]];
+        var prefix = ctx + "warehouse/storecheckson";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                modalName: "盘点子",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field : 'id', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'rowid', 
+                    title : '1:删除，0:正常',
+                    visible: false
+                },
+                {
+                    field : 'taskcode', 
+                    title : '1:删除，0:正常',
+                    visible: false
+                },
+                {
+                    field : 'taskname', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'whcode', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'regioncode', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'storehousecode', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'productcode', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'productname', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'productmodel', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'quantity', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'pdresult', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'memo', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'createuser', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'createdate', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'f1', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'f2', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'f3', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'f4', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    field : 'isenable', 
+                    title : '1:启用，0:停用'
+                },
+                {
+                    field : 'isdelete', 
+                    title : '1:删除，0:正常'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.rowid + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.rowid + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>

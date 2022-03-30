@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+    <th:block th:include="include :: header('出入库主列')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p>搜索条件：</p>
+                            <input type="text" name="keywords" id="keywords" onkeydown="keydown()" placeholder="任务号/任务名称"/>
+                        </li>
+                        <li class="select-time">
+                            <p>时间范围：</p>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间"
+                                   name="params[beginTime]"/>
+                            <span>-</span>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间"
+                                   name="params[endTime]"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="searchTable()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+    <!--<div class="col-sm-12 select-table">-->
+        <!--<p style="font-size: 20px;font-weight: bold;margin-top: 20px;margin-bottom: -5px;">RGV任务信息</p>-->
+        <!--<table id="bootstrap-table" data-mobile-responsive="true"></table>-->
+    <!--</div>-->
+
+        <div class="col-sm-12 select-table">
+            <p style="font-size: 20px;font-weight: bold;margin-top: 20px;margin-bottom: -5px;">堆垛机任务信息</p>
+            <!--<input id="taskcode" name="taskcode" class="hidden"/>-->
+            <table id="bootstrap-table1" data-mobile-responsive="true"></table>
+        </div>
+
+        <!--<div class="col-sm-12 select-table">-->
+            <!--<p style="font-size: 20px;font-weight: bold;margin-top: 20px;margin-bottom: -5px;">扫描任务信息</p>-->
+            <!--<input id="taskcode" name="taskcode" class="hidden"/>-->
+            <!--<table id="bootstrap-table2" data-mobile-responsive="true"></table>-->
+        <!--</div>-->
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('warehouse:StoreIoEx:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('warehouse:StoreIoEx:remove')}]];
+    var detailFlag = [[${@permission.hasPermi('warehouse:StoreIoEx:detail')}]];
+    var datas = [[${@dict.getType('warehouse_task_type')}]];
+    var datasStatus = [[${@dict.getType('warehouse_task_status')}]];
+    var prefix = ctx + "infoquery/querystockhistory";
+
+    $(function () {
+        var options = {
+            url: prefix + "/rgvList",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "RGV信息",
+            showSearch: false,
+            showRefresh: false,
+            showColumns: false,
+            showToggle: false,
+            columns: [
+                {
+                    field: 'id',
+                    title: '自增列',
+                    visible: false
+                },
+                {
+                    field: 'tasktype',
+                    title: '任务类型',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(datas, value);
+                    }
+                },
+                {
+                    field: 'taskcode',
+                    title: '任务号',
+                },
+                {
+                    field: 'taskname',
+                    title: '任务名称',
+                    formatter: function(value, row, index) {
+                        return '<a onclick="selectDetail(\''+row.taskcode+'\')"> '+row.taskname +'</a>'
+                    }
+                },
+                {
+                    field: 'sern',
+                    title: '产品条码',
+                },
+                {
+                    field: 'traycode',
+                    title: '托盘号',
+                },
+                {
+                    field: 'deviceno',
+                    title: 'RGV小车号',
+                },
+                {
+                    field: 'startpoint',
+                    title: '起始点',
+                },
+                {
+                    field: 'endpoint',
+                    title: '终点',
+                },
+                {
+                    field: 'taskstate',
+                    title: '任务状态',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(datasStatus, value);
+                    }
+                },
+                {
+                    field: 'modifydate',
+                    title: '修改时间',
+                }
+               ]
+        };
+        $.table.init(options);
+        stackerList();
+    });
+
+    function stackerList() {
+        $('#bootstrap-table1').bootstrapTable('destroy');
+        $('#bootstrap-table1').bootstrapTable({
+            modalName: "堆垛机信息",
+            url: prefix + "/stackerList",
+            contentType: "application/x-www-form-urlencoded",   // 编码类型
+            method: 'post',                                     // 请求方式（*）
+            cache: false,                                       // 是否使用缓存
+            striped: true,                                  // 是否显示行间隔色
+            sortable: true,                                     // 是否启用排序
+            sortStable: true,                                   // 设置为 true 将获得稳定的排序
+            sortName: "",                                // 排序列名称
+            sortOrder: "asc",                              // 排序方式  asc 或者 desc
+            pagination: true,   // 是否显示分页（*）
+            pageNumber: 1,                                      // 初始化加载第一页，默认第一页
+            pageSize: 10,                                       // 每页的记录行数（*）
+            pageList: [10, 25, 50],                             // 可供选择的每页的行数（*）
+            iconSize: 'outline',                                // 图标大小：undefined默认的按钮尺寸 xs超小按钮sm小按钮lg大按钮
+            toolbar: '#toolbar',                                // 指定工作栏
+            sidePagination: "server",                           // 启用服务端分页
+            // search: $.common.visible(options.search),           // 是否显示搜索框功能
+            search: false,          							// 是否显示搜索框功能
+            // showSearch: $.common.visible(options.showSearch),   // 是否显示检索信息
+            showSearch: false,   								// 是否显示检索信息
+            showRefresh: false, // 是否显示刷新按钮
+            showColumns: false, // 是否显示隐藏某列下拉框
+            showToggle: false,   // 是否显示详细视图和列表视图的切换按钮
+            showExport: false,   // 是否支持导出文件
+            queryParams: function (params) {
+                return {
+                    // 传递参数查询参数
+                    pageSize: params.limit,
+                    pageNum: params.offset / params.limit + 1,
+                    searchValue: params.search,
+                    orderByColumn: params.sort,
+                    isAsc: params.order,
+                    sern: $("#sern").val(),
+                    keywords: $("#keywords").val(),
+                    startTime : $("#startTime").val(),
+                    endTime : $("#endTime").val()
+                };
+            },                       // 传递参数（*）
+            columns: [
+               {
+                    field: 'id',
+                    title: '自增列',
+                    visible: false
+                },
+                {
+                    field: 'tasktype',
+                    title: '任务类型',
+                    // formatter: function (value, row, index) {
+                    //     return $.table.selectDictLabel(datas, value);
+                    // }
+                },
+                {
+                    field: 'taskcode',
+                    title: '任务号',
+                },
+                {
+                    field: 'taskname',
+                    title: '任务名称',
+                    formatter: function (value, row, index) {
+                        return '<a onclick="selectDetail(\''+row.taskcode+'\')"> '+row.taskname +'</a>'
+                    }
+                },
+                {
+                    field: 'sern',
+                    title: '产品条码',
+                },
+                {
+                    field: 'traycode',
+                    title: '托盘号',
+                },
+                {
+                    field: 'deviceno',
+                    title: '堆垛机小车号',
+                },
+                {
+                    field: 'startpoint',
+                    title: '起始点',
+                },
+                {
+                    field: 'endpoint',
+                    title: '终点',
+                },
+                {
+                    field: 'taskstate',
+                    title: '任务状态',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(datasStatus, value);
+                    }
+                },
+                {
+                    field: 'modifydate',
+                    title: '修改时间',
+                }
+            ],
+            responseHandler: $.table.responseHandler            // 回调函数
+        });
+        // mainList();
+    }
+
+
+    function mainList() {
+        $('#bootstrap-table2').bootstrapTable('destroy');
+        $('#bootstrap-table2').bootstrapTable({
+            modalName: "扫码任务信息",
+            url: prefix + "/mainList",
+            contentType: "application/x-www-form-urlencoded",   // 编码类型
+            method: 'post',                                     // 请求方式（*）
+            cache: false,                                       // 是否使用缓存
+            striped: true,                                  // 是否显示行间隔色
+            sortable: true,                                     // 是否启用排序
+            sortStable: true,                                   // 设置为 true 将获得稳定的排序
+            sortName: "",                                // 排序列名称
+            sortOrder: "asc",                              // 排序方式  asc 或者 desc
+            pagination: true,   // 是否显示分页（*）
+            pageNumber: 1,                                      // 初始化加载第一页，默认第一页
+            pageSize: 10,                                       // 每页的记录行数（*）
+            pageList: [10, 25, 50],                             // 可供选择的每页的行数（*）
+            iconSize: 'outline',                                // 图标大小：undefined默认的按钮尺寸 xs超小按钮sm小按钮lg大按钮
+            toolbar: '#toolbar',                                // 指定工作栏
+            sidePagination: "server",                           // 启用服务端分页
+            // search: $.common.visible(options.search),           // 是否显示搜索框功能
+            search: false,          							// 是否显示搜索框功能
+            // showSearch: $.common.visible(options.showSearch),   // 是否显示检索信息
+            showSearch: false,   								// 是否显示检索信息
+            showRefresh: false, // 是否显示刷新按钮
+            showColumns: false, // 是否显示隐藏某列下拉框
+            showToggle: false,   // 是否显示详细视图和列表视图的切换按钮
+            showExport: false,   // 是否支持导出文件
+            queryParams: function (params) {
+                return {
+                    // 传递参数查询参数
+                    pageSize: params.limit,
+                    pageNum: params.offset / params.limit + 1,
+                    searchValue: params.search,
+                    orderByColumn: params.sort,
+                    isAsc: params.order,
+                    taskcode: $("#taskcode").val(),
+                    keywords: $("#keywords").val(),
+                    startTime : $("#startTime").val(),
+                    endTime : $("#endTime").val()
+                };
+            },                       // 传递参数（*）
+            columns: [
+               {
+                    field: 'id',
+                    title: '自增列',
+                    visible: false
+                },
+                {
+                    field: 'tasktype',
+                    title: '任务类型',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(datas, value);
+                    }
+                },
+                {
+                    field: 'taskcode',
+                    title: '任务号',
+                },
+                {
+                    field: 'productcode',
+                    title: '产品编码',
+                },
+                {
+                    field: 'sern',
+                    title: '产品条码',
+                },
+                {
+                    field: 'traycode',
+                    title: '托盘号',
+                },
+                {
+                    field: 'deviceno',
+                    title: '小车号',
+                },
+                {
+                    field: 'storehousecode',
+                    title: '库位编码',
+                },
+                {
+                    field: 'taskstate',
+                    title: '任务状态',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(datasStatus, value);
+                    }
+                },
+                {
+                    field: 'createdate',
+                    title: '扫描时间',
+                }
+            ],
+            responseHandler: $.table.responseHandler            // 回调函数
+        });
+    }
+    
+    function searchTable() {
+        $('#taskcode').val("");
+        $.table.search();
+        $('#bootstrap-table1').bootstrapTable('refresh');
+        $('#bootstrap-table2').bootstrapTable('refresh');
+    }
+
+    function selectDetail(taskcode) {
+        $("#taskcode").val(taskcode)
+        mainList()
+    }
+
+    function keydown() {
+        if (event.keyCode == 13) {
+            event.returnValue = false;
+            event.cancel = true;
+            searchTable();
+        }
+    }
+
+</script>
+</body>
+</html>

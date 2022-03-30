@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.warehousesern.mapper.SernMapper">
+    
+    <resultMap type="Sern" id="SernResult">
+        <result property="id"    column="Id"    />
+        <result property="rowid"    column="RowId"    />
+        <result property="taskcode"    column="TaskCode"    />
+        <result property="productcode"    column="ProductCode"    />
+        <result property="sern"    column="Sern"    />
+        <result property="traycode"    column="TrayCode"    />
+        <result property="storehousecode"    column="StorehouseCode"    />
+        <result property="scanuser"    column="ScanUser"    />
+        <result property="scantime"    column="ScanTime"    />
+        <result property="guid"    column="GUID"    />
+        <result property="isenable"    column="IsEnable"    />
+        <result property="isdelete"    column="IsDelete"    />
+    </resultMap>
+
+    <sql id="selectSernVo">
+        select Id, RowId, TaskCode, ProductCode, Sern, TrayCode, StorehouseCode, ScanUser, ScanTime, GUID, IsEnable, IsDelete from T_Base_Sern
+    </sql>
+
+    <select id="selectSernList" parameterType="Sern" resultMap="SernResult">
+        <include refid="selectSernVo"/>
+        <where>  
+            <if test="id != null "> and Id = #{id}</if>
+            <if test="rowid != null "> and RowId = #{rowid}</if>
+            <if test="taskcode != null  and taskcode != ''"> and TaskCode = #{taskcode}</if>
+            <if test="productcode != null  and productcode != ''"> and ProductCode = #{productcode}</if>
+            <if test="sern != null  and sern != ''"> and Sern = #{sern}</if>
+            <if test="traycode != null  and traycode != ''"> and TrayCode = #{traycode}</if>
+            <if test="storehousecode != null  and storehousecode != ''"> and StorehouseCode = #{storehousecode}</if>
+            <if test="scanuser != null  and scanuser != ''"> and ScanUser = #{scanuser}</if>
+            <if test="scantime != null "> and ScanTime = #{scantime}</if>
+            <if test="guid != null  and guid != ''"> and GUID = #{guid}</if>
+            <if test="isenable != null "> and IsEnable = #{isenable}</if>
+            <if test="isdelete != null "> and IsDelete = #{isdelete}</if>
+        </where>
+    </select>
+    
+    <select id="selectSernById" parameterType="Long" resultMap="SernResult">
+        <include refid="selectSernVo"/>
+        where Id = #{id}
+    </select>
+        
+    <insert id="insertSern" parameterType="Sern">
+        insert into T_Base_Sern
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null ">Id,</if>
+            <if test="rowid != null ">RowId,</if>
+            <if test="taskcode != null  and taskcode != ''">TaskCode,</if>
+            <if test="productcode != null  and productcode != ''">ProductCode,</if>
+            <if test="sern != null  and sern != ''">Sern,</if>
+            <if test="traycode != null  and traycode != ''">TrayCode,</if>
+            <if test="storehousecode != null  and storehousecode != ''">StorehouseCode,</if>
+            <if test="scanuser != null  and scanuser != ''">ScanUser,</if>
+            <if test="scantime != null ">ScanTime,</if>
+            <if test="guid != null  and guid != ''">GUID,</if>
+            <if test="isenable != null ">IsEnable,</if>
+            <if test="isdelete != null ">IsDelete,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null ">#{id},</if>
+            <if test="rowid != null ">#{rowid},</if>
+            <if test="taskcode != null  and taskcode != ''">#{taskcode},</if>
+            <if test="productcode != null  and productcode != ''">#{productcode},</if>
+            <if test="sern != null  and sern != ''">#{sern},</if>
+            <if test="traycode != null  and traycode != ''">#{traycode},</if>
+            <if test="storehousecode != null  and storehousecode != ''">#{storehousecode},</if>
+            <if test="scanuser != null  and scanuser != ''">#{scanuser},</if>
+            <if test="scantime != null ">#{scantime},</if>
+            <if test="guid != null  and guid != ''">#{guid},</if>
+            <if test="isenable != null ">#{isenable},</if>
+            <if test="isdelete != null ">#{isdelete},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSern" parameterType="Sern">
+    update T_Base_Sern
+    <trim prefix="SET" suffixOverrides=",">
+        <if test="rowid != null ">RowId = #{rowid},</if>
+        <if test="taskcode != null  and taskcode != ''">TaskCode = #{taskcode},</if>
+        <if test="productcode != null  and productcode != ''">ProductCode = #{productcode},</if>
+        <if test="sern != null  and sern != ''">Sern = #{sern},</if>
+        <if test="traycode != null  and traycode != ''">TrayCode = #{traycode},</if>
+        <if test="storehousecode != null  and storehousecode != ''">StorehouseCode = #{storehousecode},</if>
+        <if test="scanuser != null  and scanuser != ''">ScanUser = #{scanuser},</if>
+        <if test="scantime != null ">ScanTime = #{scantime},</if>
+        <if test="guid != null  and guid != ''">GUID = #{guid},</if>
+        <if test="isenable != null ">IsEnable = #{isenable},</if>
+        <if test="isdelete != null ">IsDelete = #{isdelete},</if>
+    </trim>
+    where Id = #{id}
+</update>
+
+    <delete id="deleteSernById" parameterType="Long">
+        delete from T_Base_Sern where Id = #{id}
+    </delete>
+
+    <delete id="deleteSernByIds" parameterType="String">
+        delete from T_Base_Sern where Id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改出入库')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-StoreIo-edit" th:object="${storeIo}">
+            <input name="taskcode" id="taskcode" th:field="*{taskcode}" type="hidden">
+            <input name="id" th:field="*{id}" type="hidden">
+             <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>任务类型：</label>
+                <div class="col-sm-4">
+                    <select id="tasktype" name="tasktype" class="form-control m-b" th:field="*{tasktype}" th:with="type=${@dict.getType('warehouse_task_type')}" disabled>
+                        <option th:each="dict:${type}"  th:value="${dict.dictValue}" th:text="${dict.dictLabel}" ></option>
+                    </select>
+                </div>
+                 <label class="col-sm-2 control-label"><span style="color: red; ">*</span>仓库名称：</label>
+                <div class="col-sm-4">
+                    <select id="whcode" name="whcode" class="form-control m-b" th:field="*{whcode}">
+                        <option th:each="ware:${whList}" th:value="${ware.whcode}" th:text="${ware.whname}"></option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="form-group">
+                 <label class="col-sm-2 control-label"><span style="color: red; ">*</span>任务名称：</label>
+                <div class="col-sm-4">
+                    <input name="taskname" class="form-control" type="text" th:field="*{taskname}">
+                </div>
+                <label class="col-sm-2 control-label">任务描述：</label>
+                <div class="col-sm-4">
+                    <input name="productdetail" class="form-control" type="text" th:field="*{productdetail}">
+                </div>
+
+            </div>
+            <div class="form-group">
+                <!--<label class="col-sm-2 control-label">供应商信息：</label>-->
+                <!--<div class="col-sm-4">-->
+                    <!--<input name="veninfo" class="form-control" type="text" th:field="*{veninfo}">-->
+                <!--</div>-->
+                <label class="col-sm-2 control-label">制单人：</label>
+                <div class="col-sm-4">
+                    <input name="maker" class="form-control" type="text" th:field="*{maker}">
+                </div>
+                 <label class="col-sm-2 control-label">备注：</label>
+                <div class="col-sm-4">
+                    <input name="memo" class="form-control" type="text" th:field="*{memo}">
+                </div>
+            </div>
+            <!--<div class="form-group">-->
+                <!--<label class="col-sm-2 control-label">生产订单编号：</label>-->
+                <!--<div class="col-sm-4">-->
+                    <!--<input name="mpocode" class="form-control" type="text" th:field="*{mpocode}">-->
+                <!--</div>-->
+                <!--<label class="col-sm-2 control-label">采购订单编号：</label>-->
+                <!--<div class="col-sm-4">-->
+                    <!--<input name="ordercode" class="form-control" type="text" th:field="*{ordercode}">-->
+                <!--</div>-->
+
+            <!--</div>-->
+            <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>总数量：</label>
+                <div class="col-sm-4">
+                    <input name="quantity" class="form-control" type="text" th:field="*{quantity}">
+                </div>
+            </div>
+             <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="add()">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="removeAll()">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <th:block th:include="include :: select2-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "warehouse/storeio";
+        var rowid=0;
+        $("#form-StoreIo-edit").validate({
+            focusCleanup: true,
+            rules:{
+                tasktype:{
+                    required:true
+                },
+                taskname :{
+                    required:true
+                },
+                whcode :{
+                    required:true
+                },
+                quantity:{
+                    required:true,
+                    digits:true
+                },
+            }
+        });
+        $(function() {
+            var options = {
+                url:ctx+"warehouse/storeIoSon/listIo",
+                createUrl: prefix + "/add",
+                removeUrl: prefix + "/remove",
+                modalName: "入库子表",
+                queryParams: function(params) {
+                    return{
+                        // 传递参数查询参数
+                        pageSize:       params.limit,
+                        pageNum:        params.offset / params.limit + 1,
+                        searchValue:    params.search,
+                        orderByColumn:  params.sort,
+                        isAsc:          params.order,
+                        taskcode:$('#taskcode').val()
+                    };
+                },
+                showSearch: false,
+                showRefresh: false,
+                showColumns: false,
+                showToggle: false,
+                showExport: false,
+                columns: [{
+                    checkbox: true
+                },
+                    {
+                        field : 'num',
+                        title : '序号',
+                        formatter:function (value, row, index) {
+                            row.num=index+1;
+                            return index+1;
+                        }
+                    },
+                    {
+                        field : 'id',
+                        title : 'id',
+                        visible:false
+                    },
+                    {
+                        field : 'rowid',
+                        title : 'rowid',
+                        visible:false
+                    },
+                    {
+                        field : 'startcode',
+                        title : '库位编码',
+                        visible:false
+                    },
+                    {
+                        field : 'storehouseName',
+                        title : '库位名称',
+                        // visible:false
+                    },
+                    {
+                        field : 'f1',
+                        title : '托盘条码',
+                    }],
+            };
+            $.table.init(options);
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                var rows=$('#bootstrap-table').bootstrapTable("getData");
+                if (rows.length==0){
+                    $.modal.msgError("请添加库位");
+                    return ;
+                }
+                var detailArray=new Array();
+                for (var i=0;i<rows.length;i++){
+                    var param={
+                        id:rows[i].id,
+                        rowid:rows[i].num,
+                        quantity :1,
+                        startcode:rows[i].startcode,
+                        f1:rows[i].f1
+                    }
+                    detailArray.push(param);
+                }
+                var params={
+                    id :$('#id').val(),
+                    taskcode :$('#taskcode').val(),
+                    tasktype:$('#tasktype').find('option:selected').val(),
+                    whcode :$('#whcode').find('option:selected').val(),
+                    taskname :$('#taskname').val(),
+                    productdetail :$('#productdetail').val(),
+                    veninfo :$('#veninfo').val(),
+                    maker :$('#maker').val(),
+                    mpocode :$('#mpocode').val(),
+                    ordercode:$('#ordercode').val(),
+                    quantity :$('#quantity').val(),
+                    memo:$('#memo').val(),
+                    list:JSON.stringify(detailArray)
+                }
+                $.operate.save(prefix + "/edit",params);
+            }
+        }
+
+        function add(){
+            if($.common.isEmpty($("#whcode").find('option:selected').val())){
+                $.modal.msgError("请先选择仓库");
+                retrun ;
+            }
+            table.set();
+            $.modal.open("添加产品",prefix+'/productTray/'+$('#whcode').find('option:selected').val(),null,null,callback);
+        }
+
+        callback = function(index, layero) {
+            var iframeWin = layero.find('iframe')[0];
+            var data=iframeWin.contentWindow.submitHandler(index, layero);
+            var row=$("#bootstrap-table").bootstrapTable("getData");
+            var msg="";
+            for (var i=0;i<data.length;i++){
+                var isBool=true;
+                for (var j=0;j<row.length;j++){
+                    if (data[i].storehousecode==row[j].startcode && data[i].traycode==row[j].f1){
+                        msg+=data[i].traycode+",";
+                        isBool=false;
+                        break;
+                    }
+
+                }
+                if (isBool){
+                    $("#bootstrap-table").bootstrapTable("insertRow",{
+                        index:row.length+i,
+                        row:{
+                            // num:row.length+i,
+                            regioncode:data[i].regioncode,
+                            startcode:data[i].storehousecode,
+                            storehouseName:data[i].storehousename,
+                            f1 :data[i].traycode,
+                            // memo:'',
+                        }
+                    })
+                }
+            }
+            if ($("#bootstrap-table").bootstrapTable("getData").length>0){
+                $('#whcode').attr('disabled',true);
+                var rows=$('#bootstrap-table').bootstrapTable("getData");
+                // var sum=0;
+                // for (var i=0;i<rows.length;i++){
+                //     sum+=Number(rows[i].quantity);
+                // }
+                $('#quantity').val(rows.length);
+            }
+            if (msg!=""){
+                $.modal.alertError("库位托盘名称:"+msg+"已存在");
+            }
+            layer.close(index);
+
+        }
+
+        function removeAll(){
+            var data=$("#bootstrap-table").bootstrapTable("getSelections");
+            if (data.length==0){
+                $.modal.alertError("请至少选择一条记录");
+                return ;
+            }
+            for (var i=0;i<data.length;i++){
+                $('#bootstrap-table').bootstrapTable("remove",{field:'num',values:[data[i].num]});
+            }
+            if ($("#bootstrap-table").bootstrapTable("getData").length<=0){
+                $('#whcode').attr('disabled',false);
+            }
+            var row=$("#bootstrap-table").bootstrapTable("getData");
+            // var ronum=0;
+            // for (var i=0;i<row.length;i++){
+            //     ronum+=Number(row[i].quantity);
+            // }
+            $('#quantity').val(row.length);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改库区')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-Region-edit" th:object="${region}">
+            <input name="id" th:field="*{id}" class="form-control" type="hidden">
+            <!--<input name="regioncode" th:field="*{regioncode}" type="hidden">-->
+            <div class="form-group">
+                <label class="col-sm-3 control-label">仓库名称：</label>
+                <div class="col-sm-8">
+                    <select id="whcode" class="form-control m-b" name="whcode" th:field="*{whcode}">
+                        <option value="">请选择</option>
+                        <option th:each="ware:${whList}" th:value="${ware.whcode}" th:text="${ware.whname}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">库区编码：</label>
+                <div class="col-sm-8">
+                    <input name="regioncode" th:field="*{regioncode}" class="form-control" type="text" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">区域名称：</label>
+                <div class="col-sm-8">
+                    <input name="regionname" th:field="*{regionname}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">区域说明：</label>
+                <div class="col-sm-8">
+                    <input name="regionexplain" th:field="*{regionexplain}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">备注：</label>
+                <div class="col-sm-8">
+                    <input name="memo" th:field="*{memo}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">状态：</label>
+                <div class="col-sm-8">
+                    <!--<input name="isenable" th:field="*{isenable}" class="form-control" type="text">-->
+                    <div class="radio-box" th:each="dict:${@dict.getType('base_normal_status')}">
+                        <input type="radio" th:id="${dict.dictCode}" name="isenable" th:value="${dict.dictValue}" th:field="*{isenable}">
+                        <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"/>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script type="text/javascript">
+        var prefix = ctx + "base/region";
+        $("#form-Region-edit").validate({
+            focusCleanup: true,
+            rules:{
+                whcode:{
+                    required:true,
+                },
+                regionname:{
+                    required:true,
+                },
+                isenable:{
+                    required:true,
+                },
+            }
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/edit", $('#form-Region-edit').serialize());
+            }
+        }
+
+        $("input[name='createdate']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+    </script>
+</body>
+</html>

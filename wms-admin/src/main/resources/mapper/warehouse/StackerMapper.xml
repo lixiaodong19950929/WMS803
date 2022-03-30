@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.warehouse.storeio.mapper.StackerMapper">
+    
+    <resultMap type="Stacker" id="StackerResult">
+        <result property="id"    column="Id"    />
+        <result property="guid"    column="Guid"    />
+        <result property="rowid"    column="RowId"    />
+        <result property="tasktype"    column="TaskType"    />
+        <result property="taskcode"    column="TaskCode"    />
+        <result property="taskname"    column="TaskName"    />
+        <result property="sern"    column="Sern"    />
+        <result property="traycode"    column="TrayCode"    />
+        <result property="deviceno"    column="DeviceNo"    />
+        <result property="startpoint"    column="StartPoint"    />
+        <result property="endpoint"    column="EndPoint"    />
+        <result property="taskstate"    column="TaskState"    />
+        <result property="memo"    column="Memo"    />
+        <result property="createuser"    column="CreateUser"    />
+        <result property="createdate"    column="CreateDate"    />
+        <result property="modifyuser"    column="ModifyUser"    />
+        <result property="modifydate"    column="ModifyDate"    />
+        <result property="f1"    column="F1"    />
+        <result property="f2"    column="F2"    />
+        <result property="f3"    column="F3"    />
+        <result property="f4"    column="F4"    />
+        <result property="isenable"    column="IsEnable"    />
+        <result property="isdelete"    column="IsDelete"    />
+    </resultMap>
+
+    <sql id="selectStackerVo">
+        select s.Id, s.Guid, s.RowId, s.TaskType, s.TaskCode, sio.TaskName, s.Sern, s.TrayCode, s.DeviceNo, s.StartPoint, s.EndPoint, s.TaskState, s.Memo, s.CreateUser, s.CreateDate, s.ModifyUser, s.ModifyDate, s.F1, s.F2, s.F3, s.F4 from T_Task_Stacker s
+        left join T_Base_StoreIo sio on s.TaskCode = sio.TaskCode
+        left join T_Base_StoreIo so on so.TaskCode = s.TaskCode
+    </sql>
+
+    <select id="selectStackerList" parameterType="Stacker" resultMap="StackerResult">
+        <include refid="selectStackerVo"/>
+        <where>  
+            <if test="id != null "> and s.Id = #{id}</if>
+            <if test="guid != null  and guid != ''"> and s.Guid = #{guid}</if>
+            <if test="rowid != null "> and s.RowId = #{rowid}</if>
+            <if test="tasktype != null  and tasktype != ''"> and s.TaskType = #{tasktype}</if>
+            <if test="taskcode != null  and taskcode != ''"> and s.TaskCode LIKE concat('%', #{taskcode}, '%')</if>
+            <if test="taskname != null  and taskname != ''"> and sio.TaskName LIKE concat('%', #{taskname}, '%')</if>
+            <if test="sern != null  and sern != ''"> and s.Sern = #{sern}</if>
+            <if test="traycode != null  and traycode != ''"> and s.TrayCode = #{traycode}</if>
+            <if test="deviceno != null "> and s.DeviceNo = #{deviceno}</if>
+            <if test="startpoint != null  and startpoint != ''"> and s.StartPoint = #{startpoint}</if>
+            <if test="endpoint != null  and endpoint != ''"> and s.EndPoint = #{endpoint}</if>
+            <if test="taskstate != null  and taskstate != ''"> and s.TaskState = #{taskstate}</if>
+            <if test="memo != null  and memo != ''"> and s.Memo = #{memo}</if>
+            <if test="createuser != null  and createuser != ''"> and s.CreateUser = #{createuser}</if>
+            <if test="createdate != null "> and s.CreateDate = #{createdate}</if>
+            <if test="modifyuser != null  and modifyuser != ''"> and s.ModifyUser = #{modifyuser}</if>
+            <!--<if test="modifydate != null "> and s.ModifyDate = #{modifydate}</if>-->
+            <if test="startTime != null and startTime != ''"><!-- 开始时间检索 -->
+                AND datediff(dd,#{startTime},s.ModifyDate)>=0
+            </if>
+            <if test="endTime != null and endTime != ''"><!-- 结束时间检索 -->
+                AND datediff(dd,s.ModifyDate,#{endTime})>=0
+            </if>
+            <if test="isenable != null "> and s.IsEnable = #{isenable}</if>
+            <if test="isdelete != null "> and s.IsDelete = #{isdelete}</if>
+            <if test="f1 != null  and f1 != ''"> and s.F1 = #{f1}</if>
+            <if test="f2 != null  and f2 != ''"> and s.F2 = #{f2}</if>
+            <if test="f3 != null  and f3 != ''"> and s.F3 = #{f3}</if>
+            <if test="f4 != null "> and s.F4 = #{f4}</if>
+            <if test="keywords != null and keywords != ''">
+                and (s.TaskCode LIKE concat('%', #{keywords}, '%')
+                or sio.TaskName LIKE concat('%', #{keywords}, '%')
+                or so.MpoCode like concat('%',#{keywords},'%')
+                or so.OrderCode like concat('%',#{keywords},'%'))
+            </if>
+            and s.IsDelete = 0
+        </where>
+    </select>
+    
+    <select id="selectStackerById" parameterType="Long" resultMap="StackerResult">
+        <include refid="selectStackerVo"/>
+        where s.Id = #{id} and s.IsDelete = 0
+    </select>
+        
+    <insert id="insertStacker" parameterType="Stacker">
+        insert into T_Task_Stacker
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null ">Id,</if>
+            <if test="guid != null  and guid != ''">Guid,</if>
+            <if test="rowid != null ">RowId,</if>
+            <if test="tasktype != null  and tasktype != ''">TaskType,</if>
+            <if test="taskcode != null  and taskcode != ''">TaskCode,</if>
+            <if test="sern != null  and sern != ''">Sern,</if>
+            <if test="traycode != null  and traycode != ''">TrayCode,</if>
+            <if test="deviceno != null ">DeviceNo,</if>
+            <if test="startpoint != null  and startpoint != ''">StartPoint,</if>
+            <if test="endpoint != null  and endpoint != ''">EndPoint,</if>
+            <if test="taskstate != null  and taskstate != ''">TaskState,</if>
+            <if test="memo != null  and memo != ''">Memo,</if>
+            <if test="createuser != null  and createuser != ''">CreateUser,</if>
+            <if test="createdate != null ">CreateDate,</if>
+            <if test="modifyuser != null  and modifyuser != ''">ModifyUser,</if>
+            <if test="modifydate != null ">ModifyDate,</if>
+            <if test="isenable != null "> IsEnable, </if>
+            <if test="isdelete != null "> IsDelete,</if>
+            <if test="f1 != null  and f1 != ''">F1,</if>
+            <if test="f2 != null  and f2 != ''">F2,</if>
+            <if test="f3 != null  and f3 != ''">F3,</if>
+            <if test="f4 != null ">F4,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null ">#{id},</if>
+            <if test="guid != null  and guid != ''">#{guid},</if>
+            <if test="rowid != null ">#{rowid},</if>
+            <if test="tasktype != null  and tasktype != ''">#{tasktype},</if>
+            <if test="taskcode != null  and taskcode != ''">#{taskcode},</if>
+            <if test="sern != null  and sern != ''">#{sern},</if>
+            <if test="traycode != null  and traycode != ''">#{traycode},</if>
+            <if test="deviceno != null ">#{deviceno},</if>
+            <if test="startpoint != null  and startpoint != ''">#{startpoint},</if>
+            <if test="endpoint != null  and endpoint != ''">#{endpoint},</if>
+            <if test="taskstate != null  and taskstate != ''">#{taskstate},</if>
+            <if test="memo != null  and memo != ''">#{memo},</if>
+            <if test="createuser != null  and createuser != ''">#{createuser},</if>
+            <if test="createdate != null ">#{createdate},</if>
+            <if test="modifyuser != null  and modifyuser != ''">#{modifyuser},</if>
+            <if test="modifydate != null ">#{modifydate},</if>
+            <if test="isenable != null "> #{isenable},</if>
+            <if test="isdelete != null "> #{isdelete},</if>
+            <if test="f1 != null  and f1 != ''">#{f1},</if>
+            <if test="f2 != null  and f2 != ''">#{f2},</if>
+            <if test="f3 != null  and f3 != ''">#{f3},</if>
+            <if test="f4 != null ">#{f4},</if>
+         </trim>
+    </insert>
+
+    <update id="updateStacker" parameterType="Stacker">
+        update T_Task_Stacker
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="guid != null  and guid != ''">Guid = #{guid},</if>
+            <if test="rowid != null ">RowId = #{rowid},</if>
+            <if test="tasktype != null  and tasktype != ''">TaskType = #{tasktype},</if>
+            <if test="taskcode != null  and taskcode != ''">TaskCode = #{taskcode},</if>
+            <if test="sern != null  and sern != ''">Sern = #{sern},</if>
+            <if test="traycode != null  and traycode != ''">TrayCode = #{traycode},</if>
+            <if test="deviceno != null ">DeviceNo = #{deviceno},</if>
+            <if test="startpoint != null  and startpoint != ''">StartPoint = #{startpoint},</if>
+            <if test="endpoint != null  and endpoint != ''">EndPoint = #{endpoint},</if>
+            <if test="taskstate != null  and taskstate != ''">TaskState = #{taskstate},</if>
+            <if test="memo != null  and memo != ''">Memo = #{memo},</if>
+            <if test="createuser != null  and createuser != ''">CreateUser = #{createuser},</if>
+            <if test="createdate != null ">CreateDate = #{createdate},</if>
+            <if test="modifyuser != null  and modifyuser != ''">ModifyUser = #{modifyuser},</if>
+            <if test="modifydate != null ">ModifyDate = #{modifydate},</if>
+            <if test="isenable != null "> IsEnable = #{isenable},</if>
+            <if test="isdelete != null "> IsDelete = #{isdelete},</if>
+            <if test="f1 != null  and f1 != ''">F1 = #{f1},</if>
+            <if test="f2 != null  and f2 != ''">F2 = #{f2},</if>
+            <if test="f3 != null  and f3 != ''">F3 = #{f3},</if>
+            <if test="f4 != null ">F4 = #{f4},</if>
+        </trim>
+        where Id = #{id}
+    </update>
+
+    <delete id="deleteStackerById" parameterType="Long">
+        delete from T_Task_Stacker where Id = #{id}
+    </delete>
+
+    <delete id="deleteStackerByIds" parameterType="String">
+        update T_Task_Stacker set IsDelete=1 where Id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="insertStackerList" parameterType="java.util.List">
+        insert into T_Task_Stacker (Guid, RowId, TaskType, TaskCode,EndPoint,
+        TaskState, CreateUser, CreateDate, F1, F2, F3, F4)
+        <foreach collection="list" item="item" open="values(" separator="),(" close=")">
+            #{item.guid}, ${item.rowid}, #{item.tasktype}, #{item.taskcode}, #{item.taskstate}, #{item.endpoint},
+            #{item.createuser}, #{item.createdate},  #{item.f1}, #{item.f2}, #{item.f3}, #{item.f4}
+        </foreach>
+    </insert>
+
+    <update id="deleteStackerByList" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            update TOP(${item.count}) T_Task_Stacker
+            set IsDelete=1,ModifyUser = #{item.modifyuser},ModifyDate = #{item.modifydate}
+            where RowId=#{item.rowid} and TaskCode=#{item.taskcode} and IsDelete=0
+        </foreach>
+    </update>
+
+    <update id="deleteStackerByStoreIoSon">
+        <foreach collection="list" item="item" separator=";">
+            update  T_Task_Stacker
+            set IsDelete=1,ModifyUser = #{userName},ModifyDate = getdate()
+            where RowId=#{item.rowid} and TaskCode=#{item.taskcode} and IsDelete=0
+        </foreach>
+    </update>
+
+    <update id="deleteStackerByStoreMoveSon">
+        <foreach collection="list" item="item" separator=";">
+            update  T_Task_Stacker
+            set IsDelete=1,ModifyUser = #{userName},ModifyDate = getdate()
+            where RowId=#{item.rowid} and TaskCode=#{item.taskcode} and IsDelete=0
+        </foreach>
+    </update>
+
+    <update id="deleteStackerByStoreCheckSon">
+        <foreach collection="list" item="item" separator=";">
+            update  T_Task_Stacker
+            set IsDelete=1,ModifyUser = #{userName},ModifyDate = getdate()
+            where RowId=#{item.rowid} and TaskCode=#{item.taskcode} and IsDelete=0
+        </foreach>
+    </update>
+
+    <update id="deleteStackerByTaskCodes" parameterType="String" >
+        update T_Task_Stacker
+        set IsDelete=1
+        where TaskCode in
+        <foreach collection="array" item="taskcode" open="(" separator="," close=")">
+            #{taskcode}
+        </foreach>
+    </update>
+
+    <update id="cancelStackerByTaskCodes" parameterType="String" >
+        update T_Task_Stacker
+        set TaskState=-1
+        where TaskCode in
+        <foreach collection="array" item="taskcode" open="(" separator="," close=")">
+            #{taskcode}
+        </foreach>
+    </update>
+
+    <update id="executeStackerByTaskCodes" parameterType="String" >
+        update T_Task_Stacker
+        set TaskState=1
+        where TaskCode in
+        <foreach collection="array" item="taskcode" open="(" separator="," close=")">
+            #{taskcode}
+        </foreach>
+    </update>
+
+    <update id="restartStackerByTaskCodes" parameterType="String" >
+        update T_Task_Stacker
+        set TaskState=0
+        where TaskCode in
+        <foreach collection="array" item="taskcode" open="(" separator="," close=")">
+            #{taskcode}
+        </foreach>
+    </update>
+    
+</mapper>

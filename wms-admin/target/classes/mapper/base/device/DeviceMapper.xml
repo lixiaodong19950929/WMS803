@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.base.device.mapper.DeviceMapper">
+    
+    <resultMap type="Device" id="DeviceResult">
+        <result property="id"    column="Id"    />
+        <result property="devicecode"    column="DeviceCode"    />
+        <result property="devicename"    column="DeviceName"    />
+        <result property="devicetype"    column="DeviceType"    />
+        <result property="devicestate"    column="DeviceState"    />
+        <result property="devicemodel"    column="DeviceModel"    />
+        <result property="deviceparameters"    column="DeviceParameters"    />
+        <result property="devicepower"    column="DevicePower"    />
+        <result property="devicefactory"    column="DeviceFactory"    />
+        <result property="memo"    column="Memo"    />
+        <result property="createuser"    column="CreateUser"    />
+        <result property="createdate"    column="CreateDate"    />
+        <result property="devicepurpose"    column="DevicePurpose"    />
+        <result property="usedepartment"    column="UseDepartment"    />
+        <result property="useemployee"    column="UseEmployee"    />
+        <result property="uselocationid"    column="UseLocationId"    />
+        <result property="uselocation"    column="UseLocation"    />
+        <result property="inspectdate"    column="InspectDate"    />
+        <result property="inspectcycle"    column="InspectCycle"    />
+        <result property="inspectcycleunit"    column="InspectCycleUnit"    />
+        <result property="ismeterdevice"    column="IsMeterDevice"    />
+        <result property="repairdate"    column="RepairDate"    />
+        <result property="repaircycle"    column="RepairCycle"    />
+        <result property="repaircycleunit"    column="RepairCycleUnit"    />
+        <result property="isimportant"    column="IsImportant"    />
+        <result property="isenable"    column="IsEnable"    />
+        <result property="whcode"    column="WhCode"    />
+        <result property="f2"    column="F2"    />
+        <result property="f3"    column="F3"    />
+        <result property="f4"    column="F4"    />
+    </resultMap>
+
+    <sql id="selectDeviceVo">
+        select Id, DeviceCode, DeviceName, DeviceType, DeviceState, DeviceModel, DeviceParameters, DevicePower, DeviceFactory, Memo, CreateUser, CreateDate, DevicePurpose, UseDepartment, UseEmployee, UseLocationId, UseLocation, InspectDate, InspectCycle, InspectCycleUnit, IsMeterDevice, RepairDate, RepairCycle, RepairCycleUnit, IsImportant, IsEnable, WhCode, F2, F3, F4 from T_Base_Device
+    </sql>
+
+    <select id="selectDeviceList" parameterType="Device" resultMap="DeviceResult">
+        <include refid="selectDeviceVo"/>
+        <where>  
+            <if test="id != null "> and Id = #{id}</if>
+            <if test="devicename != null  and devicename != ''"> and DeviceName like concat('%', #{devicename}, '%')</if>
+            <if test="devicetype != null  and devicetype != ''"> and DeviceType = #{devicetype}</if>
+            <if test="devicestate != null  and devicestate != ''"> and DeviceState = #{devicestate}</if>
+            <if test="devicemodel != null  and devicemodel != ''"> and DeviceModel = #{devicemodel}</if>
+            <if test="deviceparameters != null  and deviceparameters != ''"> and DeviceParameters = #{deviceparameters}</if>
+            <if test="devicepower != null  and devicepower != ''"> and DevicePower = #{devicepower}</if>
+            <if test="devicefactory != null  and devicefactory != ''"> and DeviceFactory = #{devicefactory}</if>
+            <if test="memo != null  and memo != ''"> and Memo = #{memo}</if>
+            <if test="createuser != null  and createuser != ''"> and CreateUser = #{createuser}</if>
+            <if test="createdate != null "> and CreateDate = #{createdate}</if>
+            <if test="devicepurpose != null  and devicepurpose != ''"> and DevicePurpose = #{devicepurpose}</if>
+            <if test="usedepartment != null  and usedepartment != ''"> and UseDepartment = #{usedepartment}</if>
+            <if test="useemployee != null  and useemployee != ''"> and UseEmployee like concat('%', #{useemployee}, '%')</if>
+            <if test="uselocationid != null  and uselocationid != ''"> and UseLocationId = #{uselocationid}</if>
+            <if test="uselocation != null  and uselocation != ''"> and UseLocation = #{uselocation}</if>
+            <if test="inspectdate != null "> and InspectDate = #{inspectdate}</if>
+            <if test="inspectcycle != null "> and InspectCycle = #{inspectcycle}</if>
+            <if test="inspectcycleunit != null  and inspectcycleunit != ''"> and InspectCycleUnit = #{inspectcycleunit}</if>
+            <if test="ismeterdevice != null "> and IsMeterDevice = #{ismeterdevice}</if>
+            <if test="repairdate != null "> and RepairDate = #{repairdate}</if>
+            <if test="repaircycle != null "> and RepairCycle = #{repaircycle}</if>
+            <if test="repaircycleunit != null  and repaircycleunit != ''"> and RepairCycleUnit = #{repaircycleunit}</if>
+            <if test="isimportant != null "> and IsImportant = #{isimportant}</if>
+            <if test="isenable != null "> and IsEnable = #{isenable}</if>
+            <if test="whcode != null  and whcode != ''"> and WhCode = #{whcode}</if>
+            <if test="f2 != null  and f2 != ''"> and F2 = #{f2}</if>
+            <if test="f3 != null  and f3 != ''"> and F3 = #{f3}</if>
+            <if test="f4 != null "> and F4 = #{f4}</if>
+            and IsDelete = 0
+        </where>
+    </select>
+    
+    <select id="selectDeviceById" parameterType="String" resultMap="DeviceResult">
+        <include refid="selectDeviceVo"/>
+        where Id = #{id} and IsDelete = 0
+    </select>
+        
+    <insert id="insertDevice" parameterType="Device">
+        insert into T_Base_Device
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null ">Id,</if>
+            <if test="devicecode != null  and devicecode != ''">DeviceCode,</if>
+            <if test="devicename != null  and devicename != ''">DeviceName,</if>
+            <if test="devicetype != null  and devicetype != ''">DeviceType,</if>
+            <if test="devicestate != null  and devicestate != ''">DeviceState,</if>
+            <if test="devicemodel != null  and devicemodel != ''">DeviceModel,</if>
+            <if test="deviceparameters != null  and deviceparameters != ''">DeviceParameters,</if>
+            <if test="devicepower != null  and devicepower != ''">DevicePower,</if>
+            <if test="devicefactory != null  and devicefactory != ''">DeviceFactory,</if>
+            <if test="memo != null  and memo != ''">Memo,</if>
+            <if test="createuser != null  and createuser != ''">CreateUser,</if>
+            <if test="createdate != null ">CreateDate,</if>
+            <if test="devicepurpose != null  and devicepurpose != ''">DevicePurpose,</if>
+            <if test="usedepartment != null  and usedepartment != ''">UseDepartment,</if>
+            <if test="useemployee != null  and useemployee != ''">UseEmployee,</if>
+            <if test="uselocationid != null  and uselocationid != ''">UseLocationId,</if>
+            <if test="uselocation != null  and uselocation != ''">UseLocation,</if>
+            <if test="inspectdate != null ">InspectDate,</if>
+            <if test="inspectcycle != null ">InspectCycle,</if>
+            <if test="inspectcycleunit != null  and inspectcycleunit != ''">InspectCycleUnit,</if>
+            <if test="ismeterdevice != null ">IsMeterDevice,</if>
+            <if test="repairdate != null ">RepairDate,</if>
+            <if test="repaircycle != null ">RepairCycle,</if>
+            <if test="repaircycleunit != null  and repaircycleunit != ''">RepairCycleUnit,</if>
+            <if test="isimportant != null ">IsImportant,</if>
+            <if test="isenable != null ">IsEnable,</if>
+            <if test="whcode != null  and whcode != ''">WhCode,</if>
+            <if test="f2 != null  and f2 != ''">F2,</if>
+            <if test="f3 != null  and f3 != ''">F3,</if>
+            <if test="f4 != null ">F4,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null ">#{id},</if>
+            <if test="devicecode != null  and devicecode != ''">#{devicecode},</if>
+            <if test="devicename != null  and devicename != ''">#{devicename},</if>
+            <if test="devicetype != null  and devicetype != ''">#{devicetype},</if>
+            <if test="devicestate != null  and devicestate != ''">#{devicestate},</if>
+            <if test="devicemodel != null  and devicemodel != ''">#{devicemodel},</if>
+            <if test="deviceparameters != null  and deviceparameters != ''">#{deviceparameters},</if>
+            <if test="devicepower != null  and devicepower != ''">#{devicepower},</if>
+            <if test="devicefactory != null  and devicefactory != ''">#{devicefactory},</if>
+            <if test="memo != null  and memo != ''">#{memo},</if>
+            <if test="createuser != null  and createuser != ''">#{createuser},</if>
+            <if test="createdate != null ">#{createdate},</if>
+            <if test="devicepurpose != null  and devicepurpose != ''">#{devicepurpose},</if>
+            <if test="usedepartment != null  and usedepartment != ''">#{usedepartment},</if>
+            <if test="useemployee != null  and useemployee != ''">#{useemployee},</if>
+            <if test="uselocationid != null  and uselocationid != ''">#{uselocationid},</if>
+            <if test="uselocation != null  and uselocation != ''">#{uselocation},</if>
+            <if test="inspectdate != null ">#{inspectdate},</if>
+            <if test="inspectcycle != null ">#{inspectcycle},</if>
+            <if test="inspectcycleunit != null  and inspectcycleunit != ''">#{inspectcycleunit},</if>
+            <if test="ismeterdevice != null ">#{ismeterdevice},</if>
+            <if test="repairdate != null ">#{repairdate},</if>
+            <if test="repaircycle != null ">#{repaircycle},</if>
+            <if test="repaircycleunit != null  and repaircycleunit != ''">#{repaircycleunit},</if>
+            <if test="isimportant != null ">#{isimportant},</if>
+            <if test="isenable != null ">#{isenable},</if>
+            <if test="whcode != null  and whcode != ''">#{whcode},</if>
+            <if test="f2 != null  and f2 != ''">#{f2},</if>
+            <if test="f3 != null  and f3 != ''">#{f3},</if>
+            <if test="f4 != null ">#{f4},</if>
+         </trim>
+    </insert>
+
+    <update id="updateDevice" parameterType="Device">
+        update T_Base_Device
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="devicecode != null  and devicecode != ''">DeviceCode = #{devicecode},</if>
+            <if test="devicename != null  and devicename != ''">DeviceName = #{devicename},</if>
+            <if test="devicetype != null  ">DeviceType = #{devicetype},</if>
+            <if test="devicestate != null  and devicestate != ''">DeviceState = #{devicestate},</if>
+            <if test="devicemodel != null  ">DeviceModel = #{devicemodel},</if>
+            <if test="deviceparameters != null  ">DeviceParameters = #{deviceparameters},</if>
+            <if test="devicepower != null ">DevicePower = #{devicepower},</if>
+            <if test="devicefactory != null ">DeviceFactory = #{devicefactory},</if>
+            <if test="memo != null">Memo = #{memo},</if>
+            <if test="createuser != null  and createuser != ''">CreateUser = #{createuser},</if>
+            <if test="createdate != null ">CreateDate = #{createdate},</if>
+            <if test="devicepurpose != null  and devicepurpose != ''">DevicePurpose = #{devicepurpose},</if>
+            <if test="usedepartment != null  and usedepartment != ''">UseDepartment = #{usedepartment},</if>
+            <if test="useemployee != null  and useemployee != ''">UseEmployee = #{useemployee},</if>
+            <if test="uselocationid != null  and uselocationid != ''">UseLocationId = #{uselocationid},</if>
+            <if test="uselocation != null  and uselocation != ''">UseLocation = #{uselocation},</if>
+            <if test="inspectdate != null ">InspectDate = #{inspectdate},</if>
+            <if test="inspectcycle != null ">InspectCycle = #{inspectcycle},</if>
+            <if test="inspectcycleunit != null  and inspectcycleunit != ''">InspectCycleUnit = #{inspectcycleunit},</if>
+            <if test="ismeterdevice != null ">IsMeterDevice = #{ismeterdevice},</if>
+            <if test="repairdate != null ">RepairDate = #{repairdate},</if>
+            <if test="repaircycle != null ">RepairCycle = #{repaircycle},</if>
+            <if test="repaircycleunit != null  and repaircycleunit != ''">RepairCycleUnit = #{repaircycleunit},</if>
+            <if test="isimportant != null ">IsImportant = #{isimportant},</if>
+            <if test="isenable != null ">IsEnable = #{isenable},</if>
+            <if test="whcode != null  and whcode != ''">WhCode = #{whcode},</if>
+            <if test="f2 != null  and f2 != ''">F2 = #{f2},</if>
+            <if test="f3 != null  and f3 != ''">F3 = #{f3},</if>
+            <if test="f4 != null ">F4 = #{f4},</if>
+        </trim>
+        where Id = #{id}
+    </update>
+
+    <update id="deleteDeviceById" parameterType="String">
+        update T_Base_Device set IsDelete = 1 where Id = #{id}
+    </update>
+
+    <update id="deleteDeviceByIds" parameterType="String">
+        update T_Base_Device set IsDelete = 1 where Id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="checkDeviceCode" parameterType="String" resultMap="DeviceResult">
+        <include refid="selectDeviceVo"/>
+        where DeviceCode=#{devicecode}
+        and IsDelete=0
+    </select>
+</mapper>

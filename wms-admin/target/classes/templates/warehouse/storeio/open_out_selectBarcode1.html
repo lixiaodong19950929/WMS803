@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('选择要维护的产品类型')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <p>需维护数量：  <span id="weihuNum"></span>  个</p>
+    <form class="form-horizontal m" id="form-CodeDetailInfo-edit">
+        <input name="taskcode" id="taskcode" class="form-control" type="hidden">
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+<th:block th:include="include :: select2-js" />
+<script th:inline="javascript">
+    var prefix = ctx + "warehouse/storeio";
+    var taskcode = [[${taskcode}]];
+    var rowid = [[${rowid}]];
+    var productcode = [[${productcode}]];
+    var productbatch = [[${productbatch}]];
+    var quantity = [[${quantity}]];
+    $("#form-CodeDetailInfo-edit").validate({
+        focusCleanup: true,
+        rules:{
+            // taskCode:{
+            //     required:true
+            // }
+        }
+    });
+    var modelDatas = [[${@dict.getType("base_product_model")}]];
+    $(function() {
+        $('#weihuNum').text([[${quantity}]])
+        var options = {
+            // url:ctx+"warehouse/storeio/get_out_selectBarcode",
+            url:ctx+"warehouse/storeio/get_out_selectBarcode_YXZ",
+            modalName: "库存条码明细",
+            queryParams: function(params) {
+                return{
+                    // 传递参数查询参数
+                    pageSize:       params.limit,
+                    pageNum:        params.offset / params.limit + 1,
+                    searchValue:    params.search,
+                    orderByColumn:  params.sort,
+                    isAsc:          params.order,
+                    taskCode:taskcode,
+                    // productCode:productcode,
+                    // ProductBatch:productbatch,
+                    rowId:rowid
+                };
+            },
+            showSearch: false,
+            showRefresh: false,
+            showColumns: false,
+            showToggle: false,
+            showExport: false,
+            uniqueId:"num",
+            clickToSelect:true,
+            columns: [
+                {
+                    checkbox: true
+                },
+                {
+                    field : 'num',
+                    title : '序号',
+                    formatter:function (value, row, index) {
+                        row.num=index+1;
+                        return index+1;
+                    }
+                },
+                {
+                    field : 'productCode',
+                    title : '产品型号'
+                },
+                {
+                    field : 'productName',
+                    title : '产品名称'
+                },
+                {
+                    field : 'productBatch',
+                    title : '产品批次'
+                },
+                {
+                    field : 'sern',
+                    title : '产品条码',
+                },
+                {
+                    field : 'storehouseCode',
+                    title : '库位',
+                },
+                {
+                    field : 'xhao',
+                    title : '箱号',
+                },
+                {
+                    field : 'batch',
+                    title : '扫描批次',
+                },
+                // {
+                //     title: '操作',
+                //     align: 'center',
+                //     formatter: function(value, row, index) {
+                //         var actions = [];
+                //         actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="delet(\'' + row.num + '\')"><i class="fa fa-remove"></i>删除</a>');
+                //         return actions.join('');
+                //     }
+                // }
+            ],
+            onLoadSuccess:function (){
+                let tablerows=$('#bootstrap-table').bootstrapTable("getData");
+                var checkArr = new Array();
+                for (var i=0;i<tablerows.length;i++){
+                    checkArr.push(tablerows[i].sern)
+                }
+                $("#bootstrap-table").bootstrapTable("checkBy",{field: 'sern', values:checkArr});
+            }
+        };
+        $.table.init(options);
+
+        //上面：如果已经存过barcodelist那就获取到 并自动勾选
+        //下面：与存过的相对比如果有相同则不再插入
+        var config = {
+            url: ctx+"warehouse/storeio/get_out_selectBarcode",
+            type: "post",
+            dataType: "json",
+            data:{
+                productcode:productcode,
+                productbatch:productbatch,
+            },
+            beforeSend: function () {
+                $.modal.loading("正在处理中，请稍后...");
+                // $.modal.disable();
+            },
+            success: function(result) {
+                $.modal.closeLoading();
+                if (typeof callback == "function") {
+                    callback(result);
+                }
+                // $.operate.ajaxSuccess(result);
+            }
+        };
+        setTimeout(() => {
+            $.ajax(config)
+        },100)
+
+    })
+
+    function callback(res){
+
+        res.rows.forEach((item,index) => {
+            //首先从所有库存中一一去出库任务明细表里找如果有一样的 就不用再次插入
+            var tabledata=$('#bootstrap-table').bootstrapTable("getData");
+            if(tabledata.some(item1 =>item1.sern==item.sern)){
+                return;
+            }else{
+                $("#bootstrap-table").bootstrapTable("insertRow",{
+                    index:index,
+                    row:{
+                        productBatch:item.productbatch.replace(/\"/g, ""),
+                        productCode:productcode.replace(/\"/g, ""),
+                        storehouseCode:item.storehousecode,
+                        productName:item.productname,
+                        sern:item.sern,
+                        xhao:item.xhao,
+                        batch:item.batch,
+                        fullsern:item.fullSern
+                    }
+                });
+            }
+        })
+
+    }
+
+    function submitHandler() {
+        var rows = $("#bootstrap-table").bootstrapTable('getSelections')
+        if(rows.length>quantity){
+            $.modal.msgError("超出任务指定数量");
+            return
+        }else if(rows.length<quantity){
+            $.modal.msgError("未达到任务指定数量");
+            return
+        }else{
+            var detailArray=new Array();
+            for (var i=0;i<rows.length;i++){
+                console.log(rows[i])
+                var param = {
+                    rowId:rowid,
+                    taskCode:taskcode,
+                    productCode:rows[i].productCode,
+                    productName:rows[i].productName,
+                    productBatch:rows[i].productBatch,
+                    sern:rows[i].sern,
+                    storehouseCode:rows[i].storehouseCode,
+                    xhao:rows[i].xhao,
+                    batch:rows[i].batch,
+                    fullSern:rows[i].fullSern
+                }
+                console.log(param)
+                detailArray.push(param)
+            }
+            console.log(JSON.stringify(detailArray))
+            if(rows.length>0){
+                var params={
+                    list:JSON.stringify(detailArray)
+                }
+            }else{
+                var param = {
+                    taskCode :taskcode.replace(/\"/g, ""),
+                    rowId:rowid,
+                    sern:''
+                }
+                detailArray.push(param)
+                var params={
+                    list:JSON.stringify(detailArray)
+                }
+            }
+            $.operate.save(prefix + "/out_select_Barcode_Add",params);
+        }
+
+    }
+
+</script>
+</body>
+</html>

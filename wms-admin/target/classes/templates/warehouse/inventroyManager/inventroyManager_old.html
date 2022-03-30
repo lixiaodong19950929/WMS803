@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.bootcss.com/echarts/4.2.1-rc1/echarts.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <th:block th:include="include :: header('库存管理')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+    <link href="../static/css/inventroyManager.css" th:href="@{/css/inventroyManager.css}" rel="stylesheet"/>
+</head>
+<body style="background-color: #f3f3f4">
+<div class="content">
+    <!--信息详情框-->
+    <div class="details" id="information">
+
+    </div>
+    <!--顶部层数文字-->
+    <div class="topCeng">
+        <div class="eachKu" style="width: 10%;">
+            <table class="tableStyle">
+                <tr>
+                    <td><span class="numWord">4</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">3</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">2</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">1</span><span style="font-size: 0.5vw">层</span></td>
+                </tr>
+            </table>
+        </div>
+        <div class="eachKu" style="width: 12%;left: 19%;">
+            <table class="tableStyle">
+                <tr>
+                    <td><span class="numWord">1</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">2</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">3</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">4</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">5</span><span style="font-size: 0.5vw">层</span></td>
+                </tr>
+            </table>
+        </div>
+        <div class="eachKu" style="width: 12%;left: 33%;">
+            <table class="tableStyle">
+                <tr>
+                    <td><span class="numWord">5</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">4</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">3</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">2</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">1</span><span style="font-size: 0.5vw">层</span></td>
+                </tr>
+            </table>
+        </div>
+        <div class="eachKu" style="width: 12%;right: 33%;">
+            <table class="tableStyle">
+                <tr>
+                    <td><span class="numWord">1</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">2</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">3</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">4</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">5</span><span style="font-size: 0.5vw">层</span></td>
+                </tr>
+            </table>
+        </div>
+        <div class="eachKu" style="width: 12%;right: 19%;">
+            <table class="tableStyle">
+                <tr>
+                    <td><span class="numWord">5</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">4</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">3</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">2</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">1</span><span style="font-size: 0.5vw">层</span></td>
+                </tr>
+            </table>
+        </div>
+        <div class="eachKu" style="width: 10%;right: 0%;">
+            <table class="tableStyle">
+                <tr>
+                    <td><span class="numWord">1</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">2</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">3</span><span style="font-size: 0.5vw">层</span></td>
+                    <td><span class="numWord">4</span><span style="font-size: 0.5vw">层</span></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <!--中间画方格区域-->
+    <div class="content_bg">
+        <div class="content_bg_left">
+            <table id="table_one" border="2" bordercolor="#3896f6" cellspacing="0" class="tableStyle">
+            </table>
+        </div>
+        <div class="content_bg_center1">
+            <table id="table_two" border="2" bordercolor="#3896f6" cellspacing="0" class="tableStyle">
+            </table>
+        </div>
+        <div class="content_bg_center2">
+            <table id="table_three" border="2" bordercolor="#3896f6" cellspacing="0" class="tableStyle">
+            </table>
+        </div>
+        <div class="content_bg_center3">
+            <table id="table_four" border="2" bordercolor="#3896f6" cellspacing="0" class="tableStyle">
+            </table>
+        </div>
+        <div class="content_bg_center4">
+            <table id="table_five" border="2" bordercolor="#3896f6" cellspacing="0" class="tableStyle">
+            </table>
+        </div>
+        <div class="content_bg_right">
+            <table id="table_six" border="2" bordercolor="#3896f6" cellspacing="0" class="tableStyle">
+            </table>
+        </div>
+        <!--虚线部分以及垛机小车-->
+        <div class="dashDiv" style="left: 13%;">
+            <div class="blueDuoJi">
+                <div class="duoJiStatus"></div>
+            </div>
+        </div>
+        <div class="dashDiv" style="left: 48.5%;">
+            <div class="blueDuoJi">
+                <div class="duoJiStatus"></div>
+            </div>
+        </div>
+        <div class="dashDiv" style="right: 13%;">
+            <div class="blueDuoJi">
+                <div class="duoJiStatus"></div>
+            </div>
+        </div>
+        <span class="duoJiWord" style="left: 12%;">堆垛机</span>
+        <span class="duoJiWord" style="right: 12%;">堆垛机</span>
+        <span class="duoJiWord" style="left: 47.5%;">堆垛机</span>
+        <!--灰色小车走道-->
+        <div style="width: 26%;height: 15%;position: absolute;left: 19%;top: 85%;background-color: #DCDADD">
+            <div style="border-top:2px dashed #000;position: relative;top:27%;width:93%;"></div>
+            <div style="border-top:2px dashed #000;position: relative;top:65%;width:83%;"></div>
+        </div>
+        <div style="width: 26%;height: 15%;position: absolute;right: 19%;top: 85%;background-color: #DCDADD">
+            <div style="border-top:2px dashed #000;position: relative;top:27%;left:7%;width:93%;"></div>
+            <div style="border-top:2px dashed #000;position: relative;top:65%;width:83%;left:17%;"></div>
+        </div>
+    </div>
+        <!--灰色小车跑道,在蓝色背景外的部分-->
+    <div style="width: 4.5vw;height: 20%;position: absolute;top: 80%;left: 39.1%;background-color: #DCDADD">
+        <div style="height:135%;width:0%;display:inline-block;border-right:2px dashed #000;position: relative;top:-35%;left:70%;"></div>
+        <div style="height:115%;width:0%;display:inline-block;border-right:2px dashed #000;position: relative;top:-35%;left:20%;"></div>
+        <div style="width:50%;height: 60%;background-color:#2DA49E;position: absolute;top: 10%;left:26% "></div>
+    </div>
+    <div style="width: 4.5vw;height: 20%;position: absolute;top: 80%;right: 39.1%;background-color: #DCDADD">
+        <div style="height:135%;width:0%;display:inline-block;border-right:2px dashed #000;position: relative;top:-35%;left:26%;"></div>
+        <div style="height:115%;width:0%;display:inline-block;border-right:2px dashed #000;position: relative;top:-35%;left:62%;"></div>
+        <div style="width:50%;height: 60%;background-color:#2DA49E;position: absolute;top: 10%;left:26% "></div>
+    </div>
+</div>
+<!--右侧查询界面-->
+<div class="content_right">
+    <!--选择仓库-->
+    <!--<div style="width: 100%;margin-top:10%;position: relative">
+       <select id="whcode" style="width: 55%;height:35px;margin-bottom: 4px;padding-left: 7px">
+            <option value="">仓库名称</option>
+           <option th:each="wh:${whList}" th:value="${wh.whcode}" th:text="${wh.whname}"></option>
+        </select>
+&lt;!&ndash;        <select id="whcode" name="whcode" class="form-control select2-multiple" style="width: 82%;height:35px;margin-bottom: 4px;padding-left: 7px">&ndash;&gt;
+&lt;!&ndash;            <option th:each="wh:${whList}" th:value="${wh.whcode}" th:text="${wh.whname}"></option>&ndash;&gt;
+&lt;!&ndash;        </select>&ndash;&gt;
+        <input type="reset" onclick="resetquery()" style="width: 25%;height:35px;margin: 2px;background-color: #2269D5;color: #fff;border: none;" value="重置" />
+    </div>-->
+    <!--日期选择-->
+    <div style="width: 100%;position: relative">
+        <input type="text" class="time-input" id="startTime" placeholder="开始时间" name="params[beginTime]"
+               style="width: 40%;height:35px;margin: 2px;display: inline-block"/>
+        <input type="text" class="time-input" id="endTime" placeholder="结束时间" name="params[endTime]"
+               style="width: 40%;height:35px;margin: 2px;display: inline-block"/>
+    </div>
+    <br/>
+    <!--输入查询条件，按名称/条码/型号-->
+    <div style="width: 100%;position: relative;top: -2%;">
+        <input type="text" id="key" name="key" style="width: 55%;height:35px;margin: 2px;padding-left: 10px;" placeholder="产品名称/条码/型号">
+        <input type="button"
+               style="width: 15%;height:35px;margin: 2px;background-color: #2269D5;color: #fff;border: none;"
+               value="查询" onclick="searchTable()">
+        <input type="reset" onclick="resetquery()" style="width: 15%;height:35px;margin: 2px;background-color: #FFCC66;color: #fff;border: none;" value="重置" />
+    </div>
+    <!--echarts饼图容器-->
+    <div id="echart" style="width: 100%;height: 45%;text-align: center"></div>
+    <!--库位数据展示-->
+    <div class="right_bottom">
+        <ul style="padding-left: 0px;text-align: left">
+            <li class="right_chWords">库&nbsp&nbsp&nbsp位：<span id="storeHouseCount" class="right_numWords"></span></li>
+            <li class="right_chWords">已使用：<span id="useStoreHouseCount" class="right_numWords"></span></li>
+            <li class="right_chWords">入&nbsp&nbsp&nbsp库：<span id="storeInCount" class="right_numWords"></span></li>
+            <li class="right_chWords">出&nbsp&nbsp&nbsp库：<span id="storeOutCount" class="right_numWords"></span></li>
+            <li class="right_chWords">移&nbsp&nbsp&nbsp库：<span id="storeMoveCount" class="right_numWords"></span></li>
+        </ul>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<script th:src="@{/js/inventroyManager.js}"></script>
+</body>
+<script th:inline="javascript">
+    function searchTable() {
+        // console.log($('#whcode').val());
+        // console.log($('#startTime').val());
+        // console.log($('#endTime').val());
+        // console.log($('#key').val());
+       /* if($('#whcode').val()==undefined && $('#startTime').val()=='' && $('#endTime').val()=='' && $('#key').val()==''){
+            console.log('1223')
+        } else{*/
+            searchTablestwo($('#whcode').val(),$('#startTime').val(),$('#endTime').val(),$('#key').val())
+        // }
+    }
+    function resetquery() {
+        $('#startTime').val('')
+        $('#endTime').val('')
+        $('#key').val('')
+        searchTablestwo()
+    }
+</script>
+</html>

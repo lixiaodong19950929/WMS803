@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('盘点结果')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+</head>
+<style type="text/css">
+    .fixed-table-pagination{
+        display: none!important;
+    }
+</style>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <th:block th:include="include :: select2-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "warehouse/storecheck";
+        var taskCode = [[${taskcode}]];
+        $(function(){
+            var options = {
+                url:ctx+"warehouse/storecheck/checkResultList",
+                modalName: "盘点结果",
+                queryParams: function(params) {
+                    return{
+                        // 传递参数查询参数
+                        // pageSize:       params.limit,
+                        // pageNum:        params.offset / params.limit + 1,
+                        // searchValue:    params.search,
+                        // orderByColumn:  params.sort,
+                        // isAsc:          params.order,
+                        TaskCode:taskCode
+                    };
+                },
+                showSearch: false,
+                showRefresh: false,
+                showColumns: false,
+                showToggle: false,
+                showExport: false,
+                uniqueId:"taskcode",
+                columns: [
+                    // {
+                    //     checkbox: true
+                    // },
+                    {
+                        field : 'num',
+                        title : '序号',
+                        formatter:function (value, row, index) {
+                            row.num=index+1;
+                            return index+1;
+                        }
+                    },
+                    {
+                        field : 'id',
+                        title : 'id',
+                        visible:false
+                    },
+                    {
+                        field : 'storehouseCode',
+                        title : '库位号'
+                    },
+                    {
+                        field : 'trayCode',
+                        title : '托盘号'
+                    },
+                    {
+                        field : 'xhao',
+                        title : '箱号'
+                    },
+                    {
+                        field : 'batch',
+                        title : '批次'
+                    },
+                    {
+                        field : 'fullSern',
+                        title : '完整条码'
+                    },{
+                        field : 'pdResult',
+                        title : '盘点结果'
+                    },{
+                        field : 'createDate',
+                        title : '创建时间'
+                    },
+                    {
+                        field : 'createUser',
+                        title : '创建人'
+                    }
+                ],
+                // onClickCell:function(field, value, row, $element){
+                //     console.log(row)
+                //     $.modal.open("条码明细",prefix+"/sernInfo2/"+row.rowid+'/'+row.taskcode+'/'+row.quantity,800,600);
+                // }
+
+            };
+            $.table.init(options);
+        })
+    </script>
+</body>
+</html>

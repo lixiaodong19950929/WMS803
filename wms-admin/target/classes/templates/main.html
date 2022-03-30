@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--360浏览器优先以webkit内核解析-->
+    <title>仓储管理系统</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link href="../static/css/font-awesome.min.css" th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/animate.min.css" th:href="@{/css/main/animate.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/style.min862f.css" th:href="@{/css/main/style.min862f.css}" rel="stylesheet"/>
+    <!--引入看板的css-->
+    <link href="../static/css/kanban.css" th:href="@{/css/kanban.css}" rel="stylesheet"/>
+</head>
+<style>
+</style>
+<body class="gray-bg">
+<div id="kanban">
+    <div class="topBox">
+        <div class="topItem">
+            <div class="left"><img src="/img/kanban/index_top_ru.png" /></div>
+            <div class="right">
+                <p style="font-size: 38px;letter-spacing: 2px" id="rukucount">12,25</p>
+                <p style="font-size: 17px;letter-spacing: 1px">总入库量</p>
+            </div>
+        </div>
+        <div class="topItemChart">
+            <div id="bottomItem1" style="width:90%;height:100%;margin-left: 5%;margin-top: 10px"></div>
+        </div>
+        <div class="topItem">
+            <div class="left"><img src="/img/kanban/index_top_chu.png" /></div>
+            <div class="right">
+                <p style="font-size: 38px;letter-spacing: 2px" id="chukucount">12,25</p>
+                <p style="font-size: 17px;letter-spacing: 1px">总出库量</p>
+            </div>
+        </div>
+        <!--<div class="topItem">-->
+            <!--<div class="left"><img src="/img/kanban/index_top_yi.png" /></div>-->
+            <!--<div class="right">-->
+                <!--<p style="font-size: 38px;letter-spacing: 2px">12,25</p>-->
+                <!--<p style="font-size: 17px;letter-spacing: 1px">移库任务</p>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<div class="topItem">-->
+            <!--<div class="left"><img src="/img/kanban/index_top_pan.png" /></div>-->
+            <!--<div class="right">-->
+                <!--<p style="font-size: 38px;letter-spacing: 2px">12,25</p>-->
+                <!--<p style="font-size: 17px;letter-spacing: 1px">盘库任务</p>-->
+            <!--</div>-->
+        <!--</div>-->
+    </div>
+
+    <div class="centerBox">
+        <div class="left">
+            <div id="centerBox_left" style="width:90%;height:370px;margin-left: 5%;margin-top: 30px"></div>
+        </div>
+        <div class="right">
+            <div id="centerBox_right" style="width:90%;height:370px;margin-left: 5%;margin-top: 30px"></div>
+        </div>
+    </div>
+
+    <!--<div class="bottomBox">-->
+        <!--<div class="item">-->
+            <!--<div id="bottomItem1" style="width:90%;height:100%;margin-left: 5%;margin-top: 10px"></div>-->
+        <!--</div>-->
+        <!--<div class="item">-->
+            <!--<div id="bottomItem2" style="width:90%;height:100%;margin-left: 5%;margin-top: 10px"></div>-->
+        <!--</div>-->
+        <!--<div class="item">-->
+            <!--<div id="bottomItem3" style="width:90%;height:100%;margin-left: 5%;margin-top: 10px"></div>-->
+        <!--</div>-->
+        <!--<div class="item">-->
+            <!--<div id="bottomItem4" style="width:90%;height:100%;margin-left: 5%;margin-top: 10px"></div>-->
+        <!--</div>-->
+    <!--</div>-->
+
+</div>
+
+
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+<!--引入echarts-->
+<script th:src="@{/js/echarts.min.js}"></script>
+<!--引入封装好的饼图echarts.js-->
+<script th:src="@{/js/PieChart.js}"></script>
+<!--引入看板js-->
+<!--<script th:src="@{/js/kanban.js}"></script>-->
+<!--引入看板js-->
+<script th:src="@{/js/kanbanNew.js}"></script>
+<script type="text/javascript">
+    $(function(){
+        searchProTypeCount()//获取产品类型比例
+        selectProStorehouseCount()//获取每种产品占用库位数量
+        searchkucun()
+        selectIoScanCount()
+    })
+
+    function searchProTypeCount(){
+        $.ajax({
+            cache:true,
+            type: 'POST',
+            data:{
+
+            },
+            url: '/base/product/list',
+            success: function (result) {
+                var proArray =[];
+                for (var i = 0; i < result.rows.length; i++) {
+                    proArray.push({
+                        name:result.rows[i].productname,
+                        value:result.rows[i].sums
+                    })
+                }
+                drawCenterRight(proArray)
+            }
+        })
+    }
+    function selectProStorehouseCount() {
+        $.ajax({
+            cache:true,
+            url:'/infoquery/stock/selectProStorehouseCount',
+            data:{
+
+            },
+            type:'POST',
+            success:function(result){
+                var res = result.rows;
+                var xArr = [];
+                var yArr = [];
+                for (var i = 0; i < res.length; i++) {
+                    xArr.push(res[i].productname)
+                    yArr.push(res[i].kwNum)
+                }
+                drawCenterLeft(xArr,yArr)
+            }
+        })
+    }
+    function searchkucun() {
+        $.ajax({
+            cache:true,
+            type: 'POST',
+            data:{
+                'beginCreatedate':'',
+                'endCreatedate':''
+            },
+            url: '/warehouse/inventroyAnalysis/getInventroyAnalysis',
+            success: function (result) {
+                var data = result.data;
+                var wei = parseInt(data.storeHouseCount)-parseInt(data.useStoreHouseCount)
+                var arr = [];
+                arr.push({
+                    name:'已使用',
+                    value:parseInt(data.useStoreHouseCount)
+                })
+                arr.push({
+                    name:'空闲',
+                    value:wei
+                })
+                drawBottom('bottomItem1',arr)
+                drawBottom('bottomItem2',arr)
+                drawBottom('bottomItem3',arr)
+                drawBottom('bottomItem4',arr)
+            }
+        })
+    }
+    function selectIoScanCount(){
+        $.ajax({
+            cache:true,
+            type: 'POST',
+            data:{
+
+            },
+            url: '/infoQuery/queryStockRealtime/selectIoScanCount',
+            success: function (result) {
+                if(result.rows){
+                    var incount = 0;
+                    var outcount = 0;
+                    result.rows.forEach((val,index) => {
+                        if(val.tasktype.indexOf("入库")!= -1){
+                            incount+=1
+                         }
+                        if(val.tasktype.indexOf("出库")!= -1){
+                            outcount+=1
+                        }
+                    })
+                    $('#rukucount').text(incount)
+                    $('#chukucount').text(outcount)
+
+                }
+            }
+        })
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('产品档案列表')" />
+    <th:block th:include="include::select2-css"></th:block>
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <!--<li>-->
+                                <!--<p>产品类型：</p>-->
+                                <!--<select name="ProductType" th:with="type=${@dict.getType('')}">-->
+                                    <!--<option value="">所有</option>-->
+                                    <!--<option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>-->
+                                <!--</select>-->
+                            <!--</li>-->
+                            <li>
+                                <p>产品名称：</p>
+                                <input type="text" name="productname" id="productname"/>
+                            </li>
+                            <li>
+                                <p>产品型号：</p>
+                                <select name="productmodel" id="productmodel" class="form-control m-b select2-container" th:with="type=${@dict.getType('base_product_model')}">
+                                    <option value=""></option>
+                                    <option th:each="dict:${type}" th:value="${dict.dictValue}" th:text="${dict.dictLabel}"></option>
+                                </select>
+                            </li>
+                            <li>
+                                <p>供应商：</p>
+                                <input type="text" name="suppliername" id="suppliername"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: select2-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "base/product";
+        var typeDatas=[[${@dict.getType('base_product_type')}]];
+        var modelDatas=[[${@dict.getType('base_product_model')}]];
+        var unitDatas=[[${@dict.getType('base_product_unit')}]];
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                modalName: "产品档案",
+                pagination: false,
+                // queryParams: function(params) {
+                //     return{
+                //         // 传递参数查询参数
+                //         pageSize:       params.limit,
+                //         pageNum:        params.offset / params.limit + 1,
+                //         searchValue:    params.search,
+                //         orderByColumn:  params.sort,
+                //         isAsc:          params.order,
+                //         // whcode:$('#whcode').val(),
+                //         productname:$('#productname').val(),
+                //         productmodel:$('#productmodel').find("option:selected").val()==" "?"":$('#productmodel').find("option:selected").val()
+                //     };
+                // },
+                singleSelect : true,
+                clickToSelect:true,
+                columns: [{
+                    checkbox: true,
+                    singleSelect : true
+                },
+                {
+                    field : 'num',
+                    title : '序号',
+                    formatter:function (value,row,index) {
+                        return index+1;
+                    }
+                },
+                {
+                    field : 'id',
+                    title : '自增列',
+                    visible:false
+                },
+                // {
+                //     field : 'producttype',
+                //     title : '产品类型',
+                //     formatter:function (value, row, index) {
+                //         return $.table.selectDictLabel(typeDatas,value)
+                //     }
+                // },
+                {
+                    field : 'productcode',
+                    title : '产品型号'
+                },
+                {
+                    field : 'productname',
+                    title : '产品名称'
+                },
+                // {
+                //     field : 'productbatch',
+                //     title : '产品批次'
+                // },
+                // {
+                //     field : 'productmodel',
+                //     title : '产品型号',
+                //     formatter:function (value, row, index) {
+                //         return $.table.selectDictLabel(modelDatas,value)
+                //     }
+                // },
+                // {
+                //     field : 'drawingnumber',
+                //     title : '零件图号',
+                //     visible: false
+                // },
+                // {
+                //     field : 'specification',
+                //     title : '规格型号'
+                // },
+                // {
+                //     field : 'sums',
+                //     title : '剩余库存'
+                // },
+                // {
+                //     field : 'unit',
+                //     title : '单位',
+                //     formatter:function (value, row, index) {
+                //         return $.table.selectDictLabel(unitDatas,value);
+                //     }
+                // },
+                {
+                    field : 'memo',
+                    title : '备注'
+                },
+                {
+                    field : 'suppliername',
+                    title : '供应商'
+                },
+                ]
+            };
+            $.table.init(options);
+        });
+
+        function submitHandler() {
+            var data=$('#bootstrap-table').bootstrapTable("getSelections");
+            if (data.length==0){
+                $.modal.msgError("请至少选择一项产品");
+                return ;
+            }else if(data.length>1){
+                $.modal.msgError("单次任务只可入同一产品");
+                return ;
+            }
+            return data;
+        }
+
+    </script>
+</body>
+</html>

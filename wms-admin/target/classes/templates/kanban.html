@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仓储管理系统</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <th:block th:include="include :: header('库存管理')"/>
+    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link href="../static/css/font-awesome.min.css" th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/animate.min.css" th:href="@{/css/main/animate.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/style.min862f.css" th:href="@{/css/main/style.min862f.css}" rel="stylesheet"/>
+    <!--引入看板的css-->
+    <link href="../static/css/kanban_useOld.css" th:href="@{/css/kanban.css}" rel="stylesheet"/>
+    <style>
+        .row{
+            margin-left: 0px;
+            margin-right: 0px;
+        }
+        .title_time{
+            position: fixed;
+            color: #fff;
+            right: 7.5%;
+            top: 36px;
+            font-size: 19px;
+        }
+    </style>
+</head>
+<body class="gray-bg">
+	<div class="row" id="kanban" style="height: 100vh;">
+        <div class="row kanban_kuang" style="margin: 6% auto;">
+            <span class="title_text">
+                <img src="../static/img/kanban_logo.png" th:src="@{/img/kanban_logo.png}" style="width: 28%;">
+                数字化仓库管理系统
+            </span>
+            <!--看板时间-->
+            <div class="title_time"></div>
+            <!--看板左-->
+            <div class="col-md-4">
+                <!-- 看板左一 -->
+                <div class="left_one">
+                    <div style="color: #fff;position: relative;top: 10%;left: 5%;letter-spacing:2px;">使用情况</div>
+                    <div id="Inventory" style="width:35%;height:100%;float: left;left: 5%;"></div>
+                    <div id="Task" style="width:35%;height:100%;float: right;right: 5%;"></div>
+                </div>
+                <!--看板左二开始-->
+                <div class="right_two">
+                    <div class="table_head">
+                        <table>
+                            <colgroup>
+                                <col style="width:70px;"/>
+                                <col style="width:90px;"/>
+                                <col style="width:80px;"/>
+                                <col style="width:80px;"/>
+                                <col style="width:120px;"/>
+
+                            </colgroup>
+                            <thead>
+                            <tr style='color: #fff; height:36px;'>
+                                <th>设备编号</th>
+                                <th>入/出库</th>
+                                <th>序号</th>
+                                <th>目的库位</th>
+                                <th>状态</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="table-body">
+                        <table style="width: 90%;color: rgba(171,203,255,1);margin: 0 auto;text-align: center;margin-top:15px;" id="right_bottom">
+                        </table>
+                    </div>
+                </div>
+                <!--看板左二结束-->
+
+            </div>
+            <!--看板左结束-->
+
+            <!--看板中开始-->
+            <div class="col-md-4">
+                <!--中一开始-->
+                <div class="left_two">
+                    <div class="table_head">
+                        <table>
+                            <colgroup>
+                                <col style="width:90px;"/>
+                                <col style="width:120px;"/>
+                                <col style="width:120px;"/>
+                                <col style="width:180px;"/>
+                            </colgroup>
+                            <thead>
+                                <tr style='color: #fff; height:36px;'>
+                                    <th>库位</th>
+                                    <th>产品编码</th>
+                                    <th>作业任务</th>
+                                    <th>超期预警</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="table-body">
+                        <table style="width: 90%;color: rgba(171,203,255,1);margin: 0 auto;text-align: center;margin-top:15px;" id="left_bottom">
+                        </table>
+                    </div>
+                </div>
+                <!--中一结束-->
+                <!--中二开始-->
+                <div class="right_one">
+                    <div class="table_head">
+                        <table>
+                            <colgroup>
+                                <col style="width:120px;"/>
+                                <col style="width:100px;"/>
+                                <col style="width:220px;"/>
+
+                            </colgroup>
+                            <thead>
+                            <tr style='color: #fff; height:36px;'>
+                                <th>设备名称</th>
+                                <th>设备状态</th>
+                                <th>时间</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="table_body">
+                        <table style="width: 90%;color: rgba(171,203,255,1);margin: 0 auto;text-align: center;margin-top:15px;" id="right_top">
+                        </table>
+                    </div>
+                </div>
+                <!--中二结束-->
+            </div>
+            <!--看板中结束-->
+
+            <!--看板右开始-->
+            <div class="col-md-4">
+                <!-- 看板右一 -->
+                <div style="height:45%;">
+                    <div class="center_circular" style="position: absolute;top:10%;left:8%;">
+                        <img src="../static/img/ruku.png" th:src="@{/img/ruku.png}" style="width: 100%;"/>
+                        <span class="circular_text">入库</span>
+                        <div style="font-size: 22px;color: #C05600;text-align:center;margin-top:16px;"><span class="circular_number" id="intoQuantity"></span>个</div>
+                    </div>
+                    <div class="center_circular" style="position: absolute;top:10%;left: 40%;">
+                        <img src="../static/img/chuku.png" th:src="@{/img/chuku.png}" style="width: 100%;"/>
+                        <span class="circular_text" style="color:#449740">出库</span>
+                        <div style="font-size: 22px;color: #449740;text-align:center;margin-top:17px;"><span id="outQuantity" class="circular_number" style="color: #449740;"></span>个</div>
+                    </div>
+                    <div class="center_circular" style="position: absolute;top:10%;right:8%;">
+                        <img src="../static/img/yiku.png" th:src="@{/img/yiku.png}" style="width: 100%;"/>
+                        <span class="circular_text" style="color:#573AD2">移库</span>
+                        <div style="font-size: 22px;color: #573AD2;text-align:center;margin-top:16px;"><span class="circular_number" id="moveQuantity" style="color: #573AD2;"></span>个</div>
+                    </div>
+                </div>
+                <!--看板右一结束-->
+                <!--看板右二开始-->
+                <div class="right_lower">
+                    <div class="table_head">
+                        <table>
+                            <colgroup>
+                                <col style="width:150px;"/>
+                                <col style="width:280px;"/>
+                                <col style="width:220px;"/>
+
+                            </colgroup>
+                            <thead>
+                            <tr style='color: #fff; height:36px;'>
+                                <th>状态</th>
+                                <th>倾角传感器</th>
+                                <th>光电传感器</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="table_body">
+                        <table style="width: 90%;color: rgba(171,203,255,1);margin: 0 auto;text-align: center;margin-top:15px;" id="right_lower">
+                            <tr style='height:26px;'>
+                                <td style='color: green;font-size: 16px;'>正常</td>
+                                <td style='font-size: 16px;color: green;'><span style="font-size: 30px" id="qingjiao_zheng">0</span>个</td>
+                                <td style='font-size: 16px;color: green;'><span style="font-size: 30px" id="guangdian_zheng">0</span>个</td>
+                            </tr>
+                            <tr style='height:26px;'>
+                                <td style='color: red;font-size: 16px;'>异常</td>
+                                <td style='font-size: 16px;color: red;'><span style="font-size: 30px" id="qingjiao_yi">0</span>个</td>
+                                <td style='font-size: 16px;color: red;'><span style="font-size: 30px" id="guangdian_yi">0</span>个</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <!--看板右二结束-->
+
+            </div>
+            <!--看板右结束-->
+        </div>
+    </div>
+    <th:block th:include="include :: footer"/>
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <script th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+    <!--引入echarts-->
+    <script th:src="@{/js/echarts.min.js}"></script>
+    <!--引入封装好的饼图echarts.js-->
+    <script th:src="@{/js/PieChart.js}"></script>
+    <!--引入看板js-->
+    <script th:src="@{/js/kanban.js}"></script>
+</body>
+</html>

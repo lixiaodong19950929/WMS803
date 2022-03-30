@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.warehouse.inventroyManager.mapper.InventroyManagerMapper">
+
+    <select id="selectInventroyManagerByStock" parameterType="com.wms.warehouse.inventroyManager.domain.InventroyManager" resultType="com.wms.warehouse.inventroyManager.domain.InventroyManager">
+        select h.id, h.whcode, h.regioncode, h.storehousecode, h.storehousename, h.storehousestate, h.traycode,
+        h.storehouseexplain, h.memo, h.isenable, h.isdelete,h.rgvdevicecode,h.deviceCode, s.producttype, h.productcode, s.productname,
+        s.productbatch , s.specification, h.quantity, s.createuser, s.createdate, d.dict_label as productmodel,
+        w.WhName
+--         s.quantity,
+        from T_Base_Storehouse h
+        LEFT JOIN T_Base_Stock s on s.StorehouseCode=h.StorehouseCode
+        left join T_Base_Warehouse w on h.WhCode = w.WhCode
+        LEFT JOIN sys_dict_data d on s.productmodel = d.dict_value
+        <where >
+            <!--and  h.IsDelete=0 and s.IsEnable=1 and s.IsDelete=0-->
+            <!--and d.dict_type = 'base_product_model'-->
+            <!--<if test="whcode!=null and whcode!=''">-->
+                <!--and h.whCode=#{whcode}-->
+            <!--</if>-->
+            <!--<if test="key!=null and key!=''">-->
+                <!--and (s.ProductName  like concat('%',#{key},'%')-->
+                <!--or s.Sern like concat('%',#{key},'%')-->
+                <!--or s.ProductModel in (select dict_value from sys_dict_data where dict_type = 'base_product_model' and dict_label like concat('%',#{key},'%')))-->
+            <!--</if>-->
+            <!--<if test="beginCreatedate!=null and beginCreatedate!=''">-->
+                <!--and s.CreateDate <![CDATA[ >=]]> #{beginCreatedate}-->
+            <!--</if>-->
+            <!--<if test="endCreatedate!=null and endCreatedate!=''">-->
+                <!--and s.CreateDate <![CDATA[ <=]]> #{endCreatedate}-->
+            <!--</if>-->
+        </where>
+    </select>
+
+    <select id="selectInventroyManagerByStoreHouseCount"  parameterType="com.wms.warehouse.inventroyManager.domain.InventroyManager" resultType="java.lang.Integer">
+        select count(*)
+        from T_Base_Storehouse h
+        <where >
+            and  h.IsDelete=0
+            and h.IsEnable=1
+            <if test="whcode!=null and whcode!=''">
+                and h.whCode=#{whcode}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="selectInventroyManagerByUseStoreHouseCount"   parameterType="com.wms.warehouse.inventroyManager.domain.InventroyManager" resultType="java.lang.Integer">
+        select count(*)
+        from T_Base_Storehouse h
+        LEFT JOIN T_Base_Stock s on s.StorehouseCode=h.StorehouseCode
+        <where >
+            and  h.IsDelete=0 and s.IsEnable=1 and s.IsDelete=0
+            and s.productcode is not null
+            and s.ProductCode !=''
+            <if test="whcode!=null and whcode!=''">
+                and h.whCode=#{whcode}
+            </if>
+            <if test="key!=null and key!=''">
+                and (s.ProductCode like concat('%',#{key},'%') or s.Sern  like concat('%',#{key},'%') or s.ProductModel like concat('%',#{key},'%'))
+            </if>
+            <if test="beginCreatedate!=null and beginCreatedate!=''">
+                and s.CreateDate <![CDATA[ >=]]> #{beginCreatedate}
+            </if>
+            <if test="endCreatedate!=null and endCreatedate!=''">
+                and s.CreateDate <![CDATA[ <=]]> #{endCreatedate}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectInventroyManagerByStoreInCount"   parameterType="com.wms.warehouse.inventroyManager.domain.InventroyManager" resultType="java.lang.Integer">
+            select count(*)
+            from T_Base_StoreIoSon s
+            left join T_Base_Sern n on s.TaskCode=n.TaskCode and s.ProductCode=n.ProductCode
+            left join T_Base_StoreIo si on si.TaskCode=s.TaskCode
+            <where >
+                and s.TaskState=2 and s.IsDelete=0 and s.IsEnable=1 and n.IsDelete=0 and si.TaskType=1
+                <if test="whcode!=null and whcode!=''">
+                    and si.whCode=#{whcode}
+                </if>
+                <if test="key!=null and key!=''">
+                    and (s.ProductCode like concat('%',#{key},'%') or n.Sern  like concat('%',#{key},'%') or s.ProductModel like concat('%',#{key},'%'))
+                </if>
+                <if test="beginCreatedate!=null and beginCreatedate!=''">
+                    and s.CreateDate <![CDATA[ >=]]> #{beginCreatedate}
+                </if>
+                <if test="endCreatedate!=null and endCreatedate!=''">
+                    and s.CreateDate <![CDATA[ <=]]> #{endCreatedate}
+                </if>
+            </where>
+    </select>
+
+
+    <select id="selectInventroyManagerByStoreOutCount"   parameterType="com.wms.warehouse.inventroyManager.domain.InventroyManager" resultType="java.lang.Integer">
+        select count(*)
+        from T_Base_StoreIoSon s
+        left join T_Base_Sern n on s.TaskCode=n.TaskCode and s.ProductCode=n.ProductCode
+        left join T_Base_StoreIo si on si.TaskCode=s.TaskCode
+        <where >
+            and s.TaskState=2 and s.IsDelete=0 and s.IsEnable=1 and n.IsDelete=0 and si.TaskType=2
+            <if test="whcode!=null and whcode!=''">
+                and si.whCode=#{whcode}
+            </if>
+            <if test="key!=null and key!=''">
+                and (s.ProductCode like concat('%',#{key},'%') or n.Sern  like concat('%',#{key},'%') or s.ProductModel like concat('%',#{key},'%'))
+            </if>
+            <if test="beginCreatedate!=null and beginCreatedate!=''">
+                and s.CreateDate <![CDATA[ >=]]> #{beginCreatedate}
+            </if>
+            <if test="endCreatedate!=null and endCreatedate!=''">
+                and s.CreateDate <![CDATA[ <=]]> #{endCreatedate}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectInventroyManagerByStoreMoveCount"   parameterType="com.wms.warehouse.inventroyManager.domain.InventroyManager" resultType="java.lang.Integer">
+            select count(*)
+            from T_Base_StoreMoveSon s
+            left join T_Base_Sern n on s.TaskCode=n.TaskCode and s.ProductCode=n.ProductCode
+            left join T_Base_StoreMove m on m.TaskCode=s.TaskCode
+            <where >
+                and s.status=2 and s.IsDelete=0 and s.IsEnable=1 and n.IsDelete=0 and m.TaskType=3
+                <if test="whcode!=null and whcode!=''">
+                    and m.whCode=#{whcode}
+                </if>
+                <if test="key!=null and key!=''">
+                    and (s.ProductCode like concat('%',#{key},'%') or n.Sern  like concat('%',#{key},'%') or s.ProductModel like concat('%',#{key},'%'))
+                </if>
+                <if test="beginCreatedate!=null and beginCreatedate!=''">
+                    and s.CreateDate <![CDATA[ >=]]> #{beginCreatedate}
+                </if>
+                <if test="endCreatedate!=null and endCreatedate!=''">
+                    and s.CreateDate <![CDATA[ <=]]> #{endCreatedate}
+                </if>
+            </where>
+    </select>
+
+    <select id="selectByStoreHouseUse"  parameterType="com.wms.warehouse.inventroyManager.domain.InventroyManager" resultType="com.wms.warehouse.inventroyManager.domain.InventroyManager">
+        select t.xAxis, t.sort, COUNT(1) as seriesData
+        from (
+                select '30天以内' as xAxis,WhCode,StorehouseCode, '1' as sort
+                from T_Base_Stock
+                <where>
+                    datediff(day,CreateDate,getdate())<![CDATA[ <= ]]>30
+                    and Quantity <![CDATA[ >]]>0
+                    and IsDelete=0
+                    and IsEnable=1
+                    <if test="beginCreatedate!=null and beginCreatedate!=''">
+                        and CreateDate <![CDATA[ >=]]> #{beginCreatedate}
+                    </if>
+                    <if test="endCreatedate!=null and endCreatedate!=''">
+                        and CreateDate <![CDATA[ <=]]> #{endCreatedate}
+                    </if>
+                </where>
+                group by WhCode,StorehouseCode
+            UNION ALL
+                select '30-60天' as xAxis,WhCode,StorehouseCode, '2' as sort
+                from T_Base_Stock
+                <where>
+                    datediff(day,CreateDate,getdate())<![CDATA[ > ]]>30
+                    and datediff(day,CreateDate,getdate())<![CDATA[ <= ]]>60
+                    and Quantity <![CDATA[ >]]>0
+                    and IsDelete=0
+                    and IsEnable=1
+                    <if test="beginCreatedate!=null and beginCreatedate!=''">
+                        and CreateDate <![CDATA[ >=]]> #{beginCreatedate}
+                    </if>
+                    <if test="endCreatedate!=null and endCreatedate!=''">
+                        and CreateDate <![CDATA[ <=]]> #{endCreatedate}
+                    </if>
+                </where>
+                group by WhCode,StorehouseCode
+            UNION ALL
+                select '60-180天' as xAxis,WhCode,StorehouseCode, '3' as sort
+                from T_Base_Stock
+                <where>
+                    datediff(day,CreateDate,getdate())<![CDATA[ > ]]>60
+                    and datediff(day,CreateDate,getdate())<![CDATA[ <= ]]>180
+                    and Quantity <![CDATA[ >]]>0
+                    and IsDelete=0
+                    and IsEnable=1
+                    <if test="beginCreatedate!=null and beginCreatedate!=''">
+                        and CreateDate <![CDATA[ >=]]> #{beginCreatedate}
+                    </if>
+                    <if test="endCreatedate!=null and endCreatedate!=''">
+                        and CreateDate <![CDATA[ <=]]> #{endCreatedate}
+                    </if>
+                </where>
+                group by WhCode,StorehouseCode
+            UNION ALL
+            select '一年以内' as xAxis,WhCode,StorehouseCode, '4' as sort
+            from T_Base_Stock
+            <where>
+                and datediff(day,CreateDate,getdate())<![CDATA[ <= ]]> 365
+                and Quantity <![CDATA[ >]]>0
+                and IsDelete=0
+                and IsEnable=1
+                <if test="beginCreatedate!=null and beginCreatedate!=''">
+                    and CreateDate <![CDATA[ >=]]> #{beginCreatedate}
+                </if>
+                <if test="endCreatedate!=null and endCreatedate!=''">
+                    and CreateDate <![CDATA[ <=]]> #{endCreatedate}
+                </if>
+            </where>
+            group by WhCode,StorehouseCode
+            UNION ALL
+                select '一年以上' as xAxis,WhCode,StorehouseCode, '5' as sort
+                from T_Base_Stock
+                <where>
+                    datediff(dd,CreateDate,getdate())<![CDATA[ >= ]]>365
+                    and Quantity <![CDATA[ >]]>0
+                    and IsDelete=0
+                    and IsEnable=1
+                    <if test="beginCreatedate!=null and beginCreatedate!=''">
+                        and CreateDate <![CDATA[ >=]]> #{beginCreatedate}
+                    </if>
+                    <if test="endCreatedate!=null and endCreatedate!=''">
+                        and CreateDate <![CDATA[ <=]]> #{endCreatedate}
+                    </if>
+                </where>
+                group by WhCode,StorehouseCode
+        ) t
+        <where>
+            <if test="whcode!=null and whcode !=''">
+                and t.whCode=#{whcode}
+            </if>
+        </where>
+        group by t.xAxis, t.sort
+    </select>
+
+    <select id="selectByProductInTime" parameterType="com.wms.warehouse.inventroyManager.domain.InventroyManager" resultType="com.wms.warehouse.inventroyManager.domain.InventroyManager">
+        select t.xAxis, t.totalNum as seriesData
+        from (
+            select '30天以内' as xAxis , SUM(Quantity) as totalNum
+            from T_Base_StoreIo
+            <where>
+            datediff(day,CreateDate,getdate()) <![CDATA[ <= ]]> 30
+            and Quantity > 0
+            and TaskType = 1
+            and TaskState = 2
+            and IsDelete = 0
+            and IsEnable = 1
+            <if test="beginCreatedate!=null and beginCreatedate!=''">
+                and CreateDate <![CDATA[ >=]]> #{beginCreatedate}
+            </if>
+            <if test="endCreatedate!=null and endCreatedate!=''">
+                and CreateDate <![CDATA[ <=]]> #{endCreatedate}
+            </if>
+            </where>
+            UNION ALL
+            select '30-60天' as xAxis , SUM(Quantity) as totalNum
+            from T_Base_StoreIo
+            <where>
+            datediff(day,CreateDate,getdate()) > 30
+            and datediff(day,CreateDate,getdate()) <![CDATA[ <= ]]> 60
+            and Quantity > 0
+            and TaskType = 1
+            and TaskState = 2
+            and IsDelete = 0
+            and IsEnable = 1
+            </where>
+            UNION ALL
+            select '60-180天' as xAxis , SUM(Quantity) as totalNum
+            from T_Base_StoreIo
+            <where>
+            datediff(day,CreateDate,getdate()) > 60
+            and datediff(day,CreateDate,getdate()) <![CDATA[ <= ]]> 180
+            and Quantity > 0
+            and TaskType = 1
+            and TaskState = 2
+            and IsDelete = 0
+            and IsEnable = 1
+            </where>
+            UNION ALL
+            select '1年以内' as xAxis , SUM(Quantity) as totalNum
+            from T_Base_StoreIo
+            <where>
+            datediff(day,CreateDate,getdate()) <![CDATA[ <= ]]> 365
+            and Quantity > 0
+            and TaskType = 1
+            and TaskState = 2
+            and IsDelete = 0
+            and IsEnable = 1
+            </where>
+            UNION ALL
+            select '1年以上' as xAxis , SUM(Quantity) as totalNum
+            from T_Base_StoreIo
+            <where>
+            datediff(day,CreateDate,getdate()) > 365
+            and Quantity > 0
+            and TaskType = 1
+            and TaskState = 2
+            and IsDelete = 0
+            and IsEnable = 1
+            </where>
+        ) t
+
+        <!--select t.xAxis,COUNT(1) as seriesData
+        from (
+        select '30天以内' as xAxis,ProductCode
+        from T_Base_StoreIo
+        <where>
+            datediff(day,CreateDate,getdate())<![CDATA[ <= ]]>30
+            and Quantity <![CDATA[ >]]>0
+            and IsDelete=0
+            and IsEnable=1
+            <if test="beginCreatedate!=null and beginCreatedate!=''">
+                and CreateDate <![CDATA[ >=]]> #{beginCreatedate}
+            </if>
+            <if test="endCreatedate!=null and endCreatedate!=''">
+                and CreateDate <![CDATA[ <=]]> #{endCreatedate}
+            </if>
+        </where>
+        UNION ALL
+        select '30-60天' as xAxis,ProductCode
+        from T_Base_Stock
+        <where>
+            datediff(day,CreateDate,getdate())<![CDATA[ > ]]>30
+            and datediff(day,CreateDate,getdate())<![CDATA[ <= ]]>60
+            and Quantity <![CDATA[ >]]>0
+            and IsDelete=0
+            and IsEnable=1
+            <if test="beginCreatedate!=null and beginCreatedate!=''">
+                and CreateDate <![CDATA[ >=]]> #{beginCreatedate}
+            </if>
+            <if test="endCreatedate!=null and endCreatedate!=''">
+                and CreateDate <![CDATA[ <=]]> #{endCreatedate}
+            </if>
+        </where>
+        UNION ALL
+        select '60-180天' as xAxis,ProductCode
+        from T_Base_Stock
+        <where>
+            datediff(day,CreateDate,getdate())<![CDATA[ > ]]>60
+            and datediff(day,CreateDate,getdate())<![CDATA[ <= ]]>180
+            and Quantity <![CDATA[ >]]>0
+            and IsDelete=0
+            and IsEnable=1
+            <if test="beginCreatedate!=null and beginCreatedate!=''">
+                and CreateDate <![CDATA[ >=]]> #{beginCreatedate}
+            </if>
+            <if test="endCreatedate!=null and endCreatedate!=''">
+                and CreateDate <![CDATA[ <=]]> #{endCreatedate}
+            </if>
+        </where>
+        UNION ALL
+        select '一年以内' as xAxis,ProductCode
+        from T_Base_Stock
+        <where>
+            datediff(YEAR,CreateDate,getdate())<![CDATA[ <= ]]>365
+            and Quantity <![CDATA[ >]]>0
+            and IsDelete=0
+            and IsEnable=1
+            <if test="beginCreatedate!=null and beginCreatedate!=''">
+                and CreateDate <![CDATA[ >=]]> #{beginCreatedate}
+            </if>
+            <if test="endCreatedate!=null and endCreatedate!=''">
+                and CreateDate <![CDATA[ <=]]> #{endCreatedate}
+            </if>
+        </where>
+        UNION ALL
+        select '一年以上' as xAxis,ProductCode
+        from T_Base_Stock
+        <where>
+            datediff(YEAR,CreateDate,getdate())<![CDATA[ > ]]>365
+            and Quantity <![CDATA[ >]]>0
+            and IsDelete=0
+            and IsEnable=1
+            <if test="beginCreatedate!=null and beginCreatedate!=''">
+                and CreateDate <![CDATA[ >=]]> #{beginCreatedate}
+            </if>
+            <if test="endCreatedate!=null and endCreatedate!=''">
+                and CreateDate <![CDATA[ <=]]> #{endCreatedate}
+            </if>
+        </where>
+        ) t
+        <where>
+            <if test="whcode!=null and whcode !=''">
+                and t.whCode=#{whcode}
+            </if>
+        </where>
+        group by t.xAxis-->
+
+    </select>
+
+    <select id="selectByStoreIoTenCount" parameterType="com.wms.warehouse.inventroyManager.domain.InventroyManager" resultType="com.wms.warehouse.inventroyManager.domain.InventroyManager">
+        select top(10) convert(varchar(100) ,CreateDate,23) as createTime ,TaskType  ,Quantity  from T_Base_StoreIo
+        <where>
+            and IsDelete=0
+            and IsEnable=1
+            <if test="whcode!=null and whcode !=''">
+                and t.whCode=#{whcode}
+            </if>
+            <if test="beginCreatedate!=null and beginCreatedate!=''">
+                and CreateDate <![CDATA[ >=]]> #{beginCreatedate}
+            </if>
+            <if test="endCreatedate!=null and endCreatedate!=''">
+                and CreateDate <![CDATA[ <=]]> #{endCreatedate}
+            </if>
+        </where>
+        order by CreateDate DESC
+    </select>
+
+    <select id="selectCreateDateList" resultType="String">
+        SELECT DISTINCT a.createTime from
+        (select TOP 10 convert(varchar(100) ,CreateDate,23) as createTime
+         from T_Base_StoreIo WHERE IsDelete = 0 ORDER BY CreateDate DESC) a
+         order by a.createTime DESC
+    </select>
+
+</mapper>

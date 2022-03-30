@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('新增库位')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-Storehouse-add">
+        <div class="form-group">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>仓库名称：</label>
+            <div class="col-sm-8">
+                <select name="whcode" id="whcode" class="form-control m-b" th:with="whList=${whList}" onchange="selectRegionCode()">
+                    <option th:each="ware:${whList}" th:value="${ware.whcode}" th:text="${ware.whname}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>区域名称：</label>
+            <div class="col-sm-8">
+                <select name="regioncode" id="regioncode" class="form-control m-b">
+                    <option value="">请选择</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>库位编码：</label>
+            <div class="col-sm-8">
+                <input id="storehousecode" name="storehousecode" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>库位名称：</label>
+            <div class="col-sm-8">
+                <input name="storehousename" class="form-control" type="text">
+            </div>
+        </div>
+        <!--<div class="form-group">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>托盘号：</label>
+            <div class="col-sm-8">
+                &lt;!&ndash;<input name="traycode" class="form-control" type="text">&ndash;&gt;
+                <select id="traycode" name="traycode"  class="form-control select2-hidden-accessible" >
+                    <option th:each="tray:${trayList}" th:value="${tray.traycode}" th:text="${tray.traycode}"></option>
+                </select>
+            </div>
+        </div>-->
+        <div class="form-group">
+            <label class="col-sm-3 control-label">备注：</label>
+            <div class="col-sm-8">
+                <input name="memo" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>状态：</label>
+            <div class="col-sm-8">
+                <div class="radio-box" th:each="dict:${@dict.getType('base_normal_status')}">
+                    <input type="radio" th:id="${dict.dictCode}" name="isenable" th:value="${dict.dictValue}"
+                           th:checked="${dict.default}">
+                    <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: select2-js" />
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<script type="text/javascript">
+    var prefix = ctx + "base/storehouse"
+    $("#form-Storehouse-add").validate({
+        focusCleanup: true,
+        rules:{
+            whcode:{
+                required:true,
+            },
+            regioncode:{
+                required:true,
+            },
+            storehousecode:{
+                required:true,
+                remote: {
+                    url: prefix + "/getStorehouseCode",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        'storehousecode': function () {
+                            return $.common.trim($("#storehousecode").val());
+                        }
+                    },
+                    dataFilter: function (data, type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            storehousename:{
+                required:true,
+            },
+            traycode:{
+                required:true,
+            },
+            isenable:{
+                required:true,
+            },
+        },
+        messages:{
+            'storehousecode':{
+                remote: "库位编码已存在"
+            }
+        }
+    });
+
+    function selectRegionCode() {
+        $("#regioncode").empty();
+        var optionstring = "";
+        $.ajax({
+            url: prefix + "/getRegionByWhcode",
+            type: "post",
+            data: {whcode: $("#whcode").find("option:selected").val()},
+            success: function (result) {
+                for (var i = 0;i < result.length;i ++){
+                    optionstring += "<option value=\"" + result[i].regioncode + "\" >" + result[i].regionname + "</option>";
+                };
+                $("#regioncode").html("<option value=''>请选择</option> "+optionstring);
+            }
+        });
+    }
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/add", $('#form-Storehouse-add').serialize());
+        }
+    };
+
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+F:\WMS-803-LXD\DK03-WMS\wms-generator\src\main\java\com\wms\generator\mapper\GenTableColumnMapper.java
+F:\WMS-803-LXD\DK03-WMS\wms-generator\src\main\java\com\wms\generator\service\IGenTableColumnService.java
+F:\WMS-803-LXD\DK03-WMS\wms-generator\src\main\java\com\wms\generator\util\GenUtils.java
+F:\WMS-803-LXD\DK03-WMS\wms-generator\src\main\java\com\wms\generator\util\VelocityUtils.java
+F:\WMS-803-LXD\DK03-WMS\wms-generator\src\main\java\com\wms\generator\util\VelocityInitializer.java
+F:\WMS-803-LXD\DK03-WMS\wms-generator\src\main\java\com\wms\generator\mapper\GenTableMapper.java
+F:\WMS-803-LXD\DK03-WMS\wms-generator\src\main\java\com\wms\generator\domain\GenTableColumn.java
+F:\WMS-803-LXD\DK03-WMS\wms-generator\src\main\java\com\wms\generator\service\IGenTableService.java
+F:\WMS-803-LXD\DK03-WMS\wms-generator\src\main\java\com\wms\generator\config\GenConfig.java
+F:\WMS-803-LXD\DK03-WMS\wms-generator\src\main\java\com\wms\generator\service\impl\GenTableColumnServiceImpl.java
+F:\WMS-803-LXD\DK03-WMS\wms-generator\src\main\java\com\wms\generator\domain\GenTable.java
+F:\WMS-803-LXD\DK03-WMS\wms-generator\src\main\java\com\wms\generator\controller\GenController.java
+F:\WMS-803-LXD\DK03-WMS\wms-generator\src\main\java\com\wms\generator\service\impl\GenTableServiceImpl.java

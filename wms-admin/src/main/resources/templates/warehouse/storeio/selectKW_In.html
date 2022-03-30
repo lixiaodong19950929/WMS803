@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('选择要维护的产品类型')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+    <style type="text/css">
+        .fixed-table-pagination .pagination-detail, .fixed-table-pagination div.pagination{
+            display: none;
+        }
+        .loadingBg{
+            position: absolute;
+            top: 0;
+            left: 0;
+            width:100%;
+            height: 100%;
+            background-color: rgba(70,67,67,0.5);
+            z-index: 10;
+            display: flex;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+        }
+        .point{
+            width: 14px;
+            height: 14px;
+            border-radius: 14px;
+            background-color: #00F7DE;
+            margin: 0 5px;
+            -webkit-animation: ball-beat 1.7s 0s infinite linear;
+            animation: ball-beat 1.7s 0s infinite linear;
+        }
+        .point:nth-child(2n-1){
+            -webkit-animation-delay: 0.35s !important;
+            animation-delay: 0.35s !important;
+        }
+        @keyframes ball-beat{
+            50% {
+                opacity: 0.2;
+                -webkit-transform: scale(0.75);
+                transform: scale(0.75);
+            }
+            100% {
+                opacity: 1;
+                -webkit-transform: scale(1);
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body class="white-bg">
+<div class="loadingBg">
+    <div class="point"></div>
+    <div class="point"></div>
+    <div class="point"></div>
+    <div class="point"></div>
+    <div class="point"></div>
+</div>
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-CodeDetailInfo-edit">
+        <div>共需要入：<span style="font-size: 21px;color:crimson" th:text="${quantity}"></span> 个</div>
+        <input name="productcode" id="productcode" class="form-control" th:field="${productcode}" type="hidden">
+
+        <div style="width: 100%;margin: 30px 0;">
+            <label class="col-sm-1 control-label">排：</label>
+            <div class="col-sm-2">
+                <select id="pai" name="pai" class="form-control m-b" onchange="paiChange()">
+                    <option value="00">全部</option>
+                    <option value="01">01</option>
+                    <option value="02" >02</option>
+                    <option value="03">03</option>
+                    <option value="04">04</option>
+                </select>
+            </div>
+            <label class="col-sm-1 control-label">列：</label>
+            <div class="col-sm-2">
+                <select id="lie" name="lie" class="form-control m-b" onchange="lieChange()">
+                    <option value="00">全部</option>
+                    <option value="01">01</option>
+                    <option value="02" >02</option>
+                    <option value="03">03</option>
+                    <option value="04">04</option>
+                    <option value="05">05</option>
+                    <option value="06">06</option>
+                    <option value="07">07</option>
+                    <option value="08">08</option>
+                    <option value="09">09</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                    <option value="13">13</option>
+                    <option value="14">14</option>
+                    <option value="15">15</option>
+                    <option value="16">16</option>
+                    <option value="17">17</option>
+                    <option value="18">18</option>
+                    <option value="19">19</option>
+                    <option value="20">20</option>
+                    <option value="21">21</option>
+                    <option value="22">22</option>
+                    <option value="23">23</option>
+                    <option value="24">24</option>
+                    <option value="25">25</option>
+                    <option value="26">26</option>
+                    <option value="27">27</option>
+                </select>
+            </div>
+            <label class="col-sm-1 control-label">层：</label>
+            <div class="col-sm-2">
+                <select id="ceng" name="ceng" class="form-control m-b" onchange="cengChange()">
+                    <option value="00">全部</option>
+                    <option value="01">01</option>
+                    <option value="02" >02</option>
+                    <option value="03">03</option>
+                    <option value="04">04</option>
+                </select>
+            </div>
+            <a class="btn btn-primary btn-rounded btn-sm" onclick="plcSearch()">搜索</a>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-6">
+                <div class="col-sm-6 select-table table-striped">
+                    <table id="bootstrap-table"></table>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="col-sm-6 select-table table-striped">
+                    <table id="bootstrap-table-use"></table>
+                </div>
+            </div>
+        </div>
+
+
+    </form>
+</div>
+
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+<th:block th:include="include :: select2-js" />
+
+<script th:inline="javascript">
+    // $('.loadingBg').css('display','none')
+    var prefix = ctx + "warehouse/storeio";
+    var productcode = [[${productcode}]];//产品代号
+    var quantity = '[[${quantity}]]'; //当前任务 当前产品的总入库数量
+    var rowid = '[[${rowid}]]';//行号
+    var taskcode = [[${taskcode}]];//任务代号
+    var modelDatas = [[${@dict.getType("base_product_model")}]];
+    $(function() {
+        $('.loadingBg').css("display","none");
+        //左侧table 全部
+        var options = {
+            // url:ctx+"base/storeson/getOutTaskInfo",
+            modalName: "产品库存",
+            // queryParams: function(params) {
+            //     return{
+            //         // 传递参数查询参数
+            //         pageSize:       params.limit,
+            //         pageNum:        params.offset / params.limit + 1,
+            //         searchValue:    params.search,
+            //         orderByColumn:  params.sort,
+            //         isAsc:          params.order,
+            //         taskcode:taskcode,
+            //         productcode:productcode
+            //     };
+            // },
+            showSearch: false,
+            showRefresh: false,
+            showColumns: false,
+            showToggle: false,
+            showExport: false,
+            uniqueId:"rowid",
+            columns: [
+                // {
+                //     checkbox: true
+                // },
+                {
+                    field : 'num',
+                    title : '序号',
+                    formatter:function (value, row, index) {
+                        row.num=index+1;
+                        return index+1;
+                    }
+                },
+                // {
+                //     field : 'rowid',
+                //     title : '行号'
+                // },
+                {
+                    field : 'storehousecode',
+                    title : '库位'
+                },
+                // {
+                //     field : 'rowid',
+                //     title : 'rowid',
+                //     visible:false,
+                //     formatter:function (value, row, index) {
+                //         row.rowid=index+1;
+                //         return row.rowid;
+                //     },
+                // },
+                // {
+                //     field : 'productcode',
+                //     title : '产品编码'
+                // },
+                // {
+                //     field : 'productname',
+                //     title : '产品名称'
+                // },
+                // {
+                //     field : 'productmodel',
+                //     title : '产品型号',
+                //     formatter : function (value, row, index) {
+                //         return $.table.selectDictLabel(modelDatas, value)
+                //     }
+                // },
+                {
+                    field : 'quantity',
+                    title : '库存数量'
+                },
+                {
+                    field : 'quantity_yu',
+                    title : '空余位置',
+                    formatter:function (value, row, index) {
+                        // row.rowid=index+1;
+                        var ceng = row.storehousecode.substring(4,6)
+                        var rowquantity = row.quantity?parseInt(row.quantity):0;
+                        if(ceng=='01'){
+                            row.quantity_yu = 8-rowquantity
+                        }else{
+                            row.quantity_yu = 16-rowquantity
+                        }
+                        return row.quantity_yu;
+                    },
+                },
+                // {
+                //     field : 'actualquantity',
+                //     title : '实际存放数量',
+                //     formatter:function (value, row, index) {
+                //         return row.actualquantity? row.actualquantity:0
+                //     }
+                // }
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-primary btn-xs " href="javascript:void(0)" onclick="addToUse(\'' + row.storehousecode+ '\')">添加</a>');
+                        return actions.join('');
+                    }
+                }
+            ],
+            onDblClickCell: function (field, value, row, $element) {
+                var indexRow = $element[0].parentElement.rowIndex - 1;
+                if (field == 'actualquantity') {
+                    $element.attr('contenteditable', true);
+                    $element.blur(function () {
+                        let tdValue = $element.text();
+                        // $.common.isNotEmpty(tdValue)
+                        if(tdValue<0){
+                            $.modal.msgError("请正确填写入库数量");
+                            tdValue = 0
+                        }if(tdValue>row.quantity_yu){
+                            $.modal.msgError("超出库存容量！");
+                            tdValue = 0
+                        }
+                        $('#bootstrap-table').bootstrapTable("updateCell", {
+                            index: indexRow,
+                            field: field,
+                            value: tdValue
+                        });
+                        //数量可变的时候使用此处
+                        // var rows=$('#bootstrap-table').bootstrapTable("getData");
+                        // var sum=0;
+                        // for (var i=0;i<rows.length;i++){
+                        //     sum+=Number(rows[i].quantity);
+                        // }
+                        // $('#quantity').val(sum);
+                    })
+                }
+
+                //如果点击层数弹出下拉框
+                // if(field == 'layer') {
+                //     clickListIndex = $element[0].parentElement.rowIndex - 1;
+                //     $("#layerBox").css('display','block')
+                // }
+            },
+            // onLoadSuccess:function (){
+            //     let tablerows=$('#bootstrap-table').bootstrapTable("getData");
+            //     var checkArr = new Array();
+            //     for (var i=0;i<tablerows.length;i++){
+            //         checkArr.push(tablerows[i].storehousecode)
+            //     }
+            //     $("#bootstrap-table").bootstrapTable("checkBy",{field: 'storehousecode', values:checkArr});
+            // }
+        };
+        $.table.init(options);
+
+        //右侧table选中
+        var options = {
+            url:ctx+"base/storeson/getOutTaskInfo",
+            modalName: "产品库存",
+            queryParams: function(params) {
+                return{
+                    // 传递参数查询参数
+                    pageSize:       params.limit,
+                    pageNum:        params.offset / params.limit + 1,
+                    searchValue:    params.search,
+                    orderByColumn:  params.sort,
+                    isAsc:          params.order,
+                    taskcode:taskcode,
+                    productcode:productcode
+                };
+            },
+            id:"bootstrap-table-use",
+            showSearch: false,
+            showRefresh: false,
+            showColumns: false,
+            showToggle: false,
+            showExport: false,
+            uniqueId:"num",
+            columns: [
+                // {
+                //     checkbox: true
+                // },
+                {
+                    field : 'num',
+                    title : '序号',
+                    formatter:function (value, row, index) {
+                        row.num=index+1;
+                        return index+1;
+                    }
+                },
+                {
+                    field : 'storehousecode',
+                    title : '库位'
+                },
+                {
+                    field : 'quantity',
+                    title : '库存数量'
+                },
+                {
+                    field : 'quantity_yu',
+                    title : '空余位置',
+                    formatter:function (value, row, index) {
+                        // row.rowid=index+1;
+                        var ceng = row.storehousecode.substring(4,6)
+                        var rowquantity = row.quantity?parseInt(row.quantity):0;
+                        if(ceng=='01'){
+                            row.quantity_yu = 4-rowquantity
+                        }else{
+                            row.quantity_yu = 8-rowquantity
+                        }
+                        return row.quantity_yu;
+                    },
+                },
+                {
+                    field : 'actualquantity',
+                    title : '实际存放数量',
+                    formatter:function (value, row, index) {
+                        return row.actualquantity? row.actualquantity:0
+                    }
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-danger btn-xs " href="javascript:void(0)" onclick="delet(\'' + row.num + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }
+            ],
+            onDblClickCell: function (field, value, row, $element) {
+                var indexRow = $element[0].parentElement.rowIndex - 1;
+                if (field == 'actualquantity') {
+                    $element.attr('contenteditable', true);
+                    $element.blur(function () {
+                        let tdValue = $element.text();
+                        // $.common.isNotEmpty(tdValue)
+                        if(tdValue<0){
+                            $.modal.msgError("请正确填写入库数量");
+                            tdValue = 0
+                        }if(tdValue>row.quantity_yu){
+                            $.modal.msgError("超出库存容量！");
+                            tdValue = 0
+                        }
+                        $('#bootstrap-table-use').bootstrapTable("updateCell", {
+                            index: indexRow,
+                            field: field,
+                            value: tdValue
+                        });
+                        //数量可变的时候使用此处
+                        // var rows=$('#bootstrap-table').bootstrapTable("getData");
+                        // var sum=0;
+                        // for (var i=0;i<rows.length;i++){
+                        //     sum+=Number(rows[i].quantity);
+                        // }
+                        // $('#quantity').val(sum);
+                    })
+                }
+            },
+            // onLoadSuccess:function (){
+            //     let tablerows=$('#bootstrap-table').bootstrapTable("getData");
+            //     var checkArr = new Array();
+            //     for (var i=0;i<tablerows.length;i++){
+            //         checkArr.push(tablerows[i].storehousecode)
+            //     }
+            //     $("#bootstrap-table").bootstrapTable("checkBy",{field: 'storehousecode', values:checkArr});
+            // }
+        };
+        $.table.init(options);
+
+
+
+        var config = {
+            url: ctx + "warehouse/inventroyManager/getinventroyManagerByStock",
+            type: "post",
+            dataType: "json",
+            data:{
+                "whcode":'WH0003'
+            },
+            beforeSend: function () {
+                $.modal.loading("正在处理中，请稍后...");
+                // $.modal.disable();
+            },
+            success: function(result) {
+                $.modal.closeLoading();
+                if (typeof callback == "function") {
+                    callback(result);
+                }
+                // $.operate.ajaxSuccess(result);
+            }
+        };
+        $.ajax(config)
+    })
+
+    //右侧已选中的数据删除
+    function delet(num){
+        var row=$("#bootstrap-table-use").bootstrapTable("getData");
+        $("#bootstrap-table-use").bootstrapTable('removeByUniqueId', num);
+    }
+
+    //左侧添加至右侧
+    function addToUse(storehousecode){
+        var row=$("#bootstrap-table").bootstrapTable("getData");
+        var row_use=$("#bootstrap-table-use").bootstrapTable("getData");
+        var foo = row.filter(item => {
+            return item.storehousecode == storehousecode
+        })
+        if(row_use.some(item => item.storehousecode==storehousecode)){
+            $.modal.msgError("此库位已添加。");
+        }else{
+            $("#bootstrap-table-use").bootstrapTable("insertRow",{
+                index:'',
+                row:{
+                    rowid:rowid,
+                    quantity :foo[0].quantity,
+                    taskcode:taskcode.replace(/\"/g, ""),
+                    productcode:productcode.replace(/\"/g, ""),
+                    storehousecode:foo[0].storehousecode,
+                    productname:foo[0].productname,
+                    traycode:foo[0].traycode,
+                    // actualquantity:foo[0].actualquantity
+                }
+            });
+        }
+
+    }
+
+    var leftTableData = [];
+    //左侧数据接口获取完成后进行遍历插入到DOM中
+    function callback(res){
+        let data = res.data.list.filter(item => {
+            let isSamePro = item.productcode?item.productcode==productcode:'true';
+            return item.traycode && isSamePro && item.storehousestate!=4
+        })
+        leftTableData = data;
+        data.forEach((item,index) => {
+            //首先从所有库存中一一去出库任务明细表里找如果有一样的 就不用再次插入
+            let tablerows=$('#bootstrap-table').bootstrapTable("getData");
+        // if(tablerows.some(item1 =>item1.storehousecode==item.storehousecode)){
+        //     return;
+        // }else{
+        $("#bootstrap-table").bootstrapTable("insertRow",{
+            index:index,
+            row:{
+                rowid:rowid,
+                quantity :item.quantity,
+                taskcode:taskcode.replace(/\"/g, ""),
+                productcode:productcode.replace(/\"/g, ""),
+                storehousecode:item.storehousecode,
+                productname:item.productname,
+                traycode:item.traycode,
+                // actualquantity:item.actualquantity
+            }
+        });
+        // }
+
+    })
+
+    }
+
+    function submitHandler() {
+        // var row=$("#bootstrap-table-use").bootstrapTable("getSelections");//由于去掉了原先的勾选改为getdata↓
+        var row=$("#bootstrap-table-use").bootstrapTable("getData");
+        var rkzs = 0;
+        if(row.length==0){
+            $.modal.msgError("请指定库位");
+        }else{
+            for(let i = 0;i<row.length;i++){
+                console.log(row[i].actualquantity)
+                if(row[i].actualquantity==0 || row[i].actualquantity=="" || !row[i].actualquantity){
+                    $.modal.msgError("选中库位的入库数量不能为0");
+                    return;
+                }
+                rkzs += parseInt(row[i].actualquantity)
+            }
+            if(rkzs>quantity){
+                $.modal.msgError("超出本类产品入库总数量");
+                return;
+            }
+
+            var listArr = new Array();
+            for (var i=0;i<row.length;i++){
+                console.log(row[i].traycode)
+                var param = {
+                    rowid:row[i].rowid,
+                    quantity :row[i].quantity,
+                    taskcode:row[i].taskcode,
+                    productcode:row[i].productcode,
+                    storehousecode:row[i].storehousecode,
+                    productname:row[i].productname,
+                    actualquantity:row[i].actualquantity,
+                    traycode:row[i].traycode
+                }
+                listArr.push(param)
+            }
+            var params={
+                list:JSON.stringify(listArr)
+            }
+            $.operate.save(ctx + "base/storeson/adds",params);
+            $.modal.close();
+        }
+    }
+
+    function paiChange(){
+
+    }
+    function lieChange(){
+        console.log($("#lie").val())
+    }
+    function cengChange(){
+        console.log($("#ceng").val())
+    }
+    function plcSearch(){
+        $('.loadingBg').css("display","flex");
+        var paiVal = $("#pai").val()
+        var lieVal = $("#lie").val()
+        var cengVal = $("#ceng").val()
+        var filterData=[]
+        $("#bootstrap-table").bootstrapTable('removeAll');
+        if(paiVal=='00'&&lieVal!='00'&&cengVal!='00'){
+            filterData = leftTableData.filter(item => {
+                return item.storehousecode.substring(2,4)==$("#lie").val() && item.storehousecode.substring(4,6)==$("#ceng").val()
+            })
+        }else if(lieVal=='00'&&paiVal!='00'&&cengVal!='00'){
+            filterData = leftTableData.filter(item => {
+                return item.storehousecode.substring(0,2)==$("#pai").val()  && item.storehousecode.substring(4,6)==$("#ceng").val()
+            })
+        }else if(cengVal=='00'&&lieVal!='00'&&paiVal!='00'){
+            filterData = leftTableData.filter(item => {
+                return item.storehousecode.substring(0,2)==$("#pai").val() && item.storehousecode.substring(2,4)==$("#lie").val()
+            })
+        }else if(paiVal=='00' && lieVal=='00' && cengVal!='00'){
+            filterData = leftTableData.filter(item => {
+                return  item.storehousecode.substring(4,6)==$("#ceng").val()
+            })
+        }else if(lieVal=='00' && cengVal=='00' && paiVal!='00'){
+
+            filterData = leftTableData.filter(item => {
+                return item.storehousecode.substring(0,2)==$("#pai").val()
+            })
+        }else if(paiVal=='00' && cengVal=='00' && lieVal!='00'){
+            filterData = leftTableData.filter(item => {
+                return  item.storehousecode.substring(2,4)==$("#lie").val()
+            })
+        }else if(paiVal!='00' && lieVal!='00' && cengVal!='00'){
+            filterData = leftTableData.filter(item => {
+                return item.storehousecode.substring(0,2)==$("#pai").val() && item.storehousecode.substring(2,4)==$("#lie").val() && item.storehousecode.substring(4,6)==$("#ceng").val()
+            })
+        }else if(paiVal=='00' && lieVal=='00' && cengVal=='00'){
+            filterData = leftTableData
+        }
+        setTimeout(()=>{
+            filterDataInsert(filterData).then(res => {
+                $('.loadingBg').css("display","none");
+    })
+    },100)
+    }
+    async function filterDataInsert(filterData){
+        filterData.forEach((item,index)=>{
+            $("#bootstrap-table").bootstrapTable("insertRow",{
+            index:index,
+            row:{
+                rowid:rowid,
+                quantity :item.quantity,
+                taskcode:taskcode.replace(/\"/g, ""),
+                productcode:productcode.replace(/\"/g, ""),
+                storehousecode:item.storehousecode,
+                productname:item.productname,
+                // actualquantity:item.actualquantity
+            }
+        });
+    })
+    }
+</script>
+
+</body>
+</html>

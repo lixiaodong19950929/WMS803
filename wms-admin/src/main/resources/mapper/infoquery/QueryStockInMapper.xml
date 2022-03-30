@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.infoquery.querystockin.mapper.QueryStockInMapper">
+
+    <sql id="selectStoreIoVo">
+        select Id, TaskType, TaskCode, TaskName, ProductDetail, VenInfo, Maker, MPoCode, OrderCode, WhCode, Quantity, TaskState, Note, CreateUser, CreateDate, F1, F2, F3, F4 from T_Base_StoreIo
+    </sql>
+
+    <!-- 查询入库列表 -->
+    <select id="selectQueryStockInList" resultType="com.wms.infoquery.querystockin.domain.QueryStoreIo">
+        select s.Id, s.TaskType, s.TaskCode, s.TaskName, s.ProductDetail, s.VenInfo, s.Maker, s.MPoCode,
+        s.OrderCode, s.WhCode, s.Quantity, s.TaskState, s.CreateUser, s.CreateDate, s.F1, s.F2, s.F3, s.F4,
+        w.WhName
+        from T_Base_StoreIo s
+        left join T_Base_Warehouse w on s.WhCode = w.WhCode
+        left join T_Base_Sern bs on bs.TaskCode = s.TaskCode
+        <where>
+            s.IsDelete = 0
+            <if test="id != null ">and s.Id = #{id}</if>
+            <if test="taskname != null  and taskname != ''">and s.TaskName like concat('%' , #{taskname} , '%')</if>
+            <if test="taskcode != null  and taskcode != ''">and s.TaskCode like concat('%' , #{taskcode} , '%')</if>
+            <if test="maker != null  and maker != ''">and s.Maker = #{maker}</if>
+            <if test="whcode != null  and whcode != ''">and s.WhCode = #{whcode}</if>
+            <if test="taskstate != null  and taskstate != ''">and s.TaskState = #{taskstate}</if>
+            <if test="tasktype != null  and tasktype != ''">and s.TaskType = #{tasktype}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND datediff(dd,#{params.beginTime},s.CreateDate)>=0
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND datediff(dd,s.CreateDate,#{params.endTime})>=0
+            </if>
+            <if test="sern != null and sern != ''">and bs.Sern = #{sern}</if>
+        </where>
+        ORDER BY s.CreateDate DESC
+    </select>
+
+    <!-- <select id="selectStoreIoById" parameterType="String" resultMap="StoreIoResult">
+         <include refid="selectStoreIoVo"/>
+         where TaskType = #{tasktype}
+     </select>-->
+
+    <!-- 查询入库明细详情列表 -->
+    <select id="selectQueryStockInDetailList" resultType="com.wms.infoquery.querystockin.domain.QueryStoreIo">
+        select ss.Id, ss.RowId, ss.TaskCode, ss.ProductCode, ss.ProductName, ss.ProductModel, ss.Quantity, ss.TaskState,
+        ss.Memo, ss.CreateUser, ss.CreateDate, ss.GUID, si.TaskName,si.TaskType,ss.OtherProductCode
+        from T_Base_StoreIoSon ss
+        left join T_Base_StoreIo si on ss.TaskCode = si.TaskCode
+        left join T_Base_Sern bs on bs.TaskCode = ss.TaskCode
+        <where>
+            ss.IsDelete = 0
+            <if test="id != null ">and ss.Id = #{id}</if>
+            <if test="taskcode != null and taskcode != ''">and ss.TaskCode = #{taskcode}</if>
+            <if test="taskname != null and taskname != ''">
+                and ss.TaskCode in (select TaskCode from T_Base_StoreIo where TaskName like '%' + #{taskname} + '%')
+            </if>
+            <if test="productcode != null  and productcode != ''">and ss.ProductCode = #{productcode}</if>
+            <if test="productname != null  and productname != ''">and ss.ProductName like '%' + #{productname} + '%'
+            </if>
+            <if test="taskstate != null  and taskstate != ''">and ss.TaskState = #{taskstate}</if>
+            <if test="tasktype != null  and tasktype != ''">and si.TaskType = #{tasktype}</if>
+            <if test="startTime != null and startTime != ''"><!-- 开始时间检索 -->
+                AND datediff(dd,#{startTime},ss.CreateDate)>=0
+            </if>
+            <if test="endTime != null and endTime != ''"><!-- 结束时间检索 -->
+                AND datediff(dd,ss.CreateDate,#{endTime})>=0
+            </if>
+            <if test="sern != null and sern != ''">and bs.Sern = #{sern}</if>
+        </where>
+        ORDER BY ss.CreateDate DESC
+    </select>
+</mapper>

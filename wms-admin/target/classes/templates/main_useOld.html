@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--360浏览器优先以webkit内核解析-->
+    <title>仓储管理系统</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link href="../static/css/font-awesome.min.css" th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/animate.min.css" th:href="@{/css/main/animate.min.css}" rel="stylesheet"/>
+    <link href="../static/css/main/style.min862f.css" th:href="@{/css/main/style.min862f.css}" rel="stylesheet"/>
+    <!--引入看板的css-->
+    <link href="../static/css/kanban_useOld.css" th:href="@{/css/kanban.css}" rel="stylesheet"/>
+</head>
+<style>
+</style>
+<body class="gray-bg">
+	<div class="row" id="kanban">
+        <div class="row kanban_kuang">
+            <span class="title_text">
+                <img src="../static/img/kanban_logo.png" th:src="@{/img/kanban_logo.png}" style="width: 28%;">
+                数字化仓库管理系统
+            </span>
+            <!--看板左-->
+            <div class="col-md-4">
+                <!-- 看板左一 -->
+                <div class="left_one">
+                    <div style="color: #fff;position: relative;top: 10%;left: 5%;letter-spacing:2px;">使用情况</div>
+                    <div id="Inventory" style="width:35%;height:100%;float: left;left: 5%;"></div>
+                    <div id="Task" style="width:35%;height:100%;float: right;right: 5%;"></div>
+                </div>
+                <!--看板左二开始-->
+                <div class="right_two">
+                    <div class="table_head" style="height: 93%;">
+                        <div style="width: 100%;height: 100%;margin: 0px auto;position: relative;top:0px;z-index: 999;overflow: hidden;text-align: center;" class="caiji-header">
+                            <table style="width: 100%;">
+                                <thead style="text-align:center;background-color:#0A2E5B;">
+                                <tr style='color: #fff; height:36px;'>
+                                    <th style="width:25%">入库名称</th>
+                                    <th style="width:25%">入库数量</th>
+                                    <th style="width:25%">入库状态</th>
+                                    <th style="width:25%">制单人</th>
+                                </tr>
+                                <tbody style="opacity: 0;"></tbody>
+                                </thead>
+                            </table>
+                        </div>
+                        <div style="width: 100%;margin: 0px auto;position: relative;margin-top: -46%;left: 0%;" class="caiji-body">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="text-align: center;width: 100%;">
+                                <!--表格数据在drillingmap.js中渲染-->
+                                <thead style="text-align:center; background-color:#0A2E5B;">
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!--<div class="table-body">-->
+                        <!--<table style="width: 90%;color: rgba(171,203,255,1);margin: 0 auto;text-align: center;margin-top:15px;" id="right_bottom">-->
+                        <!--</table>-->
+                    <!--</div>-->
+                </div>
+                <!--看板左二结束-->
+
+            </div>
+            <!--看板左结束-->
+
+            <!--看板中开始-->
+            <div class="col-md-4">
+                <!--中一开始-->
+                <div class="left_two">
+                    <div class="table_head" style="height: 93%;">
+                        <div style="width: 100%;height: 100%;margin: 0px auto;position: relative;top:0px;z-index: 999;overflow: hidden;text-align: center;" class="tbl-header">
+                            <table style="width: 100%;">
+                                <thead style="text-align:center;background-color:#0A2E5B;">
+                                <tr style='color: #fff; height:36px;'>
+                                    <th style="width:25%">库位</th>
+                                    <th style="width:25%">产品</th>
+                                    <th style="width:25%">托盘</th>
+                                    <th style="width:25%">条码</th>
+                                </tr>
+                                <tbody style="opacity: 0;"></tbody>
+                                </thead>
+                            </table>
+                        </div>
+                        <div style="width: 100%;margin: 0px auto;position: relative;margin-top: -46%;left: 0%;" class="tbl-body">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="text-align: center;width: 100%;">
+                                <!--表格数据在drillingmap.js中渲染-->
+                                <thead style="text-align:center; background-color:#0A2E5B;">
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!--中一结束-->
+                <!--中二开始-->
+                <div class="right_one">
+                    <div class="table_head" style="height: 93%;">
+                        <div style="width: 100%;height: 100%;margin: 0px auto;position: relative;top:0px;z-index: 999;overflow: hidden;text-align: center;" class="center-header">
+                            <table style="width: 100%;">
+                                <thead style="text-align:center;background-color:#0A2E5B;">
+                                <tr style='color: #fff; height:36px;'>
+                                    <th style="width:25%">出库名称</th>
+                                    <th style="width:25%">出库数量</th>
+                                    <th style="width:25%">出库状态</th>
+                                    <th style="width:25%">制单人</th>
+                                </tr>
+                                <tbody style="opacity: 0;"></tbody>
+                                </thead>
+                            </table>
+                        </div>
+                        <div style="width: 100%;margin: 0px auto;position: relative;margin-top: -46%;left: 0%;" class="center-body">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="text-align: center;width: 100%;">
+                                <!--表格数据在drillingmap.js中渲染-->
+                                <thead style="text-align:center; background-color:#0A2E5B;">
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!--中二结束-->
+            </div>
+            <!--看板中结束-->
+
+            <!--看板右开始-->
+            <div class="col-md-4">
+                <!-- 看板右一 -->
+                <div style="height:45%;">
+                    <div class="center_circular" style="position: absolute;top:10%;left:8%;">
+                        <img src="../static/img/ruku.png" th:src="@{/img/ruku.png}" style="width: 100%;"/>
+                        <span class="circular_text">入库</span>
+                        <div style="font-size: 22px;color: #C05600;text-align:center;margin-top:16px;"><span class="circular_number" id="intoQuantity"></span>个</div>
+                    </div>
+                    <div class="center_circular" style="position: absolute;top:10%;left: 40%;">
+                        <img src="../static/img/chuku.png" th:src="@{/img/chuku.png}" style="width: 100%;"/>
+                        <span class="circular_text" style="color:#449740">出库</span>
+                        <div style="font-size: 22px;color: #449740;text-align:center;margin-top:17px;"><span id="outQuantity" class="circular_number" style="color: #449740;"></span>个</div>
+                    </div>
+                    <div class="center_circular" style="position: absolute;top:10%;right:8%;">
+                        <img src="../static/img/yiku.png" th:src="@{/img/yiku.png}" style="width: 100%;"/>
+                        <span class="circular_text" style="color:#573AD2">移库</span>
+                        <div style="font-size: 22px;color: #573AD2;text-align:center;margin-top:16px;"><span class="circular_number" id="moveQuantity" style="color: #573AD2;"></span>个</div>
+                    </div>
+                </div>
+                <!--看板右一结束-->
+                <!--看板右二开始-->
+                <div class="right_lower">
+                    <div class="table_head" style="height: 93%;">
+                        <div style="width: 100%;height: 100%;margin: 0px auto;position: relative;top:0px;z-index: 999;overflow: hidden;text-align: center;" class="right-header">
+                            <table style="width: 100%;">
+                                <thead style="text-align:center;background-color:#0A2E5B;">
+                                <tr style='color: #fff; height:36px;'>
+                                    <th style="width:25%">移库名称</th>
+                                    <th style="width:25%">移库数量</th>
+                                    <th style="width:25%">移库状态</th>
+                                    <th style="width:25%">制单人</th>
+                                </tr>
+                                <tbody style="opacity: 0;"></tbody>
+                                </thead>
+                            </table>
+                        </div>
+                        <div style="width: 100%;margin: 0px auto;position: relative;margin-top: -46%;left: 0%;" class="right-body">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="text-align: center;width: 100%;">
+                                <!--表格数据在drillingmap.js中渲染-->
+                                <thead style="text-align:center; background-color:#0A2E5B;">
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!--看板右二结束-->
+
+            </div>
+            <!--看板右结束-->
+        </div>
+    </div>
+
+
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <script th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+    <!--引入echarts-->
+    <script th:src="@{/js/echarts.min.js}"></script>
+    <!--引入封装好的饼图echarts.js-->
+    <script th:src="@{/js/PieChart.js}"></script>
+    <!--引入看板js-->
+    <script th:src="@{/js/kanban.js}"></script>
+    <script type="text/javascript">
+	    $('#pay-qrcode').click(function(){
+	        var html=$(this).html();
+	        parent.layer.open({
+	            title: false,
+	            type: 1,
+	            closeBtn:false,
+	            shadeClose:true,
+	            area: ['600px', 'auto'],
+	            content: html
+	        });
+	    });
+    </script>
+</body>
+</html>

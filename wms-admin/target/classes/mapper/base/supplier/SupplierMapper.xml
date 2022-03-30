@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.base.supplier.mapper.SupplierMapper">
+    
+    <resultMap type="Supplier" id="SupplierResult">
+        <result property="id"    column="Id"    />
+        <result property="suppliercode"    column="SupplierCode"    />
+        <result property="suppliername"    column="SupplierName"    />
+        <result property="supabbreviation"    column="SupAbbreviation"    />
+        <result property="supaddress"    column="SupAddress"    />
+        <result property="suplandline"    column="SupLandline"    />
+        <result property="supcontact"    column="SupContact"    />
+        <result property="supsex"    column="SupSex"    />
+        <result property="supidcard"    column="SupIdCard"    />
+        <result property="contacttel"    column="ContactTel"    />
+        <result property="memo"    column="Memo"    />
+        <result property="createuser"    column="CreateUser"    />
+        <result property="createdate"    column="CreateDate"    />
+        <result property="f1"    column="F1"    />
+        <result property="f2"    column="F2"    />
+    </resultMap>
+
+    <sql id="selectSupplierVo">
+        select Id, SupplierCode, SupplierName, SupAbbreviation, SupAddress, SupLandline, SupContact, SupSex, SupIdCard, ContactTel, Memo, CreateUser, CreateDate, F1, F2 from T_Base_Supplier
+    </sql>
+
+    <select id="selectSupplierList" parameterType="Supplier" resultMap="SupplierResult">
+        <include refid="selectSupplierVo"/>
+        <where>  
+            <if test="id != null "> and Id = #{id}</if>
+            <if test="suppliercode != null  and suppliercode != ''"> and SupplierCode = #{suppliercode}</if>
+            <if test="suppliername != null  and suppliername != ''"> and SupplierName like concat('%', #{suppliername}, '%')</if>
+            <if test="supabbreviation != null  and supabbreviation != ''"> and SupAbbreviation = #{supabbreviation}</if>
+            <if test="supaddress != null  and supaddress != ''"> and SupAddress = #{supaddress}</if>
+            <if test="suplandline != null  and suplandline != ''"> and SupLandline = #{suplandline}</if>
+            <if test="supcontact != null  and supcontact != ''"> and SupContact = #{supcontact}</if>
+            <if test="supsex != null  and supsex != ''"> and SupSex = #{supsex}</if>
+            <if test="supidcard != null  and supidcard != ''"> and SupIdCard = #{supidcard}</if>
+            <if test="contacttel != null  and contacttel != ''"> and ContactTel = #{contacttel}</if>
+            <if test="memo != null  and memo != ''"> and Memo = #{memo}</if>
+            <if test="createuser != null  and createuser != ''"> and CreateUser = #{createuser}</if>
+            <if test="createdate != null "> and CreateDate = #{createdate}</if>
+            <if test="f1 != null  and f1 != ''"> and F1 = #{f1}</if>
+            <if test="f2 != null  and f2 != ''"> and F2 = #{f2}</if>
+        </where>
+    </select>
+    
+    <select id="selectSupplierById" parameterType="Long" resultMap="SupplierResult">
+        <include refid="selectSupplierVo"/>
+        where Id = #{id}
+    </select>
+
+    <select id="selectSupplierDict" resultMap="SupplierResult">
+        <include refid="selectSupplierVo"/>
+    </select>
+        
+    <insert id="insertSupplier" parameterType="Supplier">
+        insert into T_Base_Supplier
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null ">Id,</if>
+            <if test="suppliercode != null  and suppliercode != ''">SupplierCode,</if>
+            <if test="suppliername != null  and suppliername != ''">SupplierName,</if>
+            <if test="supabbreviation != null  and supabbreviation != ''">SupAbbreviation,</if>
+            <if test="supaddress != null  and supaddress != ''">SupAddress,</if>
+            <if test="suplandline != null  and suplandline != ''">SupLandline,</if>
+            <if test="supcontact != null  and supcontact != ''">SupContact,</if>
+            <if test="supsex != null  and supsex != ''">SupSex,</if>
+            <if test="supidcard != null  and supidcard != ''">SupIdCard,</if>
+            <if test="contacttel != null  and contacttel != ''">ContactTel,</if>
+            <if test="memo != null  and memo != ''">Memo,</if>
+            <if test="createuser != null  and createuser != ''">CreateUser,</if>
+            <if test="createdate != null ">CreateDate,</if>
+            <if test="f1 != null  and f1 != ''">F1,</if>
+            <if test="f2 != null  and f2 != ''">F2,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null ">#{id},</if>
+            <if test="suppliercode != null  and suppliercode != ''">#{suppliercode},</if>
+            <if test="suppliername != null  and suppliername != ''">#{suppliername},</if>
+            <if test="supabbreviation != null  and supabbreviation != ''">#{supabbreviation},</if>
+            <if test="supaddress != null  and supaddress != ''">#{supaddress},</if>
+            <if test="suplandline != null  and suplandline != ''">#{suplandline},</if>
+            <if test="supcontact != null  and supcontact != ''">#{supcontact},</if>
+            <if test="supsex != null  and supsex != ''">#{supsex},</if>
+            <if test="supidcard != null  and supidcard != ''">#{supidcard},</if>
+            <if test="contacttel != null  and contacttel != ''">#{contacttel},</if>
+            <if test="memo != null  and memo != ''">#{memo},</if>
+            <if test="createuser != null  and createuser != ''">#{createuser},</if>
+            <if test="createdate != null ">#{createdate},</if>
+            <if test="f1 != null  and f1 != ''">#{f1},</if>
+            <if test="f2 != null  and f2 != ''">#{f2},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSupplier" parameterType="Supplier">
+        update T_Base_Supplier
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="suppliercode != null  and suppliercode != ''">SupplierCode = #{suppliercode},</if>
+            <if test="suppliername != null  and suppliername != ''">SupplierName = #{suppliername},</if>
+            <if test="supabbreviation != null  and supabbreviation != ''">SupAbbreviation = #{supabbreviation},</if>
+            <if test="supaddress != null  and supaddress != ''">SupAddress = #{supaddress},</if>
+            <if test="suplandline != null  and suplandline != ''">SupLandline = #{suplandline},</if>
+            <if test="supcontact != null  and supcontact != ''">SupContact = #{supcontact},</if>
+            <if test="supsex != null  and supsex != ''">SupSex = #{supsex},</if>
+            <if test="supidcard != null  and supidcard != ''">SupIdCard = #{supidcard},</if>
+            <if test="contacttel != null  and contacttel != ''">ContactTel = #{contacttel},</if>
+            <if test="memo != null  and memo != ''">Memo = #{memo},</if>
+            <if test="createuser != null  and createuser != ''">CreateUser = #{createuser},</if>
+            <if test="createdate != null ">CreateDate = #{createdate},</if>
+            <if test="f1 != null  and f1 != ''">F1 = #{f1},</if>
+            <if test="f2 != null  and f2 != ''">F2 = #{f2},</if>
+        </trim>
+        where Id = #{id}
+    </update>
+
+    <delete id="deleteSupplierById" parameterType="Long">
+        delete from T_Base_Supplier where Id = #{id}
+    </delete>
+
+    <delete id="deleteSupplierByIds" parameterType="String">
+        delete from T_Base_Supplier where Id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

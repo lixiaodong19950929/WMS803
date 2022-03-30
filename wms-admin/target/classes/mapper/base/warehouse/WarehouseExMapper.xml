@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.base.warehouse.mapper.WarehouseExMapper">
+    <resultMap type="WarehouseEx" id="WarehouseResultEx">
+        <result property="id" column="Id"/>
+        <result property="whCode" column="WhCode"/>
+        <result property="whName" column="WhName"/>
+        <result property="whAddress" column="WhAddress"/>
+        <result property="whPhone" column="WhPhone"/>
+        <result property="whPerson" column="WhPerson"/>
+        <result property="cBarCode" column="cBarCode"/>
+        <result property="inventoryCycle" column="InventoryCycle"/>
+        <result property="inventoryCycleUnit" column="InventoryCycleUnit"/>
+        <result property="memo" column="Memo"/>
+        <result property="lastCheckDate" column="LastCheckDate"/>
+        <result property="createUser" column="CreateUser"/>
+        <result property="createDate" column="CreateDate"/>
+        <result property="modifyUser" column="ModifyUser"/>
+        <result property="modifyDate" column="ModifyDate"/>
+        <result property="isEnable" column="IsEnable"/>
+        <result property="isDelete" column="IsDelete"/>
+        <result property="f1" column="F1"/>
+        <result property="f2" column="F2"/>
+        <result property="f3" column="F3"/>
+        <result property="f4" column="F4"/>
+    </resultMap>
+
+    <select id="selectWarehousePage" parameterType="WarehouseEx" resultMap="WarehouseResultEx">
+        SELECT Id, WhCode, WhName, WhAddress, WhPhone, WhPerson, cBarCode, InventoryCycle, InventoryCycleUnit, Memo,
+        LastCheckDate, CreateUser, CreateDate, ModifyUser, ModifyDate, IsEnable, IsDelete, F1, F2, F3, F4
+        FROM
+        T_Base_Warehouse
+        <where>
+            and IsDelete=0
+            ORDER BY Id DESC
+            offset ${(pageIndex-1) * pageSize} rows fetch next #{pageSize} rows only
+        </where>
+    </select>
+
+    <select id="selectWarehouseTotalCount" resultType="Integer">
+        SELECT COUNT(*) FROM T_Base_Warehouse
+        WHERE
+        IsDelete=0
+    </select>
+
+</mapper>

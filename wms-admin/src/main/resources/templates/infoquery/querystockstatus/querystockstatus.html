@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('库存列表')"/>
+    <link href="../static/css/inventroyManager.css" th:href="@{/css/inventroyManager.css}" rel="stylesheet"/>
+</head>
+<body class="gray-bg">
+<!--<div class="container-div">-->
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+
+                        <li>
+                            <p>库区：</p>
+                            <input type="text" id="whname" name="whname" onkeydown="keydown()"/>
+                        </li>
+                        <li>
+                            <p>库位-行：</p>
+                            <input type="text" id="storehouseline" name="storehouseline" onkeydown="keydown()"/>
+                        </li>
+                        <li>
+                            <p>库位-列：</p>
+                            <input type="text" id="storehousecolum" name="storehousecolum" onkeydown="keydown()"/>
+                        </li>
+                        <li>
+                            <p>库位-层：</p>
+                            <input type="text" id="storehouselayer" name="storehouselayer" onkeydown="keydown()"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="searchTable()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-12 select-table content_kuwei">
+<!--            <table id="bootstrap-table"></table>-->
+                <!--顶部层数文字-->
+                <div class="topCeng">
+                    <div class="eachKu" style="width: 10%;">
+                        <table class="tableStyle">
+                            <tr>
+                                <td><span class="numWord">4</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">3</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">2</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">1</span><span style="font-size: 0.5vw">层</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="eachKu" style="width: 12%;left: 19%;">
+                        <table class="tableStyle">
+                            <tr>
+                                <td><span class="numWord">1</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">2</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">3</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">4</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">5</span><span style="font-size: 0.5vw">层</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="eachKu" style="width: 12%;left: 33%;">
+                        <table class="tableStyle">
+                            <tr>
+                                <td><span class="numWord">5</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">4</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">3</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">2</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">1</span><span style="font-size: 0.5vw">层</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="eachKu" style="width: 12%;right: 33%;">
+                        <table class="tableStyle">
+                            <tr>
+                                <td><span class="numWord">1</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">2</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">3</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">4</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">5</span><span style="font-size: 0.5vw">层</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="eachKu" style="width: 12%;right: 19%;">
+                        <table class="tableStyle">
+                            <tr>
+                                <td><span class="numWord">5</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">4</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">3</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">2</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">1</span><span style="font-size: 0.5vw">层</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="eachKu" style="width: 10%;right: 0%;">
+                        <table class="tableStyle">
+                            <tr>
+                                <td><span class="numWord">1</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">2</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">3</span><span style="font-size: 0.5vw">层</span></td>
+                                <td><span class="numWord">4</span><span style="font-size: 0.5vw">层</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <!--中间画方格区域-->
+                <div class="content_bg">
+                    <div class="content_bg_left">
+                        <table id="table_one" border="2" bordercolor="#3896f6" cellspacing="0" class="tableStyle">
+                        </table>
+                    </div>
+                    <div class="content_bg_center1">
+                        <table id="table_two" border="2" bordercolor="#3896f6" cellspacing="0" class="tableStyle">
+                        </table>
+                    </div>
+                    <div class="content_bg_center2">
+                        <table id="table_three" border="2" bordercolor="#3896f6" cellspacing="0" class="tableStyle">
+                        </table>
+                    </div>
+                    <div class="content_bg_center3">
+                        <table id="table_four" border="2" bordercolor="#3896f6" cellspacing="0" class="tableStyle">
+                        </table>
+                    </div>
+                    <div class="content_bg_center4">
+                        <table id="table_five" border="2" bordercolor="#3896f6" cellspacing="0" class="tableStyle">
+                        </table>
+                    </div>
+                    <div class="content_bg_right">
+                        <table id="table_six" border="2" bordercolor="#3896f6" cellspacing="0" class="tableStyle">
+                        </table>
+                    </div>
+                    <!--虚线部分以及垛机小车-->
+                    <div class="dashDiv" style="left: 13%;">
+                        <div class="blueDuoJi">
+                            <div class="duoJiStatus"></div>
+                        </div>
+                    </div>
+                    <div class="dashDiv" style="left: 48.5%;">
+                        <div class="blueDuoJi">
+                            <div class="duoJiStatus"></div>
+                        </div>
+                    </div>
+                    <div class="dashDiv" style="right: 13%;">
+                        <div class="blueDuoJi">
+                            <div class="duoJiStatus"></div>
+                        </div>
+                    </div>
+                    <span class="duoJiWord" style="left: 12.5%;">堆垛机</span>
+                    <span class="duoJiWord" style="right: 12.5%;">堆垛机</span>
+                    <span class="duoJiWord" style="left: 48%;">堆垛机</span>
+                    <!--灰色小车走道-->
+                    <div style="width: 26%;height: 15%;position: absolute;left: 19%;top: 85%;background-color: #DCDADD">
+                        <div style="border-top:2px dashed #000;position: relative;top:27%;width:94%;"></div>
+                        <div style="border-top:2px dashed #000;position: relative;top:65%;width:87%;"></div>
+                    </div>
+                    <div style="width: 26%;height: 15%;position: absolute;right: 19%;top: 85%;background-color: #DCDADD">
+                        <div style="border-top:2px dashed #000;position: relative;top:27%;left:5%;width:94%;"></div>
+                        <div style="border-top:2px dashed #000;position: relative;top:65%;width:87%;left:13%;"></div>
+                    </div>
+                </div>
+                <!--灰色小车跑道,在蓝色背景外的部分-->
+                <div style="width: 4.5vw;height: 20%;position: absolute;top: 80%;left: 40.35%;background-color: #DCDADD">
+                    <div style="height:135%;width:0%;display:inline-block;border-right:2px dashed #000;position: relative;top:-35%;left:70%;"></div>
+                    <div style="height:115%;width:0%;display:inline-block;border-right:2px dashed #000;position: relative;top:-35%;left:20%;"></div>
+                    <div style="width:50%;height: 60%;background-color:#2DA49E;position: absolute;top: 10%;left:26% "></div>
+                </div>
+                <div style="width: 4.5vw;height: 20%;position: absolute;top: 80%;right: 40.35%;background-color: #DCDADD">
+                    <div style="height:135%;width:0%;display:inline-block;border-right:2px dashed #000;position: relative;top:-35%;left:26%;"></div>
+                    <div style="height:115%;width:0%;display:inline-block;border-right:2px dashed #000;position: relative;top:-35%;left:62%;"></div>
+                    <div style="width:50%;height: 60%;background-color:#2DA49E;position: absolute;top: 10%;left:26% "></div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!--</div>-->
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('infoquery:stock:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('infoquery:stock:remove')}]];
+    var prefix = ctx + "infoquery/querystockstatus";
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "库位状态",
+            columns: [
+                {
+                    field: 'id',
+                    title: '自增列',
+                    visible: false
+                },
+                {
+                    field: 'whname',
+                    title: '库区'
+                },
+                {
+                    field: 'storehousename',
+                    title: '库位'
+                },
+                {
+                    field: 'productname',
+                    title: '产品名称'
+                },
+                /*{
+                    field: 'producttype',
+                    title: '产品类型'
+                },*/
+                {
+                    field: 'productcode',
+                    title: '产品编码'
+                },
+
+                {
+                    field: 'productbatch',
+                    title: '产品批次'
+                },
+                {
+                    field: 'productmodel',
+                    title: '产品型号'
+                },
+                {
+                    field: 'specification',
+                    title: '规格型号'
+                },
+                {
+                    field: 'quantity',
+                    title: '数量'
+                },
+                {
+                    field: 'memo',
+                    title: '备注'
+                },
+              ]
+        };
+        $.table.init(options);
+    });
+    function searchTable() {
+        // $('#taskcode').val("");
+        // console.taskLog($.table.search);
+        console.taskLog($('#whname').val());
+        console.taskLog($('#storehouseline').val());
+        console.taskLog($('#storehousecolum').val());
+        console.taskLog($('#storehouselayer').val());
+        searchTables($('#whname').val(),$('#storehouseline').val(),$('#storehousecolum').val(),$('#storehouselayer').val())
+    }
+    /*function keydown() {
+        if (event.keyCode == 13) {
+            event.returnValue = false;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ·                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ·             · · · · · · · · ·· · · · · · · · · · ·· · · · · · · · ·· · · · · · · · · ·· · · · · · · · · ··  ·· · · · · · · ··  ·· · · · · · · ·· · · · · · · · · ··  ·· · · · · · · · ·· ·
+            event.cancel = true;
+            searchTable();
+        }
+    }*/
+</script>
+
+<script th:src="@{/js/querystockstatus.js}"></script>
+</body>
+</html>

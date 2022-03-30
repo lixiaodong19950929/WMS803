@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改员工')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-Employee-edit" th:object="${employee}">
+            <input name="id" id="id" th:field="*{id}"  type="hidden">
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>员工编码：</label>
+                <div class="col-sm-8">
+                    <input name="employeecode" class="form-control" type="text"  th:field="*{employeecode}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>员工姓名：</label>
+                <div class="col-sm-8">
+                    <input name="employeename" th:field="*{employeename}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>员工性别：</label>
+                <div class="col-sm-8">
+                   <select name="sex" class="form-control m-b" th:field="*{sex}" th:with="type=${@dict.getType('sys_user_sex')}">
+                        <option value="">请选择</option>
+                        <option th:each="dict:${type}" th:value="${dict.dictValue}" th:text="${dict.dictLabel}"></option>
+                    </select>
+                </div>
+            </div>
+             <input name="deptcode" th:field="*{deptcode}" class="form-control" type="text" style="display: none;">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">部门名称：</label>
+                <div class="col-sm-8">
+                     <div class="input-group">
+                        <input name="deptname" onclick="selectDeptTree()" id="deptname" th:field="*{deptname}" type="text" placeholder="请选择归属部门" class="form-control" >
+                        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                     </div>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">岗位：</label>
+                <div class="col-sm-8">
+                    <select id="post" class="form-control m-b" th:field="*{post}">
+                        <option value="">请选择</option>
+                        <option th:each="post:${posts}" th:value="${post.postId}" th:text="${post.postName}" th:disabled="${post.status == '1'}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>员工电话：</label>
+                <div class="col-sm-8">
+                    <input name="tel" th:field="*{tel}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>员工密码：</label>
+                <div class="col-sm-8">
+                    <input name="password" th:field="*{password}" class="form-control" type="password">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">出生日期：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input name="birthday" th:value="${#dates.format(employee.birthday, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">政治面貌：</label>
+                <div class="col-sm-8">
+                    <select name="politiccountenance" class="form-control m-b" th:field="*{politiccountenance}" th:with="type=${@dict.getType('base_politiccountenance')}">
+                        <option value="">请选择</option>
+                        <option th:each="dict:${type}" th:value="${dict.dictValue}" th:text="${dict.dictLabel}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>邮箱：</label>
+                <div class="col-sm-8">
+                    <input name="email" th:field="*{email}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">家庭住址：</label>
+                <div class="col-sm-8">
+                    <input name="address" th:field="*{address}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">备注：</label>
+                <div class="col-sm-8">
+                    <input name="memo" th:field="*{memo}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>状态：</label>
+                <div class="col-sm-8">
+                   <div class="radio-box" th:each="dict : ${@dict.getType('base_normal_status')}">
+						<input type="radio" th:id="${dict.dictCode}" name="isenable" th:value="${dict.dictValue}" th:field="*{isenable}">
+						<label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+					</div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script type="text/javascript">
+        var prefix = ctx + "base/employee";
+        $("#form-Employee-edit").validate({
+            focusCleanup: true,
+            onkeyup:true,
+            rules:{
+                employeecode:{
+                    required:true,
+                    remote:{
+                        url:prefix+"/checkEmployeeCode",
+                        type:'post',
+                        dataType:'json',
+                        data:{
+                            'id':$('#id').val(),
+                            'employeecode':function () {
+                                return $.common.trim($("#employeecode").val());
+                            }
+                        },
+                        dataFilter:function (data,type) {
+                            return $.validate.unique(data);
+                        }
+                    }
+                },
+                employeename:{
+                    required:true
+                },
+                sex:{
+                    required:true
+                },
+                tel:{
+                    required:true,
+                    remote: {
+                        url: prefix + "/checkPhoneUnique",
+                        type: "post",
+                        dataType: "json",
+                        data: {
+                            "id":$('#id').val(),
+                            "tel": function () {
+                                return $.common.trim($("#tel").val());
+                            }
+                        },
+                        dataFilter: function (data, type) {
+                            return $.validate.unique(data);
+                        }
+                    }
+                },
+                password:{
+                    required:true
+                },
+                email:{
+                    required:true,
+                    email:true
+                },
+                isenable:{
+                    required:true
+                },
+            },
+            messages:{
+                "employeecode":{
+                    remote:"员工编码已存在"
+                },
+                "tel":{
+                    remote:"员工电话已存在"
+                }
+            }
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/edit", $('#form-Employee-edit').serialize());
+            }
+        }
+
+        $("input[name='birthday']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+        /*人员管理-新增-选择部门树*/
+        function selectDeptTree() {
+            var treeId = $("#deptcode").val();
+            var deptId = $.common.isEmpty(treeId) ? "100" : $("#deptcode").val();
+            var url = ctx + "system/dept/selectDeptTree/" + deptId;
+            var options = {
+                title: '选择部门',
+                width: "380",
+                url: url,
+                callBack: doSubmit
+            };
+            $.modal.openOptions(options);
+        }
+        function doSubmit(index, layero){
+            var tree = layero.find("iframe")[0].contentWindow.$._tree;
+            if ($.tree.notAllowParents(tree)) {
+                var body = layer.getChildFrame('body', index);
+                $("#deptcode").val(body.find('#treeId').val());
+                $("#deptname").val(body.find('#treeName').val());
+                layer.close(index);
+            }
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="renderer" content="webkit">
+	<title>仓储管理系统</title>
+	<!--[if lt IE 9]>
+	<meta http-equiv="refresh" content="0;ie.html"/>
+	<![endif]-->
+	<link th:href="@{favicon.ico}" rel="stylesheet"/>
+	<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+	<link th:href="@{/css/jquery.contextMenu.min.css}" rel="stylesheet"/>
+	<link th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+	<link th:href="@{/css/animate.css}" rel="stylesheet"/>
+	<link th:href="@{/css/style.css}" rel="stylesheet"/>
+	<link th:href="@{/css/skins.css}" rel="stylesheet"/>
+	<link th:href="@{/wms/css/ry-ui.css?v=4.1.0}" rel="stylesheet"/>
+</head>
+<body class="fixed-sidebar full-height-layout gray-bg" style="overflow: hidden">
+<div id="wrapper">
+
+	<!--左侧导航开始-->
+	<nav class="navbar-default navbar-static-side" role="navigation">
+		<div class="nav-close">
+			<i class="fa fa-times-circle"></i>
+		</div>
+		<div class="sidebar-collapse">
+			<ul class="nav" id="side-menu">
+				<a th:href="@{/index}">
+					<li class="logo" style="padding:0px;">
+						<!--<span class="logo-lg" >仓储管理系统</span>-->
+						 <!--<img alt="[ 仓储管理系统 ]" src="../static/img/logo_menu1.jpg" style="width: 99%;margin-top: -5px;" th:src="@{/img/logo_menu1.jpg}">-->
+						<img alt="[ 仓储管理系统 ]" src="../static/img/logo_menu3.jpg" style="width: 99%;margin-top: -5px;" th:src="@{/img/logo_menu3.jpg}">
+					</li>
+				</a>
+				<!--<li>
+					<div class="user-panel">
+						<a class="menuItem" title="个人中心" th:href="@{/system/user/profile}">
+							<div class="hide" th:text="个人中心"></div>
+							<div class="pull-left image">
+								<img th:src="(${user.avatar} == '') ? @{/img/profile.png} : @{${user.avatar}}" class="img-circle" alt="User Image">
+							</div>
+						</a>
+						<div class="pull-left info">
+							<p>[[${user.loginName}]]</p>
+							<a href="#"><i class="fa fa-circle text-success"></i> 在线</a>
+							<a th:href="@{logout}" style="padding-left:5px;"><i class="fa fa-sign-out text-danger"></i> 注销</a>
+						</div>
+					</div>
+				</li>-->
+				<li th:each="menu ,iterStat: ${menus}">
+					<a th:if="${#lists.isEmpty(menu.children)}" th:href="@{${menu.url}}" class="menuItem">
+						<i class="fa fa fa-bar-chart-o" th:class="${menu.icon}"></i>
+						<span class="nav-label" th:text="${menu.menuName}">一级菜单</span>
+						<span class="fa arrow"></span>
+					</a>
+					<a href="#" th:if="${ not #lists.isEmpty(menu.children)}" >
+						<i class="fa fa fa-bar-chart-o" th:class="${menu.icon}"></i>
+						<span class="nav-label" th:text="${menu.menuName}">一级菜单</span>
+						<span class="fa arrow"></span>
+					</a>
+                        <ul class="nav nav-second-level collapse in" th:if="${iterStat.index eq 0}">
+                            <li th:each="cmenu : ${menu.children}">
+                                <a th:if="${#lists.isEmpty(cmenu.children)}" class="menuItem" th:utext="${cmenu.menuName}"
+								   th:href="@{${cmenu.url}}">二级菜单</a>
+                                <a th:if="${not #lists.isEmpty(cmenu.children)}" href="#">[[${cmenu.menuName}]]<span
+										class="fa arrow"></span></a>
+                                <ul th:if="${not #lists.isEmpty(cmenu.children)}" class="nav nav-third-level">
+                                    <li th:each="emenu : ${cmenu.children}"><a class="menuItem" th:text="${emenu.menuName}"
+																			   th:href="@{${emenu.url}}">三级菜单</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <ul class="nav nav-second-level collapse" th:if="${iterStat.index != 0}">
+                            <li th:each="cmenu : ${menu.children}">
+                                <a th:if="${#lists.isEmpty(cmenu.children)}" class="menuItem" th:utext="${cmenu.menuName}"
+								   th:href="@{${cmenu.url}}">二级菜单</a>
+                                <a th:if="${not #lists.isEmpty(cmenu.children)}" href="#">[[${cmenu.menuName}]]<span
+										class="fa arrow"></span></a>
+                                <ul th:if="${not #lists.isEmpty(cmenu.children)}" class="nav nav-third-level">
+                                    <li th:each="emenu : ${cmenu.children}"><a class="menuItem" th:text="${emenu.menuName}"
+																			   th:href="@{${emenu.url}}">三级菜单</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+
+			</ul>
+		</div>
+	</nav>
+	<!--左侧导航结束-->
+
+	<!--右侧部分开始-->
+	<div id="page-wrapper" class="gray-bg dashbard-1">
+		<div class="row border-bottom">
+			<nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+				<div class="navbar-header" style="width: 40%">
+					<a class="navbar-minimalize minimalize-styl-2" style="color:#FFF;" href="#" title="收起菜单">
+						<i class="fa fa-bars"></i>
+					</a>
+					<!--<img src="../static/img/logo_text.png" th:src="@{/img/logo_text.png}" style="position: relative;top: 10px;width:80%;"/>-->
+					<span style="color: #fff;font-size: 23px;line-height: 50px;letter-spacing: 3px;">立体仓库管理系统</span>
+				</div>
+				<ul class="nav navbar-top-links navbar-right welcome-message">
+					<!--<li id="logBoxBtn"><span id="logBoxWord" style="color: white;font-size: 14px;font-weight: bold;cursor: pointer;">任务日志</span></a></li>-->
+					<li><a title="全屏显示" href="javascript:void(0)" id="fullScreen"><i class="fa fa-arrows-alt"></i> 全屏显示</a></li>
+					<li class="dropdown user-menu">
+						<a href="javascript:void(0)" class="dropdown-toggle" data-hover="dropdown">
+							<img th:src="(${user.avatar} == '') ? @{/img/profile.png} : @{${user.avatar}}" class="user-image">
+							<span class="hidden-xs">[[${user.userName}]]</span>
+						</a>
+						<ul class="dropdown-menu">
+							<!--<li class="mt5">-->
+								<!--<a th:href="@{/system/user/profile}" class="menuItem">-->
+									<!--<i class="fa fa-user"></i> 个人中心</a>-->
+							<!--</li>-->
+							<li>
+								<a onclick="resetPwd()">
+									<i class="fa fa-key"></i> 修改密码</a>
+							</li>
+							<!--<li>-->
+								<!--<a onclick="switchSkin()">-->
+									<!--<i class="fa fa-dashboard"></i> 切换主题</a>-->
+							<!--</li>-->
+							<li class="divider"></li>
+							<li>
+								<a th:href="@{logout}">
+									<i class="fa fa-sign-out"></i> 退出登录</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</nav>
+		</div>
+		<div class="row content-tabs">
+			<button class="roll-nav roll-left tabLeft">
+				<i class="fa fa-backward"></i>
+			</button>
+			<nav class="page-tabs menuTabs">
+				<div class="page-tabs-content">
+					<a href="javascript:;" class="active menuTab" data-id="/system/main">首页</a>
+				</div>
+			</nav>
+			<button class="roll-nav roll-right tabRight">
+				<i class="fa fa-forward"></i>
+			</button>
+			<a href="javascript:void(0);" class="roll-nav roll-right tabReload"><i class="fa fa-refresh"></i> 刷新</a>
+		</div>
+
+		<a id="ax_close_max" class="ax_close_max" href="#" title="关闭全屏"> <i class="fa fa-times-circle-o"></i> </a>
+
+		<div class="row mainContent" id="content-main">
+			<iframe class="wms_iframe" name="iframe0" width="100%" height="100%" data-id="/system/main"
+					th:src="@{/system/main}" frameborder="0" seamless></iframe>
+		</div>
+		<div class="footer">
+			<div class="pull-right" >© [[${copyrightYear}]] ATIA Copyright |<a href="http://www.beian.miit.gov.cn">苏ICP备18059900号-2</a></div>
+		</div>
+	</div>
+	<!--右侧部分结束-->
+	<!--logBox start-->
+	<!--<div id="logBox" style="width: 0px;height: 600px;position: fixed;right: 0;top: 150px;background-color: white;border: 1px dashed gray;transition: width 0.5s ease-in">-->
+		<!--<h2 style="text-align: center;word-break: keep-all;font-weight: bold;color: black ">任务实时日志</h2>-->
+		<!--<div id="logULBox" style="width: 100%;height: 530px;overflow-y: auto">-->
+			<!--<ul id="logUL" style="font-size: 16px;">-->
+
+			<!--</ul>-->
+		<!--</div>-->
+
+	<!--</div>-->
+	<!--logBox end-->
+</div>
+<!-- 全局js -->
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/plugins/metisMenu/jquery.metisMenu.js}"></script>
+<script th:src="@{/js/plugins/slimscroll/jquery.slimscroll.min.js}"></script>
+<script th:src="@{/js/jquery.contextMenu.min.js}"></script>
+<script th:src="@{/ajax/libs/blockUI/jquery.blockUI.js}"></script>
+<script th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+<script th:src="@{/wms/js/ry-ui.js?v=4.1.0}"></script>
+<script th:src="@{/wms/js/common.js?v=4.1.0}"></script>
+<script th:src="@{/wms/index.js}"></script>
+<script th:src="@{/ajax/libs/fullscreen/jquery.fullscreen.js}"></script>
+<script th:src="@{/js/logBox.js}"></script>
+<script th:inline="javascript">
+	var ctx = [[@{/}]];
+		// 皮肤缓存
+		// var skin = storage.get("skin");
+		var skin = 'skin-blue|theme-light';
+		// history（表示去掉地址的#）否则地址以"#"形式展示
+		var mode = "history";
+		// 历史访问路径缓存
+		var historyPath = storage.get("historyPath");
+		// 排除非左侧菜单链接
+		var excludesUrl = ["/system/user/profile"];
+
+		// 本地主题优先，未设置取系统配置
+		if($.common.isNotEmpty(skin)){
+			console.log('主题',skin)
+			$("body").addClass(skin.split('|')[0]);
+			$("body").addClass(skin.split('|')[1]);
+		} else {
+			// var sideTheme = [[${@config.getKey('sys.index.sideTheme')}]];
+			// var skinName = [[${@config.getKey('sys.index.skinName')}]];
+			// $("body").addClass(sideTheme);
+			// $("body").addClass(skinName);
+			$("body").addClass(skin.split('|')[0]);
+			$("body").addClass(skin.split('|')[1]);
+		}
+
+		/* 用户管理-重置密码 */
+		function resetPwd() {
+			var url = ctx + 'system/user/profile/resetPwd';
+			$.modal.open("重置密码", url, '770', '380');
+		}
+		/* 切换主题 */
+		function switchSkin() {
+			layer.open({
+				type : 2,
+				shadeClose : true,
+				title : "切换主题",
+				area : ["530px", "386px"],
+				content : [ctx + "system/switchSkin", 'no']
+			})
+		}
+
+		/** 刷新时访问路径页签 */
+		function applyPath(url) {
+			$('a[href$="' + decodeURI(url) + '"]').click();
+			if($.inArray(url, excludesUrl)){
+				$('a[href$="' + url + '"]').parent("li").addClass("selected").parents("li").addClass("active").end().parents("ul").addClass("in");
+			}
+		}
+
+		$(function() {
+			if($.common.equals("history", mode) && window.performance.navigation.type == 1) {
+				var url = storage.get('publicPath');
+				if ($.common.isNotEmpty(url)) {
+					applyPath();
+				}
+			} else {
+				var hash = location.hash;
+				if ($.common.isNotEmpty(hash)) {
+					var url = hash.substring(1, hash.length);
+					applyPath();
+				}
+			}
+		})
+</script>
+</body>
+</html>

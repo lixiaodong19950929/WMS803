@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.warehouse.sern.mapper.BarcodelistMapper">
+    <resultMap id="BarCodeListResult" type="Barcodelist">
+        <result property="id" column="Id"></result>
+        <result property="rowId" column="RowId"></result>
+        <result property="taskCode" column="TaskCode"></result>
+        <result property="storehouseCode" column="StorehouseCode"></result>
+        <result property="layer" column="Layer"></result>
+        <result property="sern" column="Sern"></result>
+        <result property="storehouseName" column="StorehouseName"></result>
+        <result property="createDate" column="CreateDate"></result>
+        <result property="FullSern" column="FullSern"></result>
+        <result property="f2" column="F2"></result>
+        <result property="f3" column="F3"></result>
+        <result property="f4" column="F4"></result>
+        <result property="productCode" column="ProductCode"></result>
+        <result property="productName" column="ProductName"></result>
+        <result property="productBatch" column="productBatch"></result>
+        <result property="Xhao" column="Xhao"></result>
+        <result property="batch" column="Batch"></result>
+    </resultMap>
+
+    <select id="BarcodeList" resultMap="BarCodeListResult">
+           select * from Barcodelist
+    </select>
+
+    <insert id="insertBardCodeList" parameterType="Barcodelist" useGeneratedKeys="true" keyProperty="id">
+          insert  into Barcodelist
+          <trim prefix="(" suffix=")" suffixOverrides=",">
+              <if test="id!=null and id!=''">Id,</if>
+              <if test="rowId!=null and rowID!=''">RowId,</if>
+              <if test="taskCode!=null and taskCode!=''">TaskCode,</if>
+              <if test="storehouseCode!=null and storehouseCode!=null">StorehouseCode,</if>
+              <if test="layer!=null">Layer,</if>
+              <if test="sern!=null">Sern,</if>
+              <if test="storehouseName!=null">StorehouseName,</if>
+              <if test="createDate!=null">CreateDate,</if>
+              <if test="f1!=null">F1,</if>
+              <if test="f2!=null">F2,</if>
+              <if test="f3!=null">F3,</if>
+              <if test="f4!=null">F4,</if>
+          </trim>
+          <trim prefix="values (" suffix=")" suffixOverrides=",">
+              <if test="id != null ">#{id},</if>
+              <if test="rowId != null  and rowId != ''">#{rowId},</if>
+              <if test="taskCode != null  and taskCode != ''">#{taskCode},</if>
+              <if test="storehouseCode != null  and storehouseCode != ''">#{storehouseCode},</if>
+              <if test="layer != null  and layer != ''">#{layer},</if>
+              <if test="sern != null  and sern != ''">#{sern},</if>
+              <if test="storehouseName != null  and storehouseName != ''">#{storehouseName},</if>
+              <if test="createDate != null  and createDate != ''">#{createDate},</if>
+              <if test="f1 != null  and f1 != ''">#{f1},</if>
+              <if test="f2 != null  and f2 != ''">#{f2},</if>
+              <if test="f3 != null  and f3 != ''">#{f3},</if>
+              <if test="f4 != null  and f4 != ''">#{f4},</if>
+          </trim>
+    </insert>
+
+    <insert id="insertBardCodeLists" parameterType="java.util.List">
+        insert into Barcodelist
+        (RowId,ProductCode,ProductName,productBatch,TaskCode,Sern,Xhao,Batch,FullSern)
+        <foreach collection="list" item="item" open="VALUES(" separator="),(" close=")">
+                #{item.rowId},#{item.productCode},#{item.productName},#{item.productBatch},#{item.taskCode},#{item.sern},#{item.xhao},#{item.batch},#{item.fullSern}
+        </foreach>
+    </insert>
+
+    <insert id="insertBardCodeLists_out_select_Barcode" parameterType="java.util.List">
+        insert into Barcodelist
+        (RowId,ProductCode,ProductName,TaskCode,Sern,StorehouseCode,productBatch,Xhao,batch,FullSern)
+        <foreach collection="list" item="item" open="VALUES(" separator="),(" close=")">
+            #{item.rowId},#{item.productCode},#{item.productName},#{item.taskCode},#{item.sern},#{item.storehouseCode},#{item.productBatch},#{item.xhao},#{item.batch},#{item.fullSern}
+        </foreach>
+    </insert>
+
+    <select id="selectProduct" resultType="com.wms.warehouse.sern.domain.Barcodelist" resultMap="BarCodeListResult">
+        select * from Barcodelist where RowId=#{rowId} and TaskCode=#{taskCode}
+    </select>
+
+    <select id="selectProductByTaskCode" resultType="com.wms.warehouse.sern.domain.Barcodelist" resultMap="BarCodeListResult">
+        select * from Barcodelist where TaskCode=#{taskcode}
+    </select>
+
+    <delete id="deleteBarcodeListId" parameterType="Long">
+        delete from Barcodelist where Id=#{id}
+    </delete>
+    <!--resultType="Barcodelist"-->
+    <select id="deleteBarcodeList" >
+        delete from Barcodelist where RowId=#{rowid} and TaskCode=#{taskcode}
+    </select>
+</mapper>

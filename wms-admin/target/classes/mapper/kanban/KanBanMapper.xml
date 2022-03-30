@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.kanban.mapper.KanBanMapper">
+    <!-- 查询库存数量 -->
+    <select id="selectStockNumber" resultType="Integer">
+        SELECT SUM(Quantity) as stockQuantity FROM T_Base_Stock
+    </select>
+
+    <!-- 查询出入库数量 -->
+    <select id="selectOutInNumber" resultType="Integer">
+        SELECT SUM(Quantity) as outQuantity FROM T_Base_StoreIo
+        WHERE  1=1
+        <if test="taskState != null">AND TaskState = #{taskState}</if>
+        <if test="taskType != null">AND TaskType = #{taskType}</if>
+    </select>
+
+    <!-- 查询设备状态列表 -->
+    <select id="selectDeviceStatusList" resultType="com.wms.kanban.domain.KBDevice">
+        select Id, DeviceCode, DeviceName, DeviceType, DeviceState,CreateDate
+        from T_Base_Device
+        where IsDelete = 0
+    </select>
+    <!--
+        select top ${pageSizes} tr.Id, tr.DeviceCode, tr.DeviceName, tr.DeviceType, tr.DeviceState,tr.CreateDate
+        from (select row_number()
+        over(order by Id DESC) as rownumber,Id, DeviceCode, DeviceName, DeviceType, DeviceState,CreateDate
+        from T_Base_Device) tr
+        where rownumber>#{pageNum}
+    -->
+
+
+    <!-- 查询设备数量 -->
+    <select id="selectDeviceCount" resultType="Integer">
+        SELECT COUNT(Id) FROM T_Base_Device WHERE IsDelete = 0
+    </select>
+
+    <!-- 查询库位任务列表 -->
+    <select id="selectKBStoreIoList" resultType="com.wms.kanban.domain.WhTaskCase">
+        select sk.TaskType, sk.TaskCode, sk.StartPoint, sk.EndPoint, sk.CreateDate , sh.StorehouseCode, sh.StorehouseName,
+        ss.ProductCode,p.ProductName,si.TaskName
+        FROM T_Task_Stacker sk
+        LEFT JOIN T_Base_Storehouse sh ON sk.EndPoint = sh.StorehouseCode
+        LEFT JOIN T_Base_StoreIoSon ss ON ss.TaskCode = sk.TaskCode
+        LEFT JOIN T_Base_StoreIo si ON si.TaskCode = ss.TaskCode
+        LEFT JOIN T_Base_Product p ON p.ProductCode = ss.ProductCode
+        WHERE sk.IsDelete = 0 AND sk.IsEnable = 1
+        and ss.IsDelete = 0 AND ss.IsEnable = 1
+        AND sk.TaskType = #{taskType}
+        <if test="taskType == 1"> AND sk.StartPoint IS NULL AND SK.EndPoint IS NOT NULL</if>
+        <if test="taskType == 2"> AND sk.StartPoint IS NOT NULL AND SK.EndPoint IS NULL</if>
+    </select>
+    <!--
+    select top ${pageSizes}  tr.TaskCode, tr.ProductCode,tr.ProductName, tr.CreateDate, tr.TaskName, tr.WhCode, tr.WhName
+    from (select row_number()
+    over(order by ss.Id DESC) as rownumber,ss.TaskCode, ss.ProductCode,p.ProductName, ss.CreateDate, si.TaskName, si.WhCode, wh.WhName
+    FROM T_Base_StoreIoSon ss
+    LEFT JOIN T_Base_Product p ON p.ProductCode = p.ProductCode
+    LEFT JOIN T_Base_StoreIo si ON ss.TaskCode = si.TaskCode
+    LEFT JOIN T_Base_WareHouse wh ON si.WhCode = wh.WhCode
+    WHERE ss.IsDelete = 0 AND ss.IsEnable = 1) tr
+    where rownumber>#{pageNum}
+    -->
+
+    <!-- 查询库位任务列表的行数 -->
+    <select id="selectKBStoreIoCount" resultType="Integer">
+        SELECT COUNT(Id) FROM T_Base_StoreIoSon WHERE IsDelete = 0 AND IsEnable = 1
+    </select>
+
+    <!-- 查询移库数量 -->
+    <select id="selectMoveCount" resultType="Integer">
+        SELECT SUM(Quantity) FROM T_Base_StoreMove
+        WHERE TaskType = #{taskType} AND TaskState = #{taskState}
+    </select>
+
+    <!-- 查询跺机任务表 -->
+    <select id="selectKBTaskStackerList" resultType="com.wms.kanban.domain.TaskStacker">
+        select ts.RowId, ts.TaskType, ts.TaskState, ts.EndPoint, d.DeviceModel, d.DeviceCode
+        FROM T_Task_Stacker ts
+        LEFT JOIN T_Base_Device d ON ts.DeviceNo = d.Id
+        WHERE ts.IsDelete = 0 AND ts.IsEnable = 1
+    </select>
+
+    <!--
+        select top ${pageSizes}  tr.RowId, tr.TaskType, tr.TaskState, tr.EndPoint, tr.DeviceModel,tr.DeviceCode
+        from (select row_number()
+        over(order by ts.Id DESC) as rownumber, ts.RowId, ts.TaskType, ts.TaskState, ts.EndPoint, d.DeviceModel, d.DeviceCode
+        FROM T_Task_Stacker ts
+        LEFT JOIN T_Base_Device d ON ts.DeviceNo = d.Id
+        WHERE ts.IsDelete = 0 AND ts.IsEnable = 1) tr
+        where rownumber>#{pageNum}
+    -->
+
+    <!-- 查询跺机任务表行数 -->
+    <select id="selectKBTaskStackerCount" resultType="Integer">
+        SELECT COUNT(Id) FROM T_Task_Stacker WHERE IsDelete = 0 AND IsEnable = 1
+        <if test="taskState != null and taskState != ''">and TaskState = #{taskState}</if>
+    </select>
+
+
+
+    <!-- 查询传感器列表 -->
+    <select id="selectSensorList" resultType="com.wms.kanban.domain.SensorInfo">
+        select Id , SensorCode ,SensorName, SensorNumber, FormalNumber, ExceptionNumber from mg_sensor_info
+    </select>
+
+    <select id="selectInTaskCountList" parameterType="Integer" resultType="Integer">
+        select count(1) from T_Base_StoreIo where IsDelete=0 and IsEnable=1 and Taskstate=#{taskState} and TaskType=1
+    </select>
+    <select id="selectOutTaskCountList" parameterType="Integer" resultType="Integer">
+        select count(1) from T_Base_StoreIo where IsDelete=0 and IsEnable=1 and Taskstate=#{taskState} and TaskType=2
+    </select>
+    <select id="selectMoveTaskCountList" parameterType="Integer" resultType="Integer">
+        select count(1) from T_Base_StoreMove where IsDelete=0 and IsEnable=1 and Taskstate=#{taskState}
+    </select>
+
+    <select id="selectStockList" resultType="com.wms.infoquery.querystockstatus.domain.Stock">
+        select k.id, k.productname,k.otherproductcode,s.TrayCode,s.StorehouseName
+        from T_Base_Stock k
+        left join T_Base_Storehouse s on k.StorehouseCode=s.StorehouseCode and s.IsDelete=0 and s.IsEnable=1
+        where k.IsDelete=0 and k.IsEnable=1
+    </select>
+
+
+    <resultMap type="StoreIo" id="StoreIoResult">
+        <result property="id"    column="Id"    />
+        <result property="tasktype"    column="TaskType"    />
+        <result property="taskcode"    column="TaskCode"    />
+        <result property="taskname"    column="TaskName"    />
+        <result property="productdetail"    column="ProductDetail"    />
+        <result property="veninfo"    column="VenInfo"    />
+        <result property="maker"    column="Maker"    />
+        <result property="mpocode"    column="MPoCode"    />
+        <result property="ordercode"    column="OrderCode"    />
+        <result property="whcode"    column="WhCode"    />
+        <result property="quantity"    column="Quantity"    />
+        <result property="taskstate"    column="TaskState"    />
+        <result property="memo"    column="Memo"    />
+        <result property="createuser"    column="CreateUser"    />
+        <result property="createdate"    column="CreateDate"    />
+        <result property="f1"    column="F1"    />
+        <result property="f2"    column="F2"    />
+        <result property="f3"    column="F3"    />
+        <result property="f4"    column="F4"    />
+    </resultMap>
+
+    <select id="selectInTaskList" resultMap="StoreIoResult">
+        select id, tasktype, taskcode, outerorderid, taskname, productdetail, veninfo, maker, mpocode, ordercode, whcode, quantity, taskstate, memo, createuser, createdate, f1, f2, f3, f4, isenable, isdelete, outtaskcode
+         from T_Base_StoreIo
+        <where>
+            and IsDelete=0 and IsEnable=1 and TaskType=1
+            and Taskstate in (0,1)
+            <if test="taskState!=null">
+                and Taskstate=#{taskState}
+            </if>
+        </where>
+    </select>
+    <select id="selectOutTaskList"  resultMap="StoreIoResult">
+        select id, tasktype, taskcode, outerorderid, taskname, productdetail, veninfo, maker, mpocode, ordercode, whcode, quantity, taskstate, memo, createuser, createdate, f1, f2, f3, f4, isenable, isdelete, outtaskcode
+         from T_Base_StoreIo
+        <where> and IsDelete=0 and IsEnable=1  and TaskType=2
+            and Taskstate in (0,1)
+        <if test="taskState!=null">
+            and Taskstate=#{taskState}
+        </if>
+        </where>
+    </select>
+
+    <resultMap type="StoreMove" id="StoreMoveResult">
+        <result property="id"    column="Id"    />
+        <result property="tasktype"    column="TaskType"    />
+        <result property="taskcode"    column="TaskCode"    />
+        <result property="taskname"    column="TaskName"    />
+        <result property="productdetail"    column="ProductDetail"    />
+        <result property="maker"    column="Maker"    />
+        <result property="whcode"    column="WhCode"    />
+        <result property="quantity"    column="Quantity"    />
+        <result property="taskstate"    column="TaskState"    />
+        <result property="memo"    column="Memo"    />
+        <result property="createuser"    column="CreateUser"    />
+        <result property="createdate"    column="CreateDate"    />
+        <result property="f1"    column="F1"    />
+        <result property="f2"    column="F2"    />
+        <result property="f3"    column="F3"    />
+        <result property="f4"    column="F4"    />
+        <result property="isenable"    column="IsEnable"    />
+        <result property="isdelete"    column="IsDelete"    />
+    </resultMap>
+    <select id="selectMoveTaskList" resultMap="StoreMoveResult">
+        select id, tasktype, taskcode, outerorderid, taskname, productdetail, maker, whcode, quantity, taskstate, memo, createuser, createdate, f1, f2, f3, f4, isenable, isdelete
+         from T_Base_StoreMove
+        <where> and IsDelete=0 and IsEnable=1
+         and Taskstate in (0,1)
+        <if test="taskState!=null">
+            and Taskstate=#{taskState}
+        </if>
+        </where>
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

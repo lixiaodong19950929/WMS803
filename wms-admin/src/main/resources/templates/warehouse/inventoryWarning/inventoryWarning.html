@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('库存预警')"/>
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li id="whcang">
+                            <p>当前仓库：</p>
+                            <input type="text" id="whname" name="whname" onkeydown="keydown()"/>
+                        </li>
+                        <li>
+                            <p>产品名称：</p>
+                            <input type="text" id="productname" name="productname" onkeydown="keydown()"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var prefix = ctx + "warehouse/inventoryWarning";
+    var datasStatus2 = [[${@dict.getType('base_product_model')}]];
+
+    $(function () {
+        var options = {
+            url: prefix + "/selectInventoryWarningList",
+            modalName: "库存预警",
+            showSearch: false,
+            showRefresh: false,
+            showColumns: false,
+            showToggle: false,
+            columns: [
+                /*{
+                    field: 'id',
+                    title: '序号',
+                    visible: false
+                },*/
+                {
+                    title: '序号',
+                    formatter: function (value, row, index) {
+                        return $.table.serialNumber(index);
+                    }
+                },
+                {
+                    field: 'productcode',
+                    title: '产品编码'
+                },
+                {
+                    field: 'productname',
+                    title: '产品名称'
+                },
+                {
+                    field: 'productmodel',
+                    title: '产品型号',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(datasStatus2, value);
+                    }
+                },
+                {
+                    field: 'whname',
+                    title: '仓库'
+                },
+                {
+                    field: 'quantity',
+                    title: '库存'
+                },
+                {
+                    field: 'toplimit',
+                    title: '库存上限'
+                },
+                {
+                    field: 'lowerlimit',
+                    title: '库存下限'
+                },
+                {
+                    field: 'differencequantity',
+                    title: '差异数量'
+                },
+                ]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

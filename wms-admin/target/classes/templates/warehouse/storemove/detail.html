@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改移库')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-storemove-edit" th:object="${storeMove}">
+            <input name="taskcode" id="taskcode" th:field="*{taskcode}" type="hidden">
+            <input name="id" th:field="*{id}" type="hidden">
+            <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>任务类型：</label>
+                <div class="col-sm-4">
+                    <select id="tasktype" name="tasktype" class="form-control m-b" th:field="*{tasktype}" th:with="type=${@dict.getType('warehouse_task_type')}" disabled>
+                        <option value="">请选择</option>
+                        <option th:each="dict:${type}" th:if="${dict.dictSort eq 3}" th:selected="selected" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" ></option>
+                    </select>
+                </div>
+                 <label class="col-sm-2 control-label"><span style="color: red; ">*</span>仓库名称：</label>
+                <div class="col-sm-4">
+                    <select id="whcode" name="whcode" th:field="*{whcode}" class="form-control m-b" disabled>
+                        <option th:each="ware:${whList}" th:value="${ware.whcode}" th:text="${ware.whname}" disabled></option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="form-group">
+                 <label class="col-sm-2 control-label"><span style="color: red; ">*</span>任务名称：</label>
+                <div class="col-sm-4">
+                    <input name="taskname" id="taskname" class="form-control" type="text" th:field="*{taskname}" disabled>
+                </div>
+                <label class="col-sm-2 control-label">任务描述：</label>
+                <div class="col-sm-4">
+                    <input name="productdetail" id="productdetail" class="form-control" type="text" th:field="*{productdetail}" disabled>
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>制单人：</label>
+                <div class="col-sm-4">
+                    <input name="maker" id="maker" class="form-control" type="text" th:field="*{maker}" disabled>
+                </div>
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>总数量：</label>
+                <div class="col-sm-4">
+                    <input name="quantity" id="quantity" class="form-control" type="number" value="0" th:field="*{quantity}"  disabled>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">备注：</label>
+                <div class="col-sm-10">
+                    <input name="memo" id="memo" class="form-control" type="text" th:field="*{memo}" disabled>
+                </div>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "warehouse/storemove";
+        var modelDatas=[[${@dict.getType('base_product_model')}]];
+        $(function() {
+            var options = {
+                url:ctx+"warehouse/storemoveson/listMove",
+                createUrl: prefix + "/add",
+                removeUrl: prefix + "/remove",
+                modalName: "入库子表",
+                showSearch: false,
+                showRefresh: false,
+                showColumns: false,
+                showToggle: false,
+                showExport: false,
+                queryParams: function(params) {
+                    return{
+                        // 传递参数查询参数
+                        pageSize:       params.limit,
+                        pageNum:        params.offset / params.limit + 1,
+                        searchValue:    params.search,
+                        orderByColumn:  params.sort,
+                        isAsc:          params.order,
+                        taskcode:$('#taskcode').val()
+                    };
+                },
+                columns: [{
+                    checkbox: true
+                },
+                    {
+                        field : 'num',
+                        title : '序号',
+                        formatter:function (value, row, index) {
+                            row.num=index+1;
+                            return index+1;
+                        }
+                    },
+                    {
+                        field : 'id',
+                        title : 'id',
+                        visible:false
+                    },
+                    {
+                        field : 'rowid',
+                        title : 'rowid',
+                        visible:false
+                    },
+                    {
+                        field : 'startcode',
+                        title : '库位编码',
+                        visible:false
+                    },
+                    {
+                        field : 'storehousename',
+                        title : '库位名称',
+                        // visible:false
+                    },
+                    // {
+                    //     field : 'otherProductCode',
+                    //     title : '产品条码',
+                    //     // visible:false
+                    // },
+                    {
+                        field : 'productcode',
+                        title : '产品编码'
+                    },
+                    {
+                        field : 'productname',
+                        title : '产品名称'
+                    },
+                    // {
+                    //     field : 'productmodel',
+                    //     title : '产品型号',
+                    //     formatter:function (value, row, index) {
+                    //         return $.table.selectDictLabel(modelDatas,value)
+                    //     }
+                    // },
+                    {
+                        field : 'whname',
+                        title : '仓库'
+                    },
+                    {
+                        field : 'whcode',
+                        title : '仓库',
+                        visible:false
+                    },
+                    {
+                        field : 'endname',
+                        title : '目的库位'
+                    },
+                    {
+                        field : 'endcode',
+                        title : '库位',
+                        visible:false
+                    },
+                    // {
+                    //     field : 'quantity',
+                    //     title : '数量'
+                    // },
+                    // {
+                    //     field : 'quantityInfo',
+                    //     title : '数量',
+                    //     visible:false
+                    // },
+                    // {
+                    //     field : 'memo',
+                    //     title : '备注'
+                    // }
+                ]
+            };
+
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>

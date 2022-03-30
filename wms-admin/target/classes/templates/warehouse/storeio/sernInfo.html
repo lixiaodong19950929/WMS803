@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('条码明细维护')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-CodeDetailInfo-edit" th:object="${sernInfo}">
+        <input name="taskcode" id="taskcode" class="form-control" th:field="*{taskcode}" type="hidden">
+        <!--<div class="form-group">-->
+            <!--<label class="col-sm-2 control-label"><span style="color: red; ">*</span>任务号：</label>-->
+            <!--<div class="col-sm-4">-->
+                <!--<input name="taskcode" id="taskcode" class="form-control" th:field="*{taskcode}" type="hidden">-->
+            <!--</div>-->
+        <!--</div>-->
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <!--<a class="btn btn-success" onclick="addCode()">-->
+                <!--<i class="fa fa-plus"></i> 添加条码-->
+            <!--</a>-->
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="warehouse:StoreIo:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+            <a class="btn btn-warning">
+                <input type="file" ref="upload" id="upload" style="opacity: 0;width: 0;height: 0;" accept=".xls, .xlsx" class="importBtn" onchange="readExcel()" />
+                <i class="fa fa-plus"></i> <label for="upload" style="margin: 0;cursor: pointer;">导入</label>
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+<th:block th:include="include :: select2-js" />
+<!--<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/xlsx.js}"></script>-->
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/xlsx.full.min.js}"></script>
+<script th:inline="javascript">
+    var prefix = ctx + "warehouse/storeio";
+    var taskstate = [[${taskstate}]];
+    var taskCode = [[${taskcode}]];
+    $("#form-CodeDetailInfo-edit").validate({
+        focusCleanup: true,
+        rules:{
+            // taskCode:{
+            //     required:true
+            // }
+        }
+    });
+    var modelDatas = [[${@dict.getType("base_product_model")}]];
+
+    var removeFlag = [[${@permission.hasPermi('warehouse:storeio:remove')}]];
+    $(function() {
+        // var demo = '[[${trayCodeDetail}]]';
+        // console.log(demo)
+        var options = {
+            url:ctx+"warehouse/storeIoSon/list",
+            modalName: "条码明细",
+            exportUrl: prefix + "/sernInfo2list/exportInAll?taskCode="+taskCode,
+            queryParams: function(params) {
+                return{
+                    // 传递参数查询参数
+                    // pageSize:       params.limit,
+                    // pageNum:        params.offset / params.limit + 1,
+                    // searchValue:    params.search,
+                    // orderByColumn:  params.sort,
+                    // isAsc:          params.order,
+                    taskcode:$('#taskcode').val()
+                };
+            },
+            showSearch: false,
+            showRefresh: false,
+            showColumns: false,
+            showToggle: false,
+            showExport: false,
+            uniqueId:"taskcode",
+            columns: [
+                // {
+                //     checkbox: true
+                // },
+                {
+                    field : 'num',
+                    title : '序号',
+                    formatter:function (value, row, index) {
+                        row.num=index+1;
+                        return index+1;
+                    }
+                },
+                {
+                    field : 'taskcode',
+                    title : '任务号'
+                },
+                {
+                    field : 'id',
+                    title : 'id',
+                    visible:false
+                },
+                {
+                    field : 'rowid',
+                    title : 'rowid',
+                    visible:false,
+                    formatter:function (value, row, index) {
+                        row.rowid=index+1;
+                        return row.rowid;
+                    },
+                },
+                {
+                    field : 'productcode',
+                    title : '产品型号'
+                },
+                {
+                    field : 'productname',
+                    title : '产品名称'
+                },
+                {
+                    field : 'productbatch',
+                    title : '产品批次'
+                },
+                // {
+                //     field : 'productmodel',
+                //     title : '产品型号',
+                //     formatter : function (value, row, index) {
+                //         return $.table.selectDictLabel(modelDatas, value)
+                //     }
+                // },
+                {
+                    field : 'guid',
+                    title : '产品条码',
+                    visible:false
+                },
+                // {
+                //     field : 'otherProductCode',
+                //     title : '产品条码',
+                // },
+                {
+                    field : 'quantity',
+                    title : '数量'
+                },
+                {
+                    field : 'memo',
+                    title : '备注'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        console.log(row)
+                        actions.push('<a class="btn btn-danger btn-xs" href="javascript:void(0)" onclick="clickToSern(\''+row.rowid+','+row.taskcode+','+row.quantity+ ','+taskstate +','+row.productcode+','+row.productname+','+row.productbatch+'\')">条码维护</a>');
+                        return actions.join('');
+                    }
+                }
+            ],
+            // onClickCell:function(field, value, row, $element){
+            //     console.log(row)
+            //     $.modal.open("条码明细",prefix+"/sernInfo2/"+row.rowid+'/'+row.taskcode+'/'+row.quantity,800,600);
+            // }
+
+        };
+        $.table.init(options);
+    })
+    function clickToSern(val){
+        console.log(val)
+        var valArr = val.split(',')
+        $.modal.open("条码明细",prefix+"/sernInfo2/"+valArr[0]+'/'+valArr[1]+'/'+valArr[2]+'/'+valArr[3]+'/'+valArr[4]+'/'+valArr[5]+'/'+valArr[6],1200);
+    }
+    function delet(num){
+        console.log(num)
+        var row=$("#bootstrap-table").bootstrapTable("getData");
+        $("#bootstrap-table").bootstrapTable('removeByUniqueId', num);
+    }
+    function addCode(){
+        var row=$("#bootstrap-table").bootstrapTable("getData");
+        $("#bootstrap-table").bootstrapTable("insertRow",{
+            index:row.length+1,
+            row:{
+                num:row.length+1,
+                productcode:'',
+                productname :'',
+                productmodel:'',
+                otherProductCode:'',
+                quantity :'',
+                memo:'',
+            }
+        });
+    }
+
+
+    function submitHandler() {
+        console.log('条码明细提交')
+        $.modal.close();
+        // if ($.validate.form()) {
+        //     var rows=$('#bootstrap-table').bootstrapTable("getData");
+        //     if (rows.length==0){
+        //         $.modal.msgError("请添加产品");
+        //         return ;
+        //     }
+        //     var detailArray=new Array();
+        //     for (var i=0;i<rows.length;i++){
+        //         if ($.common.isEmpty(rows[i].quantity) || !$.common.isNum(rows[i].quantity)|| rows[i].quantity<=0){
+        //             $.modal.msgError("第"+rows[i].num+"行，产品数量不正确");
+        //             return ;
+        //         }
+        //         var param={
+        //             rowid:rows[i].num,
+        //             productcode:rows[i].productcode,
+        //             productname :rows[i].productname,
+        //             productmodel :rows[i].productmodel,
+        //             guid :rows[i].guid,
+        //             quantity :rows[i].quantity,
+        //             otherProductCode :rows[i].otherProductCode,
+        //             memo:rows[i].memo,
+        //         }
+        //         detailArray.push(param);
+        //     }
+        //     var params={
+        //         tasktype:$('#tasktype').find('option:selected').val(),
+        //         whcode :$('#whcode').find('option:selected').val(),
+        //         taskname :$('#taskname').val(),
+        //         productdetail :$('#productdetail').val(),
+        //         veninfo :$('#veninfo').val(),
+        //         maker :$('#maker').val(),
+        //         mpocode :$('#mpocode').val(),
+        //         ordercode:$('#ordercode').val(),
+        //         quantity :$('#quantity').val(),
+        //         memo:$('#memo').val(),
+        //         list:JSON.stringify(detailArray)
+        //     }
+        //     $.operate.save(prefix + "/add",params);
+        // }
+    }
+
+    //批量导入
+    function readExcel(){
+        if(taskstate==0){
+            var that = this;
+            var files = $('#upload')[0].files;
+            var fileReader = new FileReader();
+            console.log(files)
+            fileReader.onload = function(ev){
+                try {
+                    console.log("try")
+                    var data = ev.target.result;
+                    var workbook = XLSX.read(data,{
+                        type:"binary"
+                    })
+                    var wsname = workbook.SheetNames[0];
+                    var ws = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]);//将excel数据解析为json串
+                    console.log(ws)
+                    var detailArray=new Array();
+                    for (var i=0;i<ws.length;i++){
+                        if (ws[i].sern==""){
+                            $.modal.msgError("条码不能为空");
+                            return ;
+                        }
+                        var param = {
+                            rowId:ws[i]['行号'],
+                            productCode:ws[i]['产品代号'],
+                            productName:ws[i]['产品名称'],
+                            productBatch:ws[i]['产品批次'],
+                            xhao:ws[i]['箱号'],
+                            batch:ws[i]['扫描批次'],
+                            taskCode:taskCode,
+                            sern:ws[i]['条码'],
+                            fullSern:ws[i]['箱码']
+                        }
+                        detailArray.push(param)
+                    }
+                    var params={
+                        list:JSON.stringify(detailArray)
+                    }
+                    $.operate.save(prefix + "/sernInfoAdd",params);
+                }catch (e) {
+                    console.log(e)
+                }
+            }
+
+            fileReader.readAsBinaryString(files[0])
+            document.getElementById('upload').value = ''
+        }else{
+            $.modal.msgError("只有未下发的任务可编辑");
+        }
+
+    }
+
+
+
+</script>
+</body>
+</html>

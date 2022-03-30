@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('修改物料基础档案')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+    <th:block th:include="include :: select2-css"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-Material-edit" th:object="${material}">
+        <input name="id" th:field="*{id}" type="hidden">
+        <div class="form-group">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>物料编码：</label>
+            <div class="col-sm-8">
+                <input name="materialcode" th:field="*{materialcode}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>物料名称：</label>
+            <div class="col-sm-8">
+                <input name="materialname" th:field="*{materialname}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">物料类别：</label>
+            <div class="col-sm-8">
+                <select name="materialtype" class="form-control m-b" th:field="*{materialtype}" onchange="selectType()">
+                    <option value="">所有</option>
+                    <option th:each="dict:${@dict.getType('base_material_type')}"
+                            th:value="${dict.dictValue}"
+                            th:text="${dict.dictLabel}">
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">物料批次：</label>
+            <div class="col-sm-8">
+                <input name="materialbatch" th:field="*{materialbatch}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">包装袋编码：</label>
+            <div class="col-sm-8">
+                <input name="packagingcode" th:field="*{packagingcode}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">物料型号：</label>
+            <div class="col-sm-8">
+                <input name="materialmodel" th:field="*{materialmodel}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">零件图号：</label>
+            <div class="col-sm-8">
+                <input name="drawingnumber" th:field="*{drawingnumber}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">规格型号：</label>
+            <div class="col-sm-8">
+                <input name="specification" th:field="*{specification}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">标准：</label>
+            <div class="col-sm-8">
+                <input name="standard" th:field="*{standard}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">炉批号-外购件用：</label>
+            <div class="col-sm-8">
+                <input id="furnacebatch" name="furnacebatch" th:field="*{furnacebatch}" class="form-control"
+                       type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">出厂编码-外协件用：</label>
+            <div class="col-sm-8">
+                <input id="outfacterycode" name="outfacterycode" th:field="*{outfacterycode}" class="form-control"
+                       type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">单套数量：</label>
+            <div class="col-sm-8">
+                <input name="quantity" th:field="*{quantity}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">单位：</label>
+            <div class="col-sm-8">
+                <select name="unit" class="form-control m-b" th:field="*{unit}">
+                    <option value="">请选择</option>
+                    <option th:each="dict:${@dict.getType('base_product_unit')}"
+                            th:value="${dict.dictValue}"
+                            th:text="${dict.dictLabel}">
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">是否需要扫描：</label>
+            <div class="col-sm-8">
+                <div class="radio-box" th:each="dict:${@dict.getType('base_material_scan')}">
+                    <input type="radio" th:id="${dict.dictCode}" name="isscan" th:value="${dict.dictValue}"
+                           th:field="*{isscan}">
+                    <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">是否为重要物料件：</label>
+            <div class="col-sm-8">
+                <div class="radio-box" th:each="dict:${@dict.getType('base_material_importance')}">
+                    <input type="radio" th:id="${dict.dictCode}" name="isimportant" th:value="${dict.dictValue}"
+                           th:field="*{isimportant}">
+                    <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">供应商名称：</label>
+            <div class="col-sm-8">
+                <!--<input name="suppliername" th:field="*{suppliername}" class="form-control" type="text">-->
+                <input name="suppliername" id="suppliername" th:field="*{suppliername}" class="form-control" type="hidden">
+                <select id="suppliercode" name="suppliercode" class="form-control m-b" th:field="*{suppliercode}" onchange="supplierChange()">
+                    <option value="">请选择</option>
+                    <option th:each="ware:${supplierList}" th:value="${ware.suppliercode}" th:text="${ware.suppliername}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>状态：</label>
+            <div class="col-sm-8">
+                <div class="radio-box" th:each="dict:${@dict.getType('base_normal_status')}">
+                    <input type="radio" th:id="${dict.dictCode}" name="isenable" th:value="${dict.dictValue}"
+                           th:field="*{isenable}">
+                    <label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">备注：</label>
+            <div class="col-sm-8">
+                <input name="memo" th:field="*{memo}" class="form-control" type="text">
+            </div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<th:block th:include="include :: select2-js"/>
+<script th:inline="javascript">
+    var prefix = ctx + "base/material";
+    $("#form-Material-edit").validate({
+        focusCleanup: true,
+        rules: {
+            materialcode: {
+                required: true,
+                remote:{
+                    url:prefix+"/getMaterialCode",
+                    type:'post',
+                    dataType:'json',
+                    data:{
+                        'id':$('#id').val(),
+                        'materialcode':function () {
+                            return $.common.trim($("#materialcode").val());
+                        }
+                    },
+                    dataFilter:function (data,type) {
+                        return $.validate.unique(data);
+                    }
+                }
+            },
+            materialname: {
+                required: true
+            },
+            isenable: {
+                required: true
+            },
+            quantity:{
+                number:true
+            }
+        },
+        messages:{
+            materialcode:{
+                remote:"物料编码已存在"
+            }
+        }
+    });
+
+    var supplierList = [[${supplierList}]];
+    function supplierChange() {
+        supplierList.forEach(item => {
+            if(item.suppliercode==$("#suppliercode").val()){
+                $("#suppliername").val(item.suppliername)
+            }
+        })
+    }
+
+    $(function () {
+        var furnacebatchVal = $("#furnacebatch").val();
+        var outfacterycodeVal = $("#outfacterycode").val();
+        if (furnacebatchVal == "") {
+            $("#furnacebatch").attr("disabled", "disabled");
+        }
+        if (outfacterycodeVal == "") {
+            $("#outfacterycode").attr("disabled", "disabled");
+        }
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/edit", $('#form-Material-edit').serialize());
+        }
+    }
+
+    function selectType() {
+        var materialtypeVal = $("#materialtype").val();
+        $("#furnacebatch").val("");
+        $("#furnacebatch").attr("disabled", "disabled");
+        $("#outfacterycode").val("");
+        $("#outfacterycode").attr("disabled", "disabled");
+        if (materialtypeVal == '1') {
+            $("#furnacebatch").removeAttr("disabled");
+        }
+        if (materialtypeVal == '2') {
+            $("#outfacterycode").removeAttr("disabled");
+        }
+    }
+</script>
+</body>
+</html>

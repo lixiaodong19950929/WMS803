@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.base.station.mapper.StationMapper">
+    
+    <resultMap type="Station" id="StationResult">
+        <result property="id"    column="Id"    />
+        <result property="stationcode"    column="StationCode"    />
+        <result property="sectioncode"    column="SectionCode"    />
+        <result property="sectionname"    column="SectionName"    />
+        <result property="stationname"    column="StationName"    />
+        <result property="isenable"    column="IsEnable"    />
+        <result property="pagename"    column="PageName"    />
+        <result property="sortno"    column="SortNo"    />
+        <result property="isphoto"    column="IsPhoto"    />
+        <result property="localip"    column="LocalIP"    />
+        <result property="localipcur"    column="LocalIPCur"    />
+        <result property="localcount"    column="LocalCount"    />
+        <result property="lastlogiondate"    column="LastLogionDate"    />
+        <result property="linecode"    column="LineCode"    />
+        <result property="linename"    column="LineName"    />
+        <result property="toollist"    column="ToolList"    />
+        <result property="note"    column="Note"    />
+        <result property="createuser"    column="CreateUser"    />
+        <result property="createdate"    column="CreateDate"    />
+        <result property="superuser"    column="SuperUser"    />
+        <result property="superpsd"    column="SuperPsd"    />
+    </resultMap>
+
+    <sql id="selectStationVo">
+        select Id, StationCode, SectionCode, SectionName, StationName, IsEnable, PageName, SortNo, IsPhoto, LocalIP, LocalIPCur, LocalCount, LastLogionDate, LineCode, LineName, ToolList, Note, CreateUser, CreateDate, SuperUser, SuperPsd from T_Base_Station
+    </sql>
+
+    <select id="selectStationList" parameterType="Station" resultMap="StationResult">
+        <include refid="selectStationVo"/>
+        <where>  
+            <if test="id != null "> and Id = #{id}</if>
+            <if test="sectioncode != null  and sectioncode != ''"> and SectionCode = #{sectioncode}</if>
+            <if test="sectionname != null  and sectionname != ''"> and SectionName like concat('%', #{sectionname}, '%')</if>
+            <if test="stationname != null  and stationname != ''"> and StationName like concat('%', #{stationname}, '%')</if>
+            <if test="isenable != null "> and IsEnable = #{isenable}</if>
+            <if test="pagename != null  and pagename != ''"> and PageName like concat('%', #{pagename}, '%')</if>
+            <if test="sortno != null "> and SortNo = #{sortno}</if>
+            <if test="isphoto != null "> and IsPhoto = #{isphoto}</if>
+            <if test="localip != null  and localip != ''"> and LocalIP = #{localip}</if>
+            <if test="localipcur != null  and localipcur != ''"> and LocalIPCur = #{localipcur}</if>
+            <if test="localcount != null "> and LocalCount = #{localcount}</if>
+            <if test="lastlogiondate != null "> and LastLogionDate = #{lastlogiondate}</if>
+            <if test="linename != null  and linename != ''"> and LineName like concat('%', #{linename}, '%')</if>
+            <if test="toollist != null  and toollist != ''"> and ToolList = #{toollist}</if>
+            <if test="note != null  and note != ''"> and Note = #{note}</if>
+            <if test="createuser != null  and createuser != ''"> and CreateUser = #{createuser}</if>
+            <if test="createdate != null "> and CreateDate = #{createdate}</if>
+            <if test="superuser != null  and superuser != ''"> and SuperUser = #{superuser}</if>
+            <if test="superpsd != null  and superpsd != ''"> and SuperPsd = #{superpsd}</if>
+        </where>
+    </select>
+    
+    <select id="selectStationById" parameterType="String" resultMap="StationResult">
+        <include refid="selectStationVo"/>
+        where StationCode = #{stationcode}
+    </select>
+        
+    <insert id="insertStation" parameterType="Station">
+        insert into T_Base_Station
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null ">Id,</if>
+            <if test="stationcode != null  and stationcode != ''">StationCode,</if>
+            <if test="sectioncode != null  and sectioncode != ''">SectionCode,</if>
+            <if test="sectionname != null  and sectionname != ''">SectionName,</if>
+            <if test="stationname != null  and stationname != ''">StationName,</if>
+            <if test="isenable != null ">IsEnable,</if>
+            <if test="pagename != null  and pagename != ''">PageName,</if>
+            <if test="sortno != null ">SortNo,</if>
+            <if test="isphoto != null ">IsPhoto,</if>
+            <if test="localip != null  and localip != ''">LocalIP,</if>
+            <if test="localipcur != null  and localipcur != ''">LocalIPCur,</if>
+            <if test="localcount != null ">LocalCount,</if>
+            <if test="lastlogiondate != null ">LastLogionDate,</if>
+            <if test="linecode != null  and linecode != ''">LineCode,</if>
+            <if test="linename != null  and linename != ''">LineName,</if>
+            <if test="toollist != null  and toollist != ''">ToolList,</if>
+            <if test="note != null  and note != ''">Note,</if>
+            <if test="createuser != null  and createuser != ''">CreateUser,</if>
+            <if test="createdate != null ">CreateDate,</if>
+            <if test="superuser != null  and superuser != ''">SuperUser,</if>
+            <if test="superpsd != null  and superpsd != ''">SuperPsd,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null ">#{id},</if>
+            <if test="stationcode != null  and stationcode != ''">#{stationcode},</if>
+            <if test="sectioncode != null  and sectioncode != ''">#{sectioncode},</if>
+            <if test="sectionname != null  and sectionname != ''">#{sectionname},</if>
+            <if test="stationname != null  and stationname != ''">#{stationname},</if>
+            <if test="isenable != null ">#{isenable},</if>
+            <if test="pagename != null  and pagename != ''">#{pagename},</if>
+            <if test="sortno != null ">#{sortno},</if>
+            <if test="isphoto != null ">#{isphoto},</if>
+            <if test="localip != null  and localip != ''">#{localip},</if>
+            <if test="localipcur != null  and localipcur != ''">#{localipcur},</if>
+            <if test="localcount != null ">#{localcount},</if>
+            <if test="lastlogiondate != null ">#{lastlogiondate},</if>
+            <if test="linecode != null  and linecode != ''">#{linecode},</if>
+            <if test="linename != null  and linename != ''">#{linename},</if>
+            <if test="toollist != null  and toollist != ''">#{toollist},</if>
+            <if test="note != null  and note != ''">#{note},</if>
+            <if test="createuser != null  and createuser != ''">#{createuser},</if>
+            <if test="createdate != null ">#{createdate},</if>
+            <if test="superuser != null  and superuser != ''">#{superuser},</if>
+            <if test="superpsd != null  and superpsd != ''">#{superpsd},</if>
+         </trim>
+    </insert>
+
+    <update id="updateStation" parameterType="Station">
+        update T_Base_Station
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="id != null ">Id = #{id},</if>
+            <if test="sectioncode != null  and sectioncode != ''">SectionCode = #{sectioncode},</if>
+            <if test="sectionname != null  and sectionname != ''">SectionName = #{sectionname},</if>
+            <if test="stationname != null  and stationname != ''">StationName = #{stationname},</if>
+            <if test="isenable != null ">IsEnable = #{isenable},</if>
+            <if test="pagename != null  and pagename != ''">PageName = #{pagename},</if>
+            <if test="sortno != null ">SortNo = #{sortno},</if>
+            <if test="isphoto != null ">IsPhoto = #{isphoto},</if>
+            <if test="localip != null  and localip != ''">LocalIP = #{localip},</if>
+            <if test="localipcur != null  and localipcur != ''">LocalIPCur = #{localipcur},</if>
+            <if test="localcount != null ">LocalCount = #{localcount},</if>
+            <if test="lastlogiondate != null ">LastLogionDate = #{lastlogiondate},</if>
+            <if test="linecode != null  and linecode != ''">LineCode = #{linecode},</if>
+            <if test="linename != null  and linename != ''">LineName = #{linename},</if>
+            <if test="toollist != null  and toollist != ''">ToolList = #{toollist},</if>
+            <if test="note != null  and note != ''">Note = #{note},</if>
+            <if test="createuser != null  and createuser != ''">CreateUser = #{createuser},</if>
+            <if test="createdate != null ">CreateDate = #{createdate},</if>
+            <if test="superuser != null  and superuser != ''">SuperUser = #{superuser},</if>
+            <if test="superpsd != null  and superpsd != ''">SuperPsd = #{superpsd},</if>
+        </trim>
+        where StationCode = #{stationcode}
+    </update>
+
+    <delete id="deleteStationById" parameterType="String">
+        delete from T_Base_Station where StationCode = #{stationcode}
+    </delete>
+
+    <delete id="deleteStationByIds" parameterType="String">
+        delete from T_Base_Station where StationCode in 
+        <foreach item="stationcode" collection="array" open="(" separator="," close=")">
+            #{stationcode}
+        </foreach>
+    </delete>
+
+
+    <select id="selectStataionDictList" resultType="com.wms.system.domain.SysDictData">
+        select StationCode as dictValue,StationName as dictLabel from T_Base_Station
+        where IsEnable=1
+    </select>
+    
+</mapper>

@@ -1,0 +1,90 @@
+.ckBox{
+    width: 85%;
+    height: 600px;
+    margin: 0 auto;
+    display: flex;
+    margin-top: 150px;
+    justify-content: space-around;
+}
+.hjInfoBox{
+    width: 92%;
+    height: 670px;
+    margin: 0 auto;
+    margin-top: 50px;
+    background-color: rgba(211,211,211,0.7);
+    overflow-x: auto ;
+    white-space: nowrap;
+}
+.hj1{
+    width: 150px;
+    height: 100%;
+    background-image:url("../img/kucun/huojia.jpg");
+    background-size: 100% 100%;
+    cursor: pointer;
+}
+.hj2{
+    width: 150px;
+    height: 100%;
+    background-image:url("../img/kucun/huojia.jpg");
+    background-size: 100% 100%;
+    cursor: pointer;
+}
+.hj3{
+    width: 150px;
+    height: 100%;
+    background-image:url("../img/kucun/huojia.jpg");
+    background-size: 100% 100%;
+    cursor: pointer;
+}.hj4{
+     width: 150px;
+     height: 100%;
+     background-image:url("../img/kucun/huojia.jpg");
+     background-size: 100% 100%;
+     cursor: pointer;
+ }
+ .ddj{
+     width: 120px;
+     height: 100%;
+     background-image:url("../img/kucun/duoji.jpg");
+     background-size: 100% 100%;
+ }
+.ckItemTile{
+    height: 60px;
+    text-align: center;
+    line-height: 60px;
+    background-color: lightgreen;
+    margin-top: -60px;
+    font-size: 18px;
+    font-weight: bold;
+}
+.ddjTile{
+    height: 40px;
+    text-align: center;
+    line-height: 40px;
+    background-color: lightpink;
+    margin-top: -40px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.lieClass{
+    width: 80px;
+    height: 100%;
+    background-color: lightgray;
+    display: inline-block;
+    margin: 0 5px;
+    transition: width 1.2s;
+}
+.cengItem{
+    width: 100%;
+    height: 132px;
+    background-color: rgba(32,178,170,0.7);
+    font-size: 18px;
+    color: white;
+    margin-top: 22px;
+    position: relative;
+}
+.solidLine{
+    line-height: 600px;
+    color: #d58512;
+}

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('产品档案列表')"/>
+    <th:block th:include="include :: select2-css"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p>产品名称：</p>
+                            <input type="text" name="productname" onkeydown="keydown()"/>
+                        </li>
+                        <!--<li>-->
+                            <!--<p>供应商：</p>-->
+                            <!--<select id="layer" name="layer" class="form-control m-b" th:with="type=${@dict.getType('base_storeio_layer')}">-->
+                                <!--<option th:each="dict:${type}"  th:selected="selected" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" ></option>-->
+                            <!--</select>-->
+                            <!--&lt;!&ndash;<input type="text" name="suppliername" onkeydown="keydown()"/>&ndash;&gt;-->
+                        <!--</li>-->
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="base:Product:add">
+                <i class="fa fa-plus"></i> 添加
+            </a>
+            <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="base:Product:edit">
+                <i class="fa fa-edit"></i> 修改
+            </a>
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="base:Product:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="base:Product:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: select2-js"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('base:product:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('base:product:remove')}]];
+    var prefix = ctx + "base/product";
+    var statusDatas = [[${@dict.getType("base_normal_status")}]];
+    var statusDatas2 = [[${@dict.getType("base_product_unit")}]]
+    var statusDatas3 = [[${@dict.getType("base_product_model")}]]
+    var statusDatas4 = [[${@dict.getType("base_product_type")}]]
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "产品档案",
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'id',
+                    title: '序号',
+                    formatter: function (value, row, index) {
+                        return index + 1;
+                    }
+                },
+                // {
+                //     field: 'productmodel',
+                //     title: '产品型号',
+                //     formatter : function (value, row, index) {
+                //         return $.table.selectDictLabel(statusDatas3, value)
+                //     }
+                // },
+                {
+                    field: 'productcode',
+                    title: '产品编码'
+                },
+                {
+                    field: 'productname',
+                    title: '产品名称'
+                },
+                //
+                // {
+                //     field: 'producttype',
+                //     title: '产品类型',
+                //     formatter : function (value, row, index) {
+                //         return $.table.selectDictLabel(statusDatas4, value)
+                //     }
+                // },
+
+
+                // {
+                //     field: 'drawingnumber',
+                //     title: '零件图号'
+                // },
+                // {
+                //     field: 'specification',
+                //     title: '规格型号'
+                // },
+                {
+                    field: 'unit',
+                    title: '单位',
+                    formatter : function (value, row, index) {
+                        return $.table.selectDictLabel(statusDatas2, value)
+                    }
+                },
+                // {
+                //     field: 'suppliername',
+                //     title: '供应商'
+                // },
+                {
+                    field: 'memo',
+                    title: '备注'
+                },
+                // {
+                //     field: 'productNum',
+                //     title: '外部编码'
+                // },
+                {
+                    field: 'isenable',
+                    title: '状态',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(statusDatas, value)
+                    }
+                },
+                // {
+                //     field: 'expiringDate',
+                //     title: '有效期'
+                // },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

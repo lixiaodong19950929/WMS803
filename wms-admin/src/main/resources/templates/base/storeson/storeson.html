@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('出库物料明细列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <!--<li>-->
+                                <!--<p>主键：</p>-->
+                                <!--<input type="text" name="id"/>-->
+                            <!--</li>-->
+                            <!--<li>-->
+                                <!--<p>行号：</p>-->
+                                <!--<input type="text" name="rowid"/>-->
+                            <!--</li>-->
+                            <li>
+                                <p>任务号：</p>
+                                <input type="text" name="taskcode"/>
+                            </li>
+                            <li>
+                                <p>库位：</p>
+                                <input type="text" name="storehousecode"/>
+                            </li>
+                            <li>
+                                <p>物料编号：</p>
+                                <input type="text" name="productcode"/>
+                            </li>
+                            <li>
+                                <p>物料名称：</p>
+                                <input type="text" name="productname"/>
+                            </li>
+                            <!--<li>-->
+                                <!--<p>物料数量：</p>-->
+                                <!--<input type="text" name="quantity"/>-->
+                            <!--</li>-->
+                            <!--<li>-->
+                                <!--<p>实际出库数量：</p>-->
+                                <!--<input type="text" name="actualquantity"/>-->
+                            <!--</li>-->
+                            <!--<li>-->
+                                <!--<p>任务状态：</p>-->
+                                <!--<input type="text" name="taskstate"/>-->
+                            <!--</li>-->
+                            <li class="select-time">
+                                <p>创建时间：</p>
+                                <input type="text" class="time-input" id="startTime" placeholder="开始时间" name="params[beginCreatedate]"/>
+                                <span>-</span>
+                                <input type="text" class="time-input" id="endTime" placeholder="结束时间" name="params[endCreatedate]"/>
+                            </li>
+                            <!--<li>-->
+                                <!--<p>备用字段：</p>-->
+                                <!--<input type="text" name="f1"/>-->
+                            <!--</li>-->
+                            <!--<li>-->
+                                <!--<p>备用字段：</p>-->
+                                <!--<input type="text" name="f2"/>-->
+                            <!--</li>-->
+                            <!--<li>-->
+                                <!--<p>备用字段：</p>-->
+                                <!--<input type="text" name="f3"/>-->
+                            <!--</li>-->
+                            <!--<li>-->
+                                <!--<p>备用字段：</p>-->
+                                <!--<input type="text" name="f4"/>-->
+                            <!--</li>-->
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="base:storeson:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="base:storeson:edit">
+                    <i class="fa fa-edit"></i> 修改
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="base:storeson:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="base:storeson:export">
+                    <i class="fa fa-download"></i> 导出
+                 </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('base:storeson:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('base:storeson:remove')}]];
+        var statusDatas=[[${@dict.getType('warehouse_task_status')}]]
+        var prefix = ctx + "base/storeson";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                modalName: "出库物料明细",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field : 'id', 
+                    title : '主键'
+                },
+                {
+                    field : 'rowid', 
+                    title : '行号'
+                },
+                {
+                    field : 'taskcode', 
+                    title : '任务号'
+                },
+                {
+                    field : 'storehousecode', 
+                    title : '库位'
+                },
+                {
+                    field : 'productcode', 
+                    title : '物料编号'
+                },
+                {
+                    field : 'productname', 
+                    title : '物料名称'
+                },
+                {
+                    field : 'quantity', 
+                    title : '物料数量'
+                },
+                {
+                    field : 'actualquantity', 
+                    title : '实际出库数量'
+                },
+                    {
+                        field : 'taskstate',
+                        title : '任务状态',
+                        formatter:function (value, row, index) {
+                            return $.table.selectDictLabel(statusDatas,row.taskstate);
+                        }
+                    },
+                {
+                    field : 'createdate', 
+                    title : '创建时间'
+                },
+                // {
+                //     field : 'f1',
+                //     title : '备用字段'
+                // },
+                // {
+                //     field : 'f2',
+                //     title : '备用字段'
+                // },
+                // {
+                //     field : 'f3',
+                //     title : '备用字段'
+                // },
+                // {
+                //     field : 'f4',
+                //     title : '备用字段'
+                // },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>

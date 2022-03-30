@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('出入库规则')"/>
+    <th:block th:include="include :: select2-css"/>
+</head>
+<body class="gray-bg">
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">提示</h4>
+            </div>
+            <div class="modal-body" style="text-align: center">
+                修改成功！
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId" action="/base/warehouseiorules/setDefaultRules">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p style="width: auto">当前出入库规则：</p>
+                            <div class="col-sm-8" style="padding-left: 6px">
+                                <select name="WarehouseRules" id="WarehouseRules" class="form-control m-b">
+                                    <option value="">请选择</option>
+                                    <option th:each="dict:${@dict.getType('base_warehouse_rules')}"
+                                            th:value="${dict.dictCode}"
+                                            th:text="${dict.dictLabel}"
+                                            th:selected="${dict.default}">
+                                    </option>
+                                </select>
+                            </div>
+                        </li>
+                        <li>
+                            <button type="button" class="btn btn-primary btn-rounded btn-sm" onclick="submitHandle()">提交</button>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: select2-js"/>
+<script>
+    function submitHandle() {
+        $.ajax({
+            url: "/base/warehouseiorules/setDefaultRules",
+            type: "post",
+            data: {WarehouseRules : $("#WarehouseRules").val()},
+            success:function (result) {
+                if (result.msg == "操作成功"){
+                    $('#myModal').modal("show");
+                }
+            }
+        })
+    }
+</script>
+</body>
+</html>

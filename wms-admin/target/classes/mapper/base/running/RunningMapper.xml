@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.base.running.mapper.RunningMapper">
+    
+    <resultMap type="Running" id="RunningResult">
+        <result property="id"    column="Id"    />
+        <result property="guid"    column="Guid"    />
+        <result property="rowid"    column="RowId"    />
+        <result property="tasktype"    column="TaskType"    />
+        <result property="taskcode"    column="TaskCode"    />
+        <result property="productcode"    column="ProductCode"    />
+        <result property="storehousecode"    column="StorehouseCode"    />
+        <result property="storehousestate"    column="StorehouseState"    />
+        <result property="traycode"    column="TrayCode"    />
+        <result property="devicecode"    column="DeviceCode"    />
+        <result property="rgvdevicecode"    column="RGVDeviceCode"    />
+        <result property="iszg"    column="IsZG"    />
+        <result property="totalstep"    column="TotalStep"    />
+        <result property="step"    column="Step"    />
+        <result property="devicename"    column="DeviceName"    />
+        <result property="sern"    column="sern"    />
+        <result property="taskstate"    column="TaskState"    />
+        <result property="createtime"    column="CreateTime"    />
+        <result property="endcode"    column="EndCode"    />
+        <result property="endstorehousestate"    column="EndStorehouseState"    />
+        <result property="isdelete"    column="IsDelete"    />
+    </resultMap>
+
+    <sql id="selectRunningVo">
+        select Id, Guid, RowId, TaskType, TaskCode, ProductCode, StorehouseCode, StorehouseState, TrayCode, DeviceCode, RGVDeviceCode, IsZG, TotalStep, Step, DeviceName, sern, TaskState, CreateTime, EndCode, EndStorehouseState, IsDelete from T_TaskRunning
+    </sql>
+
+    <select id="selectRunningList" parameterType="Running" resultMap="RunningResult">
+        <include refid="selectRunningVo"/>
+        <where>  
+            <if test="id != null "> and Id = #{id}</if>
+            <if test="guid != null  and guid != ''"> and Guid = #{guid}</if>
+            <if test="rowid != null "> and RowId = #{rowid}</if>
+            <if test="tasktype != null  and tasktype != ''"> and TaskType = #{tasktype}</if>
+            <if test="taskcode != null  and taskcode != ''"> and TaskCode = #{taskcode}</if>
+            <if test="productcode != null  and productcode != ''"> and ProductCode = #{productcode}</if>
+            <if test="storehousecode != null  and storehousecode != ''"> and StorehouseCode = #{storehousecode}</if>
+            <if test="storehousestate != null  and storehousestate != ''"> and StorehouseState = #{storehousestate}</if>
+            <if test="traycode != null  and traycode != ''"> and TrayCode = #{traycode}</if>
+            <if test="devicecode != null  and devicecode != ''"> and DeviceCode = #{devicecode}</if>
+            <if test="rgvdevicecode != null  and rgvdevicecode != ''"> and RGVDeviceCode = #{rgvdevicecode}</if>
+            <if test="iszg != null "> and IsZG = #{iszg}</if>
+            <if test="totalstep != null "> and TotalStep = #{totalstep}</if>
+            <if test="step != null "> and Step = #{step}</if>
+            <if test="devicename != null  and devicename != ''"> and DeviceName like concat('%', #{devicename}, '%')</if>
+            <if test="sern != null  and sern != ''"> and sern = #{sern}</if>
+            <if test="taskstate != null  and taskstate != ''"> and TaskState = #{taskstate}</if>
+            <if test="createtime != null "> and CreateTime = #{createtime}</if>
+            <if test="endcode != null  and endcode != ''"> and EndCode = #{endcode}</if>
+            <if test="endstorehousestate != null  and endstorehousestate != ''"> and EndStorehouseState = #{endstorehousestate}</if>
+            <if test="isdelete != null "> and IsDelete = #{isdelete}</if>
+        </where>
+    </select>
+    
+    <select id="selectRunningById" parameterType="Long" resultMap="RunningResult">
+        <include refid="selectRunningVo"/>
+        where Id = #{id}
+    </select>
+        
+    <insert id="insertRunning" parameterType="Running">
+        insert into T_TaskRunning
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null ">Id,</if>
+            <if test="guid != null  and guid != ''">Guid,</if>
+            <if test="rowid != null ">RowId,</if>
+            <if test="tasktype != null  and tasktype != ''">TaskType,</if>
+            <if test="taskcode != null  and taskcode != ''">TaskCode,</if>
+            <if test="productcode != null  and productcode != ''">ProductCode,</if>
+            <if test="storehousecode != null  and storehousecode != ''">StorehouseCode,</if>
+            <if test="storehousestate != null  and storehousestate != ''">StorehouseState,</if>
+            <if test="traycode != null  and traycode != ''">TrayCode,</if>
+            <if test="devicecode != null  and devicecode != ''">DeviceCode,</if>
+            <if test="rgvdevicecode != null  and rgvdevicecode != ''">RGVDeviceCode,</if>
+            <if test="iszg != null ">IsZG,</if>
+            <if test="totalstep != null ">TotalStep,</if>
+            <if test="step != null ">Step,</if>
+            <if test="devicename != null  and devicename != ''">DeviceName,</if>
+            <if test="sern != null  and sern != ''">sern,</if>
+            <if test="taskstate != null  and taskstate != ''">TaskState,</if>
+            <if test="createtime != null ">CreateTime,</if>
+            <if test="endcode != null  and endcode != ''">EndCode,</if>
+            <if test="endstorehousestate != null  and endstorehousestate != ''">EndStorehouseState,</if>
+            <if test="isdelete != null ">IsDelete,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null ">#{id},</if>
+            <if test="guid != null  and guid != ''">#{guid},</if>
+            <if test="rowid != null ">#{rowid},</if>
+            <if test="tasktype != null  and tasktype != ''">#{tasktype},</if>
+            <if test="taskcode != null  and taskcode != ''">#{taskcode},</if>
+            <if test="productcode != null  and productcode != ''">#{productcode},</if>
+            <if test="storehousecode != null  and storehousecode != ''">#{storehousecode},</if>
+            <if test="storehousestate != null  and storehousestate != ''">#{storehousestate},</if>
+            <if test="traycode != null  and traycode != ''">#{traycode},</if>
+            <if test="devicecode != null  and devicecode != ''">#{devicecode},</if>
+            <if test="rgvdevicecode != null  and rgvdevicecode != ''">#{rgvdevicecode},</if>
+            <if test="iszg != null ">#{iszg},</if>
+            <if test="totalstep != null ">#{totalstep},</if>
+            <if test="step != null ">#{step},</if>
+            <if test="devicename != null  and devicename != ''">#{devicename},</if>
+            <if test="sern != null  and sern != ''">#{sern},</if>
+            <if test="taskstate != null  and taskstate != ''">#{taskstate},</if>
+            <if test="createtime != null ">#{createtime},</if>
+            <if test="endcode != null  and endcode != ''">#{endcode},</if>
+            <if test="endstorehousestate != null  and endstorehousestate != ''">#{endstorehousestate},</if>
+            <if test="isdelete != null ">#{isdelete},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRunning" parameterType="Running">
+        update T_TaskRunning
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="guid != null  and guid != ''">Guid = #{guid},</if>
+            <if test="rowid != null ">RowId = #{rowid},</if>
+            <if test="tasktype != null  and tasktype != ''">TaskType = #{tasktype},</if>
+            <if test="taskcode != null  and taskcode != ''">TaskCode = #{taskcode},</if>
+            <if test="productcode != null  and productcode != ''">ProductCode = #{productcode},</if>
+            <if test="storehousecode != null  and storehousecode != ''">StorehouseCode = #{storehousecode},</if>
+            <if test="storehousestate != null  and storehousestate != ''">StorehouseState = #{storehousestate},</if>
+            <if test="traycode != null  and traycode != ''">TrayCode = #{traycode},</if>
+            <if test="devicecode != null  and devicecode != ''">DeviceCode = #{devicecode},</if>
+            <if test="rgvdevicecode != null  and rgvdevicecode != ''">RGVDeviceCode = #{rgvdevicecode},</if>
+            <if test="iszg != null ">IsZG = #{iszg},</if>
+            <if test="totalstep != null ">TotalStep = #{totalstep},</if>
+            <if test="step != null ">Step = #{step},</if>
+            <if test="devicename != null  and devicename != ''">DeviceName = #{devicename},</if>
+            <if test="sern != null  and sern != ''">sern = #{sern},</if>
+            <if test="taskstate != null  and taskstate != ''">TaskState = #{taskstate},</if>
+            <if test="createtime != null ">CreateTime = #{createtime},</if>
+            <if test="endcode != null  and endcode != ''">EndCode = #{endcode},</if>
+            <if test="endstorehousestate != null  and endstorehousestate != ''">EndStorehouseState = #{endstorehousestate},</if>
+            <if test="isdelete != null ">IsDelete = #{isdelete},</if>
+        </trim>
+        where Id = #{id}
+    </update>
+
+    <delete id="deleteRunningById" parameterType="Long">
+        delete from T_TaskRunning where Id = #{id}
+    </delete>
+
+    <delete id="deleteRunningByIds" parameterType="String">
+        delete from T_TaskRunning where Id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

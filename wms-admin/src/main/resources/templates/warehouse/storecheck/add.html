@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增盘点')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-storecheck-add">
+            <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>任务类型：</label>
+                <div class="col-sm-4">
+                    <select id="tasktype" name="tasktype" class="form-control m-b" th:with="type=${@dict.getType('warehouse_task_type')}" disabled>
+                        <option value="">请选择</option>
+                        <option th:each="dict:${type}" th:if="${dict.dictSort eq 4}" th:selected="selected" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" ></option>
+                    </select>
+                </div>
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>仓库名称：</label>
+                <div class="col-sm-4">
+                    <select id="whcode" name="whcode" class="form-control m-b">
+                        <option th:each="ware:${whList}" th:value="${ware.whcode}" th:text="${ware.whname}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>任务名称：</label>
+                <div class="col-sm-4">
+                    <input name="taskname" id="taskname" class="form-control" type="text">
+                </div>
+                <label class="col-sm-2 control-label">任务描述：</label>
+                <div class="col-sm-4">
+                    <input name="productdetail" id="productdetail" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>制单人：</label>
+                <div class="col-sm-4">
+                    <input name="maker" id="maker" class="form-control" type="text">
+                </div>
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>总数量：</label>
+                <div class="col-sm-4">
+                    <input name="quantity" id="quantity" class="form-control" type="number" value="0"  disabled>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">备注：</label>
+                <div class="col-sm-10">
+                    <input name="note" id="note" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="add()">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="removeAll()">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <th:block th:include="include :: select2-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "warehouse/storecheck"
+        var modelDatas=[[${@dict.getType('base_product_model')}]];
+        $("#form-storecheck-add").validate({
+            focusCleanup: true,
+            rules:{
+                tasktype:{
+                    required:true
+                },
+                taskname :{
+                    required:true
+                },
+                maker :{
+                    required:true
+                },
+                // whcode :{
+                //     required:true
+                // },
+                quantity:{
+                    required:true,
+                    digits:true
+                },
+            }
+        });
+
+        $(function() {
+            var options = {
+                createUrl: prefix + "/add",
+                removeUrl: prefix + "/remove",
+                modalName: "盘点子表",
+                showSearch: false,
+                showRefresh: false,
+                showColumns: false,
+                showToggle: false,
+                showExport: false,
+                columns: [{
+                    checkbox: true
+                },
+                    {
+                        field : 'rowid',
+                        title : '序号',
+                        formatter:function (value,row,index) {
+                            row.rowid=index+1;
+                            return index+1;
+                        }
+                    },
+                    {
+                        field : 'storehousecode',
+                        title : '库位编码',
+                        visible:false
+                    },
+                    {
+                        field : 'storehousename',
+                        title : '库位名称',
+                        // visible:false
+                    },
+                    {
+                        field : 'productcode',
+                        title : '产品编码'
+                    },
+                    {
+                        field : 'productname',
+                        title : '产品名称'
+                    },
+                    {
+                        field : 'quantity',
+                        title : '库存数量'
+                    },
+                    {
+                        field : 'f1',
+                        title : '托盘号'
+                    },
+                    {
+                        field : 'memo',
+                        title : '备注'
+                    }],
+                onDblClickCell: function (field, value, row, $element) {
+                    var indexRow = $element[0].parentElement.rowIndex - 1;
+                    if (field == 'memo') {
+                        $element.attr('contenteditable', true);
+                        $element.blur(function () {
+                            let tdValue = $element.text();
+                            $('#bootstrap-table').bootstrapTable("updateCell", {
+                                index: indexRow,
+                                field: field,
+                                value: tdValue
+                            });
+
+                        })
+                    }
+                }
+            };
+            $.table.init(options);
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                var rows=$('#bootstrap-table').bootstrapTable("getData");
+                if (rows.length==0){
+                    $.modal.msgError("请添加产品");
+                    return ;
+                }
+                var detailArray=new Array();
+                for (var i=0;i<rows.length;i++){
+                    if ($.common.isEmpty(rows[i].quantity) || !$.common.isNum(rows[i].quantity)|| rows[i].quantity<=0){
+                        $.modal.msgError("第"+rows[i].rowid+"行，产品数量不正确");
+                        return ;
+                    }
+                    var param={
+                        'rowid':rows[i].rowid,
+                        'taskname':$('#taskname').val(),
+                        // 'regioncode':rows[i].regioncode,
+                        'storehousecode':rows[i].storehousecode,
+                        // storehousename:rows[i].storehousename,
+                        'productcode':rows[i].productcode,
+                        'productname' :rows[i].productname,
+                        'productmodel' :rows[i].productmodel,
+                        'whcode' :rows[i].whcode,
+                        'quantity' :rows[i].quantity,
+                        'otherProductCode' :rows[i].otherProductCode,
+                        'memo':rows[i].memo,
+                        'f1':rows[i].f1
+                    }
+                    detailArray.push(param);
+                }
+                var params={
+                    tasktype:$('#tasktype').find('option:selected').val(),
+                    whcode :$('#whcode').find('option:selected').val(),
+                    taskname :$('#taskname').val(),
+                    productdetail :$('#productdetail').val(),
+                    maker :$('#maker').val(),
+                    quantity :$('#quantity').val(),
+                    note:$('#note').val(),
+                    list:JSON.stringify(detailArray)
+                }
+                $.operate.save(prefix + "/add", params);
+            }
+        }
+
+        function add(){
+            if($.common.isEmpty($("#whcode").find('option:selected').val())){
+                $.modal.msgError("请先选择仓库");
+                retrun ;
+            }
+            table.set();
+            $.modal.open("添加产品",prefix+'/product/'+$("#whcode").find('option:selected').val(),null,null,callback);
+        }
+
+        callback = function(index, layero) {
+            var iframeWin = layero.find('iframe')[0];
+            var data=iframeWin.contentWindow.submitHandler(index, layero);
+            var row=$("#bootstrap-table").bootstrapTable("getData");
+            var msg="";
+            for (var i=0;i<data.length;i++){
+                var isBool=true;
+                for (var j=0;j<row.length;j++){
+                    if (data[i].productcode==row[j].productcode && data[i].storehousecode ==row[j].storehousecode){
+                        msg+=data[i].productname+",";
+                        isBool=false;
+                        break;
+                    }
+
+                }
+                if (isBool){
+                    $("#bootstrap-table").bootstrapTable("insertRow",{
+                        index:row.length+i,
+                        row:{
+                            // num:row.length+i,
+                            // regioncode:data[i].regioncode,
+                            storehousecode:data[i].storehousecode,
+                            storehousename:data[i].storehousename,
+                            productcode:data[i].productcode,
+                            productname :data[i].productname,
+                            productmodel:data[i].productmodel,
+                            quantity :data[i].quantity,
+                            otherProductCode :data[i].otherProductCode,
+                            f1:data[i].traycode,
+                            memo:'',
+                        }
+                    })
+                }
+            }
+            if ($("#bootstrap-table").bootstrapTable("getData").length>0){
+                $('#whcode').attr('disabled',true);
+            }
+            if (msg!=""){
+                $.modal.alertError("产品名称:"+msg+"已存在");
+            }
+            var rows=$('#bootstrap-table').bootstrapTable("getData");
+            var sum=0;
+            for (var i=0;i<rows.length;i++){
+                sum+=Number(rows[i].quantity);
+            }
+            $('#quantity').val(sum);
+            layer.close(index);
+
+        }
+
+        function removeAll(){
+            var data=$("#bootstrap-table").bootstrapTable("getSelections");
+            if (data.length==0){
+                $.modal.alertError("请至少选择一条记录");
+                return ;
+            }
+            for (var i=0;i<data.length;i++){
+                $('#bootstrap-table').bootstrapTable("remove",{field:'rowid',values:[data[i].rowid]});
+            }
+            if ($("#bootstrap-table").bootstrapTable("getData").length<=0){
+                $('#whcode').attr('disabled',false);
+            }
+            var row=$("#bootstrap-table").bootstrapTable("getData");
+            var ronum=0;
+            for (var i=0;i<row.length;i++){
+                ronum+=Number(row[i].quantity);
+            }
+            $('#quantity').val(ronum);
+        }
+    </script>
+</body>
+</html>

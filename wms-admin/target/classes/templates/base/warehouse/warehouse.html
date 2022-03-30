@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('仓库列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <label>仓库编码：</label>
+                                <input type="text" name="whcode" onkeydown="keydown()"/>
+                            </li>
+                            <li>
+                                <label>仓库名称：</label>
+                                <input type="text" name="whname" onkeydown="keydown()"/>
+                            </li>
+                            <li>
+                                <label>仓库电话：</label>
+                                <input type="text" name="whphone" onkeydown="keydown()"/>
+                            </li>
+                            <li>
+                                <label>仓库负责人：</label>
+                                <input type="text" name="whperson" onkeydown="keydown()"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <!--<div class="btn-group-sm" id="toolbar" role="group">-->
+                <!--<a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="base:Warehouse:add">-->
+                    <!--<i class="fa fa-plus"></i> 添加-->
+                <!--</a>-->
+                <!--<a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="base:Warehouse:edit">-->
+                    <!--<i class="fa fa-edit"></i> 修改-->
+                <!--</a>-->
+                <!--<a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="base:Warehouse:remove">-->
+                    <!--<i class="fa fa-remove"></i> 删除-->
+                <!--</a>-->
+                <!--&lt;!&ndash;<a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="base:Warehouse:export">&ndash;&gt;-->
+                    <!--&lt;!&ndash;<i class="fa fa-download"></i> 导出&ndash;&gt;-->
+                 <!--&lt;!&ndash;</a>&ndash;&gt;-->
+            <!--</div>-->
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('base:Warehouse:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('base:Warehouse:remove')}]];
+        var prefix = ctx + "base/warehouse";
+        var statusDatas=[[${@dict.getType('base_normal_status')}]];
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                uniqueId:'whcode',
+                modalName: "仓库",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field : 'id', 
+                    title : '序号',
+                    formatter:function(value, row, index){
+                        return index+1;
+                    }
+                },
+                {
+                    field : 'whcode', 
+                    title : '仓库编码',
+                    // visible: false
+                },
+                {
+                    field : 'whname', 
+                    title : '仓库名称'
+                },
+                {
+                    field : 'whaddress', 
+                    title : '仓库地址'
+                },
+                {
+                    field : 'whphone', 
+                    title : '仓库电话'
+                },
+                {
+                    field : 'whperson', 
+                    title : '仓库负责人'
+                },
+                {
+                    field : 'cbarcode', 
+                    title : '仓库条码'
+                },
+                {
+                    field : 'inventorycycle', 
+                    title : '盘点周期'
+                },
+                {
+                    field : 'inventorycycleunit', 
+                    title : '盘点周期单位'
+                },
+                {
+                    field : 'memo', 
+                    title : '备注'
+                },
+                {
+                    field : 'f1',
+                    title : '外部编码'
+                },
+                {
+                    field : 'lastcheckdate', 
+                    title : '上次盘点日期'
+                },
+
+                {
+                    field : 'isenable', 
+                    title : '状态',
+                    formatter:function (value, row, index) {
+                        return $.table.selectDictLabel(statusDatas,value);
+                    }
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.whcode + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.whcode + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>

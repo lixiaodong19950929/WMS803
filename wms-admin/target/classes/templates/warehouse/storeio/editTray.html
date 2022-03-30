@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改出入库')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-StoreIo-edit" th:object="${storeIo}">
+            <input name="taskcode" id="taskcode" th:field="*{taskcode}" type="hidden">
+            <input name="id" th:field="*{id}" type="hidden">
+             <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>任务类型：</label>
+                <div class="col-sm-4">
+                    <select id="tasktype" name="tasktype" class="form-control m-b" th:field="*{tasktype}" th:with="type=${@dict.getType('warehouse_task_type')}" disabled>
+                        <option th:each="dict:${type}"  th:value="${dict.dictValue}" th:text="${dict.dictLabel}" ></option>
+                    </select>
+                </div>
+                 <label class="col-sm-2 control-label"><span style="color: red; ">*</span>仓库名称：</label>
+                <div class="col-sm-4">
+                    <select id="whcode" name="whcode" class="form-control m-b" th:field="*{whcode}">
+                        <option th:each="ware:${whList}" th:value="${ware.whcode}" th:text="${ware.whname}"></option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="form-group">
+                 <label class="col-sm-2 control-label"><span style="color: red; ">*</span>任务名称：</label>
+                <div class="col-sm-4">
+                    <input name="taskname" class="form-control" type="text" th:field="*{taskname}">
+                </div>
+                <label class="col-sm-2 control-label">任务描述：</label>
+                <div class="col-sm-4">
+                    <input name="productdetail" class="form-control" type="text" th:field="*{productdetail}">
+                </div>
+
+            </div>
+            <div class="form-group">
+                <!--<label class="col-sm-2 control-label">供应商信息：</label>-->
+                <!--<div class="col-sm-4">-->
+                    <!--<input name="veninfo" class="form-control" type="text" th:field="*{veninfo}">-->
+                <!--</div>-->
+                <label class="col-sm-2 control-label">制单人：</label>
+                <div class="col-sm-4">
+                    <input name="maker" class="form-control" type="text" th:field="*{maker}">
+                </div>
+                 <label class="col-sm-2 control-label">备注：</label>
+                <div class="col-sm-4">
+                    <input name="memo" class="form-control" type="text" th:field="*{memo}">
+                </div>
+            </div>
+            <!--<div class="form-group">-->
+                <!--<label class="col-sm-2 control-label">生产订单编号：</label>-->
+                <!--<div class="col-sm-4">-->
+                    <!--<input name="mpocode" class="form-control" type="text" th:field="*{mpocode}">-->
+                <!--</div>-->
+                <!--<label class="col-sm-2 control-label">采购订单编号：</label>-->
+                <!--<div class="col-sm-4">-->
+                    <!--<input name="ordercode" class="form-control" type="text" th:field="*{ordercode}">-->
+                <!--</div>-->
+
+            <!--</div>-->
+            <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>总数量：</label>
+                <div class="col-sm-4">
+                    <input name="quantity" class="form-control" type="text" th:field="*{quantity}">
+                </div>
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>放置层数：</label>
+                <div class="col-sm-4">
+                    <select id="layer" name="layer" class="form-control m-b" th:field="*{layer}" th:with="type=${@dict.getType('base_storeio_layer')}" disabled>
+                        <option th:each="dict:${type}" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" ></option>
+                    </select>
+                </div>
+
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <th:block th:include="include :: select2-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "warehouse/storeio";
+        var rowid=0;
+        $("#form-StoreIo-edit").validate({
+            focusCleanup: true,
+            rules:{
+                tasktype:{
+                    required:true
+                },
+                taskname :{
+                    required:true
+                },
+                whcode :{
+                    required:true
+                },
+                quantity:{
+                    required:true,
+                    digits:true
+                },
+            }
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                var params={
+                    id :$('#id').val(),
+                    taskcode :$('#taskcode').val(),
+                    tasktype:$('#tasktype').find('option:selected').val(),
+                    whcode :$('#whcode').find('option:selected').val(),
+                    taskname :$('#taskname').val(),
+                    productdetail :$('#productdetail').val(),
+                    veninfo :$('#veninfo').val(),
+                    maker :$('#maker').val(),
+                    mpocode :$('#mpocode').val(),
+                    ordercode:$('#ordercode').val(),
+                    quantity :$('#quantity').val(),
+                    memo:$('#memo').val(),
+                    list:''
+                }
+                $.operate.save(prefix + "/edit",params);
+            }
+        }
+    </script>
+</body>
+</html>

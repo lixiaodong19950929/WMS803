@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <!--<title>Title</title>-->
+    <th:block th:include="include :: header('库存管理')"/>
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+    <link href="../static/css/login.min.css" th:href="@{/css/kucun.css}" rel="stylesheet"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="backBtn btn-group-sm" id="toolbar" role="group" style="margin-top: 15px;display: none">
+            <a style="width: 80px" class="btn btn-warning btn-rounded btn-sm" onclick="back()">返回</a>
+            <a style="width: 100px;margin-left: 530px" class="btn btn-info" onclick="fangda(1)">详情图</a>
+            <a style="width: 100px;margin-left: 130px" class="btn btn-success" onclick="fangda(0)">缩略图</a>
+        </div>
+        <div class="btn-group-sm" id="exportimport" role="group" style="margin-top: 15px;display: block">
+            <a class="btn btn-warning btn-rounded btn-sm" onclick="exportEX()">导出最新库位表和产品库存表</a>
+            <div style="float: right;">
+                <input type="file" ref="upload" id="upload" style="opacity: 0;width: 0;height: 0;" accept=".xls, .xlsx" class="importBtn" onchange="importStorehouse()" />
+                <a style="width: 120px" class="btn btn-warning btn-rounded btn-sm"><label for="upload" style="margin:0;cursor: pointer;">同步库位信息</label></a>
+            </div>
+            <div style="float: right;margin-right: 10px">
+                <input type="file" ref="upload1" id="upload1" style="opacity: 0;width: 0;height: 0;" accept=".xls, .xlsx" class="importBtn" onchange="importTraycodeDetail()" />
+                <a style="width: 120px" class="btn btn-primary btn-rounded btn-sm"><label for="upload1" style="margin:0;cursor: pointer;">同步库存产品</label></a>
+            </div>
+        </div>
+        <!--<img th:src="@{/img/kucun/blank.png}" />-->
+        <!--首屏仓库货架堆垛机总览-->
+        <div class="ckBox">
+            <div class="hj1" onclick="hjClick('01')">
+                <div class="ckItemTile">第一排：<span id="paiCount1"></span>个</div>
+            </div>
+            <div class="solidLine">--------</div>
+            <div class="ddj">
+                <div class="ddjTile">一号堆垛机</div>
+            </div>
+            <div class="solidLine">--------</div>
+            <div class="hj2" onclick="hjClick('02')">
+                <div class="ckItemTile">第二排：<span id="paiCount2"></span>个</div>
+            </div>
+            <div class="solidLine">--------</div>
+            <div class="ddj">
+                <div class="ddjTile">二号堆垛机</div>
+            </div>
+            <div class="solidLine">--------</div>
+            <div class="hj3" onclick="hjClick('03')">
+                <div class="ckItemTile">第三排：<span id="paiCount3"></span>个</div>
+            </div>
+            <div class="solidLine">--------</div>
+            <div class="ddj">
+                <div class="ddjTile">三号堆垛机</div>
+            </div>
+            <div class="solidLine">--------</div>
+            <div class="hj4" onclick="hjClick('04')">
+                <div class="ckItemTile">第四排：<span id="paiCount4"></span>个</div>
+            </div>
+        </div>
+        <!--点击货架进入列层详细数据展示-->
+        <div class="hjInfoBox">
+
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+<th:block th:include="include :: select2-js" />
+
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/xlsx.full.min.js}"></script>
+<script th:inline="javascript">
+    var prefix = ctx + "warehouse/inventroyManager";
+
+    var hjData = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27];
+    var paiNo = '';//区分点击的是第几排货架
+    var pai_Product_Count=[0,0,0,0]
+
+    var kuweiData = []
+
+    $(function() {
+        $('.hjInfoBox').hide() //隐藏二级货架详细信息页面
+        //ajax调取后台库位信息数据
+        $.modal.loading('数据获取中');
+        $.ajax({
+            type: "post",
+            data:{
+                "whcode":'WH0003'
+            },
+            url: prefix + "/getinventroyManagerByStock",
+            success: function(r) {
+                $.modal.closeLoading();
+                if (r.code == 0) {
+                    kuweiData = r.data.list;
+                    //计算每一排货架上的产品总数量
+                    for(var i=0;i<kuweiData.length;i++){
+                        if(kuweiData[i].storehousecode.substring(0,2)=='01' && kuweiData[i].quantity){
+                            pai_Product_Count[0]+=kuweiData[i].quantity
+                        }
+                        if(kuweiData[i].storehousecode.substring(0,2)=='02' && kuweiData[i].quantity){
+                            pai_Product_Count[1]+=kuweiData[i].quantity
+                        }
+                        if(kuweiData[i].storehousecode.substring(0,2)=='03' && kuweiData[i].quantity){
+                            pai_Product_Count[2]+=kuweiData[i].quantity
+                        }
+                        if(kuweiData[i].storehousecode.substring(0,2)=='04' && kuweiData[i].quantity){
+                            pai_Product_Count[3]+=kuweiData[i].quantity
+                        }
+                    }
+                    $('#paiCount1').text(pai_Product_Count[0]);$('#paiCount2').text(pai_Product_Count[1]);$('#paiCount3').text(pai_Product_Count[2]);$('#paiCount4').text(pai_Product_Count[3]);
+                } else {
+                    $.modal.msg(r.msg);
+                }
+            }
+        });
+    });
+
+
+    function hjClick (pai){
+        paiNo=pai;
+        $('.backBtn').show()//返回按钮出现
+        $('.ckBox').hide()//首屏隐藏
+        $('#exportimport').hide()
+
+        //数据获取到之后 显示第二屏并插入DOM
+        $('.hjInfoBox').show()//货架详细页面出现
+        $('.hjInfoBox').empty()
+        //遍历 列数  以及根据不同排插入不同的层数
+        if(pai=='01'||pai=='04'){
+            for (var i=0;i<hjData.length;i++){
+                var lie = hjData[i]<10? '0'+hjData[i] : hjData[i];
+                $('.hjInfoBox').append('<div class="lieClass"><div style="height: 40px;background-color: lightskyblue;font-size: 18px;text-align: center;line-height: 40px;">第'+hjData[i]+'列</div><div class="cengItem '+(pai+lie+'03')+'"><div style="text-align: center;line-height: 132px;">'+(pai+lie+'03')+'</div></div><div class="cengItem '+(pai+lie+'02')+'"><div style="text-align: center;line-height: 132px;">'+(pai+lie+'02')+'</div></div><div class="cengItem '+(pai+lie+'01')+'"><div style="text-align: center;line-height: 132px;">'+(pai+lie+'01')+'</div></div></div>')
+            }
+        }else if(pai=='02'||pai=='03'){
+            for (var i=0;i<hjData.length-1;i++){
+                var lie = hjData[i]<10? '0'+hjData[i] : hjData[i];
+                $('.hjInfoBox').append('<div class="lieClass"><div style="height: 40px;background-color: lightskyblue;font-size: 18px;text-align: center;line-height: 40px;">第'+hjData[i]+'列</div><div class="cengItem '+(pai+lie+'04')+'"><div style="text-align: center;line-height: 132px;">'+(pai+lie+'04')+'</div></div><div class="cengItem '+(pai+lie+'03')+'"><div style="text-align: center;line-height: 132px;">'+(pai+lie+'03')+'</div></div><div class="cengItem '+(pai+lie+'02')+'"><div style="text-align: center;line-height: 132px;">'+(pai+lie+'02')+'</div></div><div class="cengItem '+(pai+lie+'01')+'"><div style="text-align: center;line-height: 132px;">'+(pai+lie+'01')+'</div></div></div>')
+            }
+        }
+
+        //初次点击货架进入第二屏时，判断空库位
+        $('.cengItem').each(function(item,index){
+            //以下是判断库位是否为空库 ，根据两层遍历找到一一对应的库位信息 判断字段 插入图片
+            for (var i=0;i<kuweiData.length;i++){
+                if($(this).prop('class').split(' ')[1]==kuweiData[i].storehousecode){
+                    if(!kuweiData[i].traycode || (kuweiData[i].traycode && !kuweiData[i].quantity)){
+                        $(this).append('<img style="position: absolute;width: 30px;height: 30px;left: 25px;top: 13px;" src="'+ctx+'img/kucun/blank.png'+'" />')
+                        //插入 空 图片后，改变背景颜色rgba(240,128,128,0.8)
+                        $(this).css('background-color','darkgray')
+                    }
+                }
+            }
+        })
+
+    }
+    function back() {
+        $('.ckBox').show()
+        $('.backBtn').hide()
+        $('.hjInfoBox').hide()
+        $('#exportimport').show()
+    }
+
+    function fangda(num){
+        if(num){
+            $('.lieClass').css('width','220px');
+            //通过class找到对应的库位
+            $('.cengItem').each(function(item,index){
+                // console.log($(this).prop('class').split(' ')[1])
+                $(this).empty();
+                //根据库位的遍历以及返回数据的遍历找到一一对应的库位信息  并插入数据
+                for (var i=0;i<kuweiData.length;i++){
+                    if($(this).prop('class').split(' ')[1]==kuweiData[i].storehousecode){
+                        $(this).append('<div style="color: cornsilk;height:100%;display: flex;flex-direction: column;justify-content: space-evenly;padding: 0 5px;"><div>库位：<span>'+kuweiData[i].storehousecode+'</span></div><div>托盘号：<span>'+kuweiData[i].traycode+'</span></div><div>产品代号：<span>'+kuweiData[i].productcode+'</span></div><div>数量：<span>'+kuweiData[i].quantity+'</span></div></div>')
+                        if(!kuweiData[i].traycode || (kuweiData[i].traycode && !kuweiData[i].quantity)){
+                            $(this).append('<img style="position: absolute;width: 60px;height: 60px;right: 5px;top: 28px;" src="'+ctx+'img/kucun/blank.png'+'" />')
+                        }
+                    }
+                }
+            })
+        }else{
+            $('.lieClass').css('width','80px');
+            $('.cengItem').each(function(item,index){
+                $(this).empty();
+                $(this).append('<div style="text-align: center;line-height: 132px;">'+$(this).prop('class').split(' ')[1]+'</div>')
+                //以下是判断库位是否为空库 ，根据两层遍历找到一一对应的库位信息 判断字段 插入图片
+                for (var i=0;i<kuweiData.length;i++){
+                    if($(this).prop('class').split(' ')[1]==kuweiData[i].storehousecode){
+                        if(!kuweiData[i].traycode || (kuweiData[i].traycode && !kuweiData[i].quantity)){
+                            $(this).append('<img style="position: absolute;width: 30px;height: 30px;left: 25px;top: 13px;" src="'+ctx+'img/kucun/blank.png'+'" />')
+                        }
+                    }
+                }
+            })
+        }
+
+    }
+
+    function exportEX(){
+        // $.table.exportExcel()
+        $.modal.confirm("确定导出所有库位信息和产品库存吗？", function() {
+            $.modal.loading("正在导出数据，请稍后...");
+            $.post(prefix + "/exportIn", '', function(result) {
+                if (result.code == web_status.SUCCESS) {
+                    window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
+                    $.post(prefix + "/exportInTraycodeDetail", '', function(result) {
+                        if (result.code == web_status.SUCCESS) {
+                            window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
+                        } else if (result.code == web_status.WARNING) {
+                            $.modal.alertWarning(result.msg)
+                        } else {
+                            $.modal.alertError(result.msg);
+                        }
+                        $.modal.closeLoading();
+                    });
+                } else if (result.code == web_status.WARNING) {
+                    $.modal.alertWarning(result.msg)
+                } else {
+                    $.modal.alertError(result.msg);
+                }
+                $.modal.closeLoading();
+            });
+        });
+    }
+
+    //批量更新
+    function importStorehouse(){
+        var that = this;
+        var files = $('#upload')[0].files;
+        var fileReader = new FileReader();
+        console.log(files)
+        fileReader.onload = function(ev){
+            try {
+                var data = ev.target.result;
+                // var workbook = XLSX.read(data,{
+                //     type:"binary"
+                // })
+                //可能遇到中文乱码使用codepage解决编码错误
+                var workbook = XLSX.read(data, { type: 'binary', codepage: 936 })
+                var wsname = workbook.SheetNames[0];
+                var ws = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]);//将excel数据解析为json串
+                console.log(ws)
+                var detailArray=new Array();
+                for (var i=0;i<ws.length;i++){
+                    var param = {
+                        whcode:'WH0004',
+                        regioncode:'RGC1937203860129',
+                        storehousecode:ws[i]['库位编码'],
+                        storehousename:ws[i]['库位名'],
+                        storehousestate:ws[i]['库位状态'],
+                        traycode:ws[i]['托盘号'],
+                        devicecode:ws[i]['堆垛机号'],
+                        rgvdevicecode:ws[i]['RGV'],
+                        createuser:ws[i]['创建人'],
+                        // createdate:ws[i]['创建时间'],
+                        isenable:ws[i]['1:启用，0:停用'],
+                        isdelete:ws[i]['1:删除，0:正常'],
+                        quantity:ws[i]['数量'],
+                        productcode:ws[i]['产品编号'],
+                        productname:ws[i]['产品名称'],
+                        maxxhao:ws[i]['最大箱数'],
+                        havexhao:ws[i]['存放箱数'],
+                        yunxuxhao:ws[i]['允许存放箱数']
+                    }
+                    detailArray.push(param)
+                }
+                var params={
+                    list:JSON.stringify(detailArray)
+                }
+                var config = {
+                    // url: prefix + "/deleteAndInsertsList",//先全删再全插
+                    url: prefix + "/updateListByStorehouseCode",
+                    type: "post",
+                    dataType: "json",
+                    data: params,
+                    beforeSend: function () {
+                        $.modal.loading("正在处理中，请稍后...");
+                        $.modal.disable();
+                    },
+                    success: function(result) {
+                        if (result.code == web_status.SUCCESS) {
+                            $.modal.msg("库位表更新成功", modal_status.SUCCESS);
+                        } else if (result.code == web_status.WARNING) {
+                            $.modal.msgError(result.msg);
+                        }  else {
+                            $.modal.msgError(result.msg);
+                        }
+                        $.modal.closeLoading();
+                        $.modal.enable();
+                    }
+                };
+                $.ajax(config)
+                // $.operate.save(prefix + "/deleteAndInsertsList",params);
+            }catch (e) {
+                console.log(e)
+            }
+        }
+
+        fileReader.readAsBinaryString(files[0])
+        document.getElementById('upload').value = ''
+    }
+
+    //批量更新产品库存
+    function importTraycodeDetail(){
+        var that = this;
+        var files = $('#upload1')[0].files;
+        var fileReader = new FileReader();
+        fileReader.onload = function(ev){
+            try {
+                var data = ev.target.result;
+                // var workbook = XLSX.read(data,{
+                //     type:"binary"
+                // })
+                //可能遇到中文乱码使用codepage解决编码错误
+                var workbook = XLSX.read(data, { type: 'binary', codepage: 936 })
+                var wsname = workbook.SheetNames[0];
+                var ws = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]);//将excel数据解析为json串
+                console.log(ws)
+                var detailArray=new Array();
+                for (var i=0;i<ws.length;i++){
+                    var param = {
+                        taskcode:ws[i]['任务号'],
+                        storehousename:ws[i]['库位名称'],
+                        storehousecode:ws[i]['库位编码'],
+                        traycode:ws[i]['托盘'],
+                        productcode:ws[i]['产品代号'],
+                        productname:ws[i]['产品名称'],
+                        productbatch:ws[i]['产品批次'],
+                        sern:ws[i]['条码'],
+                        createdate:ws[i]['创建时间'],
+                        xhao:ws[i]['箱号'],
+                        batch:ws[i]['扫描批次'],
+                        fullSern:ws[i]['完整条码'],
+                        quantity:ws[i]['数量']
+                    }
+                    detailArray.push(param)
+                }
+                var params={
+                    list:JSON.stringify(detailArray)
+                }
+                console.log(params.list)
+                var config = {
+                    url: prefix + "/deleteAndInsertTraycodeDetailByStorehouseCode",
+                    type: "post",
+                    dataType: "json",
+                    data: params,
+                    beforeSend: function () {
+                        $.modal.loading("正在处理中，请稍后...");
+                        $.modal.disable();
+                    },
+                    success: function(result) {
+                        if (result.code == web_status.SUCCESS) {
+                            $.modal.msg("库存产品更新成功", modal_status.SUCCESS);
+                        } else if (result.code == web_status.WARNING) {
+                            $.modal.msgError(result.msg);
+                        }  else {
+                            $.modal.msgError(result.msg);
+                        }
+                        $.modal.closeLoading();
+                        $.modal.enable();
+                    }
+                };
+                $.ajax(config)
+                // $.operate.save(prefix + "/deleteAndInsertsList",params);
+            }catch (e) {
+                console.log(e)
+            }
+        }
+
+        fileReader.readAsBinaryString(files[0])
+        document.getElementById('upload').value = ''
+    }
+
+</script>
+</body>
+<script id="importTpl" type="text/template">
+    <form enctype="multipart/form-data" class="mt20 mb10">
+        <div class="col-xs-offset-1">
+            <input type="file" id="file" name="file"/>
+            <div class="mt10 pt5">
+                <!--<input type="checkbox" id="updateSupport" name="updateSupport" title="如果登录账户已经存在，更新这条数据。"> 是否更新已经存在的用户数据-->
+                &nbsp;	<a onclick="$.table.importTemplate()" class="btn btn-default btn-xs"><i class="fa fa-file-excel-o"></i> 下载模板</a>
+            </div>
+            <font color="red" class="pull-left mt10">
+                提示：仅允许导入“xls”或“xlsx”格式文件！
+            </font>
+        </div>
+    </form>
+</script>
+</html>

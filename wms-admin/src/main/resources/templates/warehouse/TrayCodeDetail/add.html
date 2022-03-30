@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增条码信息明细')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-traycodedetail-add">
+            <!--<div class="form-group">    -->
+                <!--<label class="col-sm-3 control-label">主键ID：</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<input name="id" class="form-control" type="text">-->
+                <!--</div>-->
+            <!--</div>-->
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">任务号：</label>
+                <div class="col-sm-8">
+                    <input name="taskcode" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">库位名称：</label>
+                <div class="col-sm-8">
+                    <input name="storehousename" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">库位编码：</label>
+                <div class="col-sm-8">
+                    <input name="storehousecode" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">托盘：</label>
+                <div class="col-sm-8">
+                    <input name="traycode" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">产品代号：</label>
+                <div class="col-sm-8">
+                    <input name="productcode" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">产品名称：</label>
+                <div class="col-sm-8">
+                    <input name="productname" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">产品批次：</label>
+                <div class="col-sm-8">
+                    <input name="productbatch" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">条码：</label>
+                <div class="col-sm-8">
+                    <input name="sern" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">创建时间：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input name="createdate" class="form-control" placeholder="yyyy-MM-dd" type="text">
+                    </div>
+                </div>
+            </div>
+            <!--<div class="form-group">    -->
+                <!--<label class="col-sm-3 control-label">备用字段：</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<input name="f1" class="form-control" type="text">-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="form-group">    -->
+                <!--<label class="col-sm-3 control-label">备用字段：</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<input name="f2" class="form-control" type="text">-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="form-group">    -->
+                <!--<label class="col-sm-3 control-label">备用字段：</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<input name="f3" class="form-control" type="text">-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="form-group">    -->
+                <!--<label class="col-sm-3 control-label">备用字段：</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<input name="f4" class="form-control" type="text">-->
+                <!--</div>-->
+            <!--</div>-->
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script type="text/javascript">
+        var prefix = ctx + "warehouse/TrayCodeDetail"
+        $("#form-traycodedetail-add").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/add", $('#form-traycodedetail-add').serialize());
+            }
+        }
+
+        $("input[name='createdate']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+    </script>
+</body>
+</html>

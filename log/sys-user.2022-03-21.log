@@ -1,0 +1,13 @@
+14:23:12.373 [restartedMain] INFO  sys-user - [shutdownAsyncManager,58] - ====关闭后台任务任务线程池====
+14:23:12.376 [restartedMain] INFO  sys-user - [shutdownEhCacheManager,72] - ====关闭缓存====
+14:24:07.178 [restartedMain] INFO  sys-user - [shutdownAsyncManager,58] - ====关闭后台任务任务线程池====
+14:24:07.180 [restartedMain] INFO  sys-user - [shutdownEhCacheManager,72] - ====关闭缓存====
+14:26:19.654 [schedule-pool-2] INFO  sys-user - [run,103] - [127.0.0.1]内网IP[admin][Success][登录成功]
+14:27:31.873 [schedule-pool-2] INFO  sys-user - [run,103] - [127.0.0.1]内网IP[admin][Success][登录成功]
+14:27:50.953 [schedule-pool-1] INFO  sys-user - [run,103] - [127.0.0.1]内网IP[admin][Logout][退出成功]
+14:27:52.178 [schedule-pool-5] INFO  sys-user - [run,103] - [127.0.0.1]内网IP[admin][Success][登录成功]
+14:28:08.999 [schedule-pool-3] INFO  sys-user - [run,103] - [127.0.0.1]内网IP[admin][Logout][退出成功]
+14:28:10.494 [schedule-pool-7] INFO  sys-user - [run,103] - [127.0.0.1]内网IP[admin][Success][登录成功]
+14:28:21.393 [schedule-pool-6] INFO  sys-user - [run,103] - [127.0.0.1]内网IP[admin][Success][登录成功]
+14:33:45.774 [schedule-pool-7] INFO  sys-user - [run,103] - [127.0.0.1]内网IP[admin][Logout][退出成功]
+14:33:46.853 [schedule-pool-8] INFO  sys-user - [run,103] - [127.0.0.1]内网IP[admin][Success][登录成功]

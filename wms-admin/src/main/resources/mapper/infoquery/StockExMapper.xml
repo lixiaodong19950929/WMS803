@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.infoquery.querystockstatus.mapper.StockExMapper">
+
+    <resultMap type="StockEx" id="StockResultEx">
+        <result property="id" column="Id"/>
+        <result property="productType" column="ProductType"/>
+        <result property="productCode" column="ProductCode"/>
+        <result property="productName" column="ProductName"/>
+        <result property="ProductNum" column="ProductNum"/>
+        <result property="productBatch" column="ProductBatch"/>
+        <result property="productModel" column="ProductModel"/>
+        <result property="specificationType" column="SpecificationType"/>
+        <result property="quantity" column="Quantity"/>
+        <result property="memo" column="Memo"/>
+        <result property="createUser" column="CreateUser"/>
+        <result property="createDate" column="CreateDate"/>
+        <result property="whCode" column="WhCode"/>
+        <result property="storehouseCode" column="StorehouseCode"/>
+        <result property="sern" column="Sern"/>
+        <result property="topLimit" column="TopLimit"/>
+        <result property="lowLimit" column="LowLimit"/>
+    </resultMap>
+
+    <select id="selectStockPage" parameterType="StockEx" resultMap="StockResultEx">
+        SELECT s.Id, s.ProductType, s.ProductCode, s.ProductNum,s.ProductName, s.ProductBatch, s.ProductModel, s.Specification as SpecificationType, s.Quantity, s.Memo,
+        s.CreateUser, s.CreateDate, s.WhCode, s.StorehouseCode
+        FROM T_Base_Stock s
+        <where>
+            s.IsDelete = 0
+        </where>
+        ORDER BY s.Id DESC
+        offset ${(pageIndex-1) * pageSize} rows fetch next #{pageSize} rows only
+    </select>
+
+    <select id="selectStockTotalCount" resultType="Integer">
+        SELECT COUNT(*) FROM T_Base_Stock
+        WHERE
+        IsDelete=0
+    </select>
+
+    <select id="selectByStock" resultType="com.wms.infoquery.querystockstatus.domain.Stock">
+        select id, producttype, productcode, productname, productnum, productbatch, productmodel, specification, quantity, memo, createuser, createdate, whcode, storehousecode, isenable, isdelete, sern, toplimit, lowerlimit, otherproductcode
+         from T_Base_Stock where IsDelete=0 and IsEnable=1 and StorehouseCode=#{startCode} and OtherProductCode=#{productCode}
+    </select>
+
+</mapper>

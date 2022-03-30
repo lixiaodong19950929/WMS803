@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.base.customer.mapper.CustomerMapper">
+    
+    <resultMap type="Customer" id="CustomerResult">
+        <result property="id"    column="Id"    />
+        <result property="customercode"    column="CustomerCode"    />
+        <result property="customername"    column="CustomerName"    />
+        <result property="cusabbreviation"    column="CusAbbreviation"    />
+        <result property="cusaddress"    column="CusAddress"    />
+        <result property="cuslandline"    column="CusLandline"    />
+        <result property="customercontact"    column="CustomerContact"    />
+        <result property="supsex"    column="SupSex"    />
+        <result property="supidcard"    column="SupIdCard"    />
+        <result property="custmertacttel"    column="CustmertactTel"    />
+        <result property="memo"    column="Memo"    />
+        <result property="createuser"    column="CreateUser"    />
+        <result property="createdate"    column="CreateDate"    />
+        <result property="f1"    column="F1"    />
+        <result property="f2"    column="F2"    />
+    </resultMap>
+
+    <sql id="selectCustomerVo">
+        select Id, CustomerCode, CustomerName, CusAbbreviation, CusAddress, CusLandline, CustomerContact, SupSex, SupIdCard, CustmertactTel, Memo, CreateUser, CreateDate, F1, F2 from T_Base_Customer
+    </sql>
+
+    <select id="selectCustomerList" parameterType="Customer" resultMap="CustomerResult">
+        <include refid="selectCustomerVo"/>
+        <where>  
+            <if test="id != null "> and Id = #{id}</if>
+            <if test="customercode != null  and customercode != ''"> and CustomerCode = #{customercode}</if>
+            <if test="customername != null  and customername != ''"> and CustomerName like concat('%', #{customername}, '%')</if>
+            <if test="cusabbreviation != null  and cusabbreviation != ''"> and CusAbbreviation = #{cusabbreviation}</if>
+            <if test="cusaddress != null  and cusaddress != ''"> and CusAddress = #{cusaddress}</if>
+            <if test="cuslandline != null  and cuslandline != ''"> and CusLandline = #{cuslandline}</if>
+            <if test="customercontact != null  and customercontact != ''"> and CustomerContact = #{customercontact}</if>
+            <if test="supsex != null  and supsex != ''"> and SupSex = #{supsex}</if>
+            <if test="supidcard != null  and supidcard != ''"> and SupIdCard = #{supidcard}</if>
+            <if test="custmertacttel != null  and custmertacttel != ''"> and CustmertactTel = #{custmertacttel}</if>
+            <if test="memo != null  and memo != ''"> and Memo = #{memo}</if>
+            <if test="createuser != null  and createuser != ''"> and CreateUser = #{createuser}</if>
+            <if test="createdate != null "> and CreateDate = #{createdate}</if>
+            <if test="f1 != null  and f1 != ''"> and F1 = #{f1}</if>
+            <if test="f2 != null  and f2 != ''"> and F2 = #{f2}</if>
+        </where>
+    </select>
+    
+    <select id="selectCustomerById" parameterType="Long" resultMap="CustomerResult">
+        <include refid="selectCustomerVo"/>
+        where Id = #{id}
+    </select>
+
+    <select id="selectCustomerDict" resultMap="CustomerResult">
+        <include refid="selectCustomerVo"/>
+    </select>
+        
+    <insert id="insertCustomer" parameterType="Customer">
+        insert into T_Base_Customer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null ">Id,</if>
+            <if test="customercode != null  and customercode != ''">CustomerCode,</if>
+            <if test="customername != null  and customername != ''">CustomerName,</if>
+            <if test="cusabbreviation != null  and cusabbreviation != ''">CusAbbreviation,</if>
+            <if test="cusaddress != null  and cusaddress != ''">CusAddress,</if>
+            <if test="cuslandline != null  and cuslandline != ''">CusLandline,</if>
+            <if test="customercontact != null  and customercontact != ''">CustomerContact,</if>
+            <if test="supsex != null  and supsex != ''">SupSex,</if>
+            <if test="supidcard != null  and supidcard != ''">SupIdCard,</if>
+            <if test="custmertacttel != null  and custmertacttel != ''">CustmertactTel,</if>
+            <if test="memo != null  and memo != ''">Memo,</if>
+            <if test="createuser != null  and createuser != ''">CreateUser,</if>
+            <if test="createdate != null ">CreateDate,</if>
+            <if test="f1 != null  and f1 != ''">F1,</if>
+            <if test="f2 != null  and f2 != ''">F2,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null ">#{id},</if>
+            <if test="customercode != null  and customercode != ''">#{customercode},</if>
+            <if test="customername != null  and customername != ''">#{customername},</if>
+            <if test="cusabbreviation != null  and cusabbreviation != ''">#{cusabbreviation},</if>
+            <if test="cusaddress != null  and cusaddress != ''">#{cusaddress},</if>
+            <if test="cuslandline != null  and cuslandline != ''">#{cuslandline},</if>
+            <if test="customercontact != null  and customercontact != ''">#{customercontact},</if>
+            <if test="supsex != null  and supsex != ''">#{supsex},</if>
+            <if test="supidcard != null  and supidcard != ''">#{supidcard},</if>
+            <if test="custmertacttel != null  and custmertacttel != ''">#{custmertacttel},</if>
+            <if test="memo != null  and memo != ''">#{memo},</if>
+            <if test="createuser != null  and createuser != ''">#{createuser},</if>
+            <if test="createdate != null ">#{createdate},</if>
+            <if test="f1 != null  and f1 != ''">#{f1},</if>
+            <if test="f2 != null  and f2 != ''">#{f2},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCustomer" parameterType="Customer">
+        update T_Base_Customer
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="customercode != null  and customercode != ''">CustomerCode = #{customercode},</if>
+            <if test="customername != null  and customername != ''">CustomerName = #{customername},</if>
+            <if test="cusabbreviation != null  and cusabbreviation != ''">CusAbbreviation = #{cusabbreviation},</if>
+            <if test="cusaddress != null  and cusaddress != ''">CusAddress = #{cusaddress},</if>
+            <if test="cuslandline != null  and cuslandline != ''">CusLandline = #{cuslandline},</if>
+            <if test="customercontact != null  and customercontact != ''">CustomerContact = #{customercontact},</if>
+            <if test="supsex != null  and supsex != ''">SupSex = #{supsex},</if>
+            <if test="supidcard != null  and supidcard != ''">SupIdCard = #{supidcard},</if>
+            <if test="custmertacttel != null  and custmertacttel != ''">CustmertactTel = #{custmertacttel},</if>
+            <if test="memo != null  and memo != ''">Memo = #{memo},</if>
+            <if test="createuser != null  and createuser != ''">CreateUser = #{createuser},</if>
+            <if test="createdate != null ">CreateDate = #{createdate},</if>
+            <if test="f1 != null  and f1 != ''">F1 = #{f1},</if>
+            <if test="f2 != null  and f2 != ''">F2 = #{f2},</if>
+        </trim>
+        where Id = #{id}
+    </update>
+
+    <delete id="deleteCustomerById" parameterType="Long">
+        delete from T_Base_Customer where Id = #{id}
+    </delete>
+
+    <delete id="deleteCustomerByIds" parameterType="String">
+        delete from T_Base_Customer where Id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>库存统计分析</title>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+<!--    <script src="https://cdn.bootcss.com/jquery-validate/1.19.1/jquery.validate.min.js"></script>-->
+    <script src="https://cdn.bootcss.com/echarts/4.2.1-rc1/echarts.min.js"></script>
+    <!--引入echarts-->
+    <script th:src="@{/js/echarts.min.js}"></script>
+    <script th:src="@{/js/ecStat.min.js}"></script>
+    <script th:src="@{/js/chart.js}"></script>
+    <th:block th:include="include :: header('库存管理')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+<!--    <link href="../static/css/inventoryAnalysis.css" th:href="@{/css/inventoryAnalysis.css}" rel="stylesheet"/>-->
+</head>
+<style>
+    html,body{
+        margin: 0px;
+        padding: 0px;
+        background:#eeeeee;
+    }
+    .farm{
+        width:100%;
+        height: 100%;
+        /*border: 1px solid red;*/
+    }
+    .top{
+        width:95%;
+        height:80px;
+        background: #fff;
+        border-radius:5px;
+        margin: 10px auto;
+    }
+    .query{
+        position: absolute;
+        right:10%;
+        top: 4%;
+    }
+    .top_query{
+        height:30px;
+        margin-top:20px;
+    }
+    .btn{
+        color: #fff;
+        background: #2269D5;
+        border:0px;
+        height:35px;
+        width:80px;
+    }
+    .bottom{
+        width:95%;
+        /*border:1px solid red;*/
+        margin: auto;
+        height:100%;
+    }
+    .top_left{
+        width:49.5%;
+        height:300px;
+        background: #fff;
+        border-radius: 5px;
+        float: left;
+    }
+    .bottom_left{
+        width:49.5%;
+        height:300px;
+        background: #fff;
+        border-radius: 5px;
+        margin-top:10px;
+        float: left;
+    }
+    .top_right{
+        width:49.5%;
+        height:300px;
+        background: #fff;
+        border-radius: 5px;
+        float: right;
+    }
+    .bottom_right{
+        width:49.5%;
+        height:300px;
+        background: #fff;
+        border-radius: 5px;
+        margin-top:10px;
+        float: right;
+    }
+
+</style>
+<body>
+    <div class="farm" >
+        <!--头部查询 -->
+        <div class="top">
+            <div class="query">
+<!--                <input class="top_query" value="开始时间">-->
+<!--                <input class="top_query" value="结束时间">-->
+                <input type="text" class="time-input" id="startTime" placeholder="开始时间" name="params[beginTime]"
+                       style="width: 30%;height:35px;margin: 2px;display: inline-block"/>
+                <input type="text" class="time-input" id="endTime" placeholder="结束时间" name="params[endTime]"
+                       style="width: 30%;height:35px;margin: 2px;display: inline-block"/>
+<!--                <button class="btn">查询</button>-->
+                <input type="button"
+                       style="width: 25%;height:35px;margin: 2px;background-color: #2269D5;color: #fff;border: none;"
+                       value="查询" onclick="searchTable()">
+            </div>
+        </div>
+        <!--  底部统计图      -->
+        <div class="bottom">
+            <div class="top_left">
+                <div id="bingtu" style="width: 100%;height: 100%;margin: 0 auto"></div>
+            </div>
+            <div class="top_right">
+                <div id="zhuZhuangCon" style="width: 100%;height: 100%;margin: 0 auto;"></div>
+            </div>
+            <div class="bottom_left">
+                <div id="zhuZhuangxiazuo" style="width: 100%;height: 100%;margin: 0 auto"></div>
+            </div>
+            <div class="bottom_right">
+                <div id="zhuZhuangxiayou" style="width: 100%;height: 100%;margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+
+</body>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
+
+<script type="text/javascript">
+    // $(function(){
+    //     var tasArray =[45,67,90,20,10,24,15,81];
+    //     var yearArray = [1994,1995,1996,1997,1998,1999,2000,2001];
+    //     var maxTas = Math.max.apply(Math,tasArray);//y轴最大值
+    //     var minTas = Math.min.apply(Math,tasArray);//y轴最小值
+    //     var dataNameLine = "河北省指数变化折线图";
+    //     var dataNameBar = "河北省指数变化柱状图";
+    //     // makeChart("zheXianCon",maxTas,minTas,tasArray,yearArray,"line",'yaosu',dataNameLine,false,false);
+    //     makeChart("zhuZhuangCon",maxTas,minTas,tasArray,yearArray,"bar",'yaosu',dataNameBar,false,false);
+    // })
+    // $(function(){
+        // var tasArray =[45,67,90,20,10,24,15,81];
+        // var yearArray = [1994,1995,1996,1997,1998,1999,2000,2001];
+        // var maxTas = Math.max.apply(Math,tasArray);//y轴最大值
+        // var minTas = Math.min.apply(Math,tasArray);//y轴最小值
+        // // makeChart("zheXianCon",maxTas,minTas,tasArray,yearArray,"line",'yaosu',dataNameLine,false,false);
+        // makeChart("zhuZhuangxiazuo",maxTas,minTas,tasArray,yearArray,"bar",'yaosu','产品数量',false,false,'年份');
+        // makeChart("zhuZhuangxiayou",maxTas,minTas,tasArray,yearArray,"bar",'yaosu','出入库数量',false,false,'年份');
+
+    // })
+    window.onload = function makeForm() {
+        searchTables()
+        searchProTypeCount()
+    }
+    function searchTable() {
+        console.log($('#startTime').val());
+        console.log($('#endTime').val());
+        searchTables($('#startTime').val(),$('#endTime').val())
+
+    }
+    function searchProTypeCount(){
+        $.ajax({
+            cache:true,
+            type: 'POST',
+            data:{
+
+            },
+            url: '/base/product/list',
+            success: function (result) {
+                console.log('result',result)
+                var tasArray =[];
+                var yearArray = [];
+                for (var i = 0; i < result.rows.length; i++) {
+                    tasArray.push(result.rows[i].productname)
+                    yearArray.push(result.rows[i].sums)
+                }
+                var maxTas = Math.max.apply(Math,yearArray);//y轴最大值
+                var minTas = Math.min.apply(Math,yearArray);//y轴最小值
+                makeChart("zhuZhuangCon",tasArray,yearArray,"bar",'产品库存数量统计','库存数量',false,'产品',maxTas,minTas);
+            }
+        })
+    }
+    function searchTables(starttime,endtime) {
+        $.ajax({
+            cache:true,
+            type: 'POST',
+            data:{
+                'beginCreatedate':starttime,
+                'endCreatedate':endtime
+            },
+            url: '/warehouse/inventroyAnalysis/getInventroyAnalysis',
+            success: function (result) {
+                console.log('result',result)
+               dataa(result)
+            }
+        })
+    }
+    function dataa(result) {
+        var data=result.data;
+        var wei = parseInt(data.storeHouseCount)-parseInt(data.useStoreHouseCount)
+        makechartbing('bingtu',parseInt(data.useStoreHouseCount),wei)
+        var tasArray =[];
+        var yearArray = [];
+        for (var i = 1; i <= data.useTimeStoreHouseCount.length; i++) {
+            tasArray.push(data.useTimeStoreHouseCount[i-1].xaxis)
+            yearArray.push(data.useTimeStoreHouseCount[i-1].seriesData)
+        }
+        // yearArray.push(data.storeHouseCount)
+        var maxTas = Math.max.apply(Math,yearArray);//y轴最大值
+        var minTas = Math.min.apply(Math,yearArray);//y轴最小值
+        // makeChart("zhuZhuangCon",maxTas,minTas,tasArray,yearArray,"bar",'库位数量','库位数量',false,'时间');
+        // makeChart("zhuZhuangCon",tasArray,yearArray,"bar",'库位使用时间','库位数量',false,'时间',maxTas,minTas);
+        var tasArrayxiazuo =[];
+        var yearArrayxiazuo = [];
+        for (var i = 1; i <= data.productInTimeCount.length; i++) {
+            tasArrayxiazuo.push(data.productInTimeCount[i-1].xaxis)
+            yearArrayxiazuo.push(data.productInTimeCount[i-1].seriesData)
+        }
+        var maxTasxiazuo = Math.max.apply(Math,yearArray);//y轴最大值
+        var minTasxiazuo = Math.min.apply(Math,yearArray);//y轴最小值
+        makeChart("zhuZhuangxiazuo",tasArrayxiazuo,yearArrayxiazuo,"bar",'产品入库时间','产品数量',false,'年份',maxTasxiazuo,minTasxiazuo);
+        var inArrayxiayou =[];
+        var outArrayxiayou = [];
+        var dataMouthx = []
+        for (var i = 1; i <= data.storeIoTenCount.length; i++) {
+            inArrayxiayou.push(data.storeIoTenCount[i-1].typeAndCount.inCount)
+            outArrayxiayou.push(data.storeIoTenCount[i-1].typeAndCount.outCount)
+            dataMouthx.push(data.storeIoTenCount[i-1].createTime)
+        }
+        // var maxTasxiayou = Math.max.apply(Math,yearArrayxiayou);//y轴最大值
+        // var minTasxiayou = Math.min.apply(Math,yearArrayxiayou);//y轴最小值
+        // makeChartchong("zhuZhuangxiayou",tasArrayxiayou,yearArrayxiayou,"bar",'出入库数量','出入库数量',false,'年份',maxTasxiayou,minTasxiayou);
+        makeChartchong("zhuZhuangxiayou",inArrayxiayou,outArrayxiayou,dataMouthx)
+    }
+</script>
+
+<!--<script th:src="@{/js/jquery.min.js}"></script>-->
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+<!--<script th:src="@{/js/chart.js}"></script>-->
+
+
+</html>

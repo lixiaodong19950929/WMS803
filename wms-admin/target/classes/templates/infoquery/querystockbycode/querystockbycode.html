@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('出入库主列')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p>产品条码：</p>
+                            <input type="text" name="sern" id="sern" onkeydown="keydown()"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="searchTable()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-sm-12 select-table">
+            <p style="font-size: 20px;font-weight: bold;margin-top: 20px;margin-bottom: -5px;">库存信息</p>
+            <table id="bootstrap-table" data-mobile-responsive="true"></table>
+        </div>
+
+        <div class="col-sm-12 select-table">
+            <p style="font-size: 20px;font-weight: bold;margin-top: 20px;margin-bottom: -5px;">出入库详情</p>
+            <table id="bootstrap-table1" data-mobile-responsive="true"></table>
+        </div>
+
+        <div class="col-sm-12 select-table">
+            <p style="font-size: 20px;font-weight: bold;margin-top: 20px;margin-bottom: -5px;">出入库明细</p>
+            <input id="taskcode" name="taskcode" class="hidden"/>
+            <table id="bootstrap-table2" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('warehouse:StoreIoEx:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('warehouse:StoreIoEx:remove')}]];
+    var detailFlag = [[${@permission.hasPermi('warehouse:StoreIoEx:detail')}]];
+    var datas = [[${@dict.getType('warehouse_task_type')}]];
+    var datasStatus = [[${@dict.getType('warehouse_task_status')}]];
+    var datasStatus2 = [[${@dict.getType('base_product_model')}]];
+    var prefix = ctx + "infoQuery/queryStockByCode";
+
+    $(function () {
+        var options = {
+            url: prefix + "/selectStockList",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "入库管理",
+            showSearch: false,
+            showRefresh: false,
+            showColumns: false,
+            showToggle: false,
+            columns: [
+                {
+                    field: 'id',
+                    title: '自增列',
+                    visible: false
+                },
+                {
+                    field: '',
+                    title: '序号',
+                    formatter: function (value, row, index) {
+                        return index + 1;
+                    }
+                },
+                {
+                    field: 'whname',
+                    title: '库区'
+                },
+                {
+                    field: 'storehousename',
+                    title: '库位'
+                },
+                /*{
+                    field: 'producttype',
+                    title: '产品类型'
+                },*/
+                {
+                    field: 'productcode',
+                    title: '产品编码'
+                },
+                {
+                    field: 'productname',
+                    title: '产品名称'
+                },
+                {
+                    field: 'productbatch',
+                    title: '产品批次'
+                },
+                {
+                    field: 'productmodel',
+                    title: '产品型号',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(datasStatus2, value);
+                    }
+                },
+                {
+                    field: 'specification',
+                    title: '规格型号'
+                },
+                {
+                    field: 'quantity',
+                    title: '数量'
+                },
+                {
+                    field: 'memo',
+                    title: '备注'
+                }]
+        };
+        $.table.init(options);
+        storeIoList();
+    });
+
+    function storeIoList() {
+        $('#bootstrap-table1').bootstrapTable('destroy');
+        $('#bootstrap-table1').bootstrapTable({
+            modalName: "明细信息",
+            url: prefix + "/storeIoList",
+            contentType: "application/x-www-form-urlencoded",   // 编码类型
+            method: 'post',                                     // 请求方式（*）
+            cache: false,                                       // 是否使用缓存
+            striped: true,                                  // 是否显示行间隔色
+            sortable: true,                                     // 是否启用排序
+            sortStable: true,                                   // 设置为 true 将获得稳定的排序
+            sortName: "",                                // 排序列名称
+            sortOrder: "asc",                              // 排序方式  asc 或者 desc
+            pagination: true,   // 是否显示分页（*）
+            pageNumber: 1,                                      // 初始化加载第一页，默认第一页
+            pageSize: 10,                                       // 每页的记录行数（*）
+            pageList: [10, 25, 50],                             // 可供选择的每页的行数（*）
+            iconSize: 'outline',                                // 图标大小：undefined默认的按钮尺寸 xs超小按钮sm小按钮lg大按钮
+            toolbar: '#toolbar',                                // 指定工作栏
+            sidePagination: "server",                           // 启用服务端分页
+            // search: $.common.visible(options.search),           // 是否显示搜索框功能
+            search: false,          							// 是否显示搜索框功能
+            // showSearch: $.common.visible(options.showSearch),   // 是否显示检索信息
+            showSearch: false,   								// 是否显示检索信息
+            showRefresh: false, // 是否显示刷新按钮
+            showColumns: false, // 是否显示隐藏某列下拉框
+            showToggle: false,   // 是否显示详细视图和列表视图的切换按钮
+            showExport: false,   // 是否支持导出文件
+            queryParams: function (params) {
+                return {
+                    // 传递参数查询参数
+                    pageSize: params.limit,
+                    pageNum: params.offset / params.limit + 1,
+                    searchValue: params.search,
+                    orderByColumn: params.sort,
+                    isAsc: params.order,
+                    sern: $("#sern").val(),
+                };
+            },                       // 传递参数（*）
+            columns: [
+               {
+                    field: 'id',
+                    title: 'id',
+                    visible: false
+                },
+                {
+                    field: '',
+                    title: '序号',
+                    formatter: function (value, row, index) {
+                        return index + 1;
+                    }
+                },
+                {
+                    field: 'tasktype',
+                    title: '任务类型',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(datas, value);
+                    }
+                },
+                {
+                    field: 'taskcode',
+                    title: '任务号',
+                },
+                {
+                    field: 'taskname',
+                    title: '任务名称',
+                    formatter: function (value, row, index) {
+                        return '<a onclick="selectDetail(\''+row.taskcode+'\')"> '+row.taskname +'</a>'
+                    }
+                },
+                {
+                    field: 'productdetail',
+                    title: '任务描述'
+                },
+                {
+                    field: 'veninfo',
+                    title: '供应商信息'
+                },
+                /*{
+                    field: 'maker',
+                    title: '制单人'
+                },*/
+                {
+                    field: 'mpocode',
+                    title: '生产订单编号'
+                },
+                {
+                    field: 'ordercode',
+                    title: '采购订单编号'
+                },
+                {
+                    field : 'whname',
+                    title : '仓库名称'
+                },
+                {
+                    field: 'quantity',
+                    title: '总数量'
+                },
+                /*{
+                    field: 'taskstate',
+                    title: '任务状态',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(datasStatus, value);
+                    }
+                },*/
+            ],
+            responseHandler: $.table.responseHandler            // 回调函数
+        });
+        detailList();
+    }
+
+
+    function detailList() {
+        $('#bootstrap-table2').bootstrapTable('destroy');
+        $('#bootstrap-table2').bootstrapTable({
+            modalName: "明细详情",
+            url: prefix + "/detailList",
+            contentType: "application/x-www-form-urlencoded",   // 编码类型
+            method: 'post',                                     // 请求方式（*）
+            cache: false,                                       // 是否使用缓存
+            striped: true,                                  // 是否显示行间隔色
+            sortable: true,                                     // 是否启用排序
+            sortStable: true,                                   // 设置为 true 将获得稳定的排序
+            sortName: "",                                // 排序列名称
+            sortOrder: "asc",                              // 排序方式  asc 或者 desc
+            pagination: true,   // 是否显示分页（*）
+            pageNumber: 1,                                      // 初始化加载第一页，默认第一页
+            pageSize: 10,                                       // 每页的记录行数（*）
+            pageList: [10, 25, 50],                             // 可供选择的每页的行数（*）
+            iconSize: 'outline',                                // 图标大小：undefined默认的按钮尺寸 xs超小按钮sm小按钮lg大按钮
+            toolbar: '#toolbar',                                // 指定工作栏
+            sidePagination: "server",                           // 启用服务端分页
+            // search: $.common.visible(options.search),           // 是否显示搜索框功能
+            search: false,          							// 是否显示搜索框功能
+            // showSearch: $.common.visible(options.showSearch),   // 是否显示检索信息
+            showSearch: false,   								// 是否显示检索信息
+            showRefresh: false, // 是否显示刷新按钮
+            showColumns: false, // 是否显示隐藏某列下拉框
+            showToggle: false,   // 是否显示详细视图和列表视图的切换按钮
+            showExport: false,   // 是否支持导出文件
+            queryParams: function (params) {
+                return {
+                    // 传递参数查询参数
+                    pageSize: params.limit,
+                    pageNum: params.offset / params.limit + 1,
+                    searchValue: params.search,
+                    orderByColumn: params.sort,
+                    isAsc: params.order,
+                    taskcode: $("#taskcode").val(),
+                };
+            },                       // 传递参数（*）
+            columns: [
+                /*{
+                    checkbox: true
+                },*/
+                {
+                    field: 'id',
+                    title: 'id',
+                    align: 'center',
+                    visible: false
+                },
+                {
+                    field: '',
+                    title: '序号',
+                    formatter: function (value, row, index) {
+                        return index + 1;
+                    }
+                },
+                {
+                    field: 'tasktype',
+                    title: '任务类型',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(datas, value);
+                    }
+                },
+                {
+                    field: 'taskcode',
+                    title: '任务号',
+                    align: 'center',
+                },
+                {
+                    field: 'taskname',
+                    title: '任务名称'
+                },
+                {
+                    field: 'productcode',
+                    title: '产品编号',
+                    align: 'center',
+                },
+                {
+                    field: 'productname',
+                    title: '产品名称',
+                    align: 'center',
+                },
+                {
+                    field: 'productmodel',
+                    title: '产品型号',
+                    align: 'center',
+                },
+                {
+                    field: 'quantity',
+                    title: '数量',
+                    align: 'center',
+                },
+                {
+                    field: 'taskstate',
+                    title: '任务状态',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(datasStatus, value);
+                    }
+                },
+                {
+                    field : 'createTime',
+                    title : '创建时间',
+                    visible: true
+                }
+            ],
+            responseHandler: $.table.responseHandler            // 回调函数
+        });
+    }
+    
+    function searchTable() {
+        $('#taskcode').val("");
+        $.table.search();
+        $('#bootstrap-table1').bootstrapTable('refresh');
+        $('#bootstrap-table2').bootstrapTable('refresh');
+    }
+
+    function selectDetail(taskcode) {
+        $("#taskcode").val(taskcode)
+        detailList()
+    }
+
+    function keydown() {
+        if (event.keyCode == 13) {
+            event.returnValue = false;
+            event.cancel = true;
+            searchTable();
+        }
+    }
+
+</script>
+</body>
+</html>

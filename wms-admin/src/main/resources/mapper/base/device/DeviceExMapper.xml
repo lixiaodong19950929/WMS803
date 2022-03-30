@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.base.device.mapper.DeviceExMapper">
+
+    <resultMap type="DeviceEx" id="DeviceResultEx">
+        <result property="id" column="Id"/>
+        <result property="deviceCode" column="DeviceCode"/>
+        <result property="deviceName" column="DeviceName"/>
+        <result property="deviceType" column="DeviceType"/>
+        <result property="deviceState" column="DeviceState"/>
+        <result property="deviceModel" column="DeviceModel"/>
+        <result property="deviceParameters" column="DeviceParameters"/>
+        <result property="devicePower" column="DevicePower"/>
+        <result property="deviceFactory" column="DeviceFactory"/>
+        <result property="deviceMemo" column="DeviceMemo"/>
+        <result property="createUser" column="CreateUser"/>
+        <result property="createDate" column="CreateDate"/>
+        <result property="devicePurpose" column="DevicePurpose"/>
+        <result property="useDepartment" column="UseDepartment"/>
+        <result property="useEmployee" column="UseEmployee"/>
+        <result property="useLocationId" column="UseLocationId"/>
+        <result property="useLocation" column="UseLocation"/>
+        <result property="inspectDate" column="InspectDate"/>
+        <result property="inspectCycle" column="InspectCycle"/>
+        <result property="inspectCycleUnit" column="InspectCycleUnit"/>
+        <result property="isMeterDevice" column="IsMeterDevice"/>
+        <result property="repairDate" column="RepairDate"/>
+        <result property="repairCycle" column="RepairCycle"/>
+        <result property="repairCycleUnit" column="RepairCycleUnit"/>
+        <result property="isImportant" column="IsImportant"/>
+        <result property="isEnable" column="IsEnable"/>
+        <result property="whCode" column="WhCode"/>
+        <result property="f2" column="F2"/>
+        <result property="f3" column="F3"/>
+        <result property="f4" column="F4"/>
+    </resultMap>
+
+    <select id="selectDevicePage" parameterType="Device" resultMap="DeviceResultEx">
+        SELECT d.Id, d.DeviceCode, d.DeviceName, d.DeviceType, d.DeviceState, d.DeviceModel, d.DeviceParameters, d.DevicePower,
+        d.DeviceFactory, d.Memo as DeviceMemo, d.CreateUser, d.CreateDate, d.DevicePurpose, d.UseDepartment, d.UseEmployee, d.UseLocationId,
+        d.UseLocation, d.InspectDate, d.InspectCycle, d.InspectCycleUnit, d.IsMeterDevice, d.RepairDate, d.RepairCycle,
+        d.RepairCycleUnit, d.IsImportant, d.IsEnable, d.WhCode, d.F2, d.F3, d.F4
+        FROM T_Base_Device d
+        <where>
+            d.IsDelete = 0
+        </where>
+        ORDER BY d.Id DESC
+        offset ${(pageIndex-1) * pageSize} rows fetch next #{pageSize} rows only
+    </select>
+
+    <select id="selectDeviceTotalCount" resultType="Integer">
+        SELECT COUNT(*) FROM T_Base_Device
+        WHERE
+        IsDelete=0
+    </select>
+</mapper>

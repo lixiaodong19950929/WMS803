@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('员工列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <p>员工编码：</p>
+                                <input type="text" name="employeecode" onkeydown="keydown()"/>
+                            </li>
+                             <li>
+                                <p>员工姓名：</p>
+                                <input type="text" name="employeename" onkeydown="keydown()"/>
+                            </li>
+                            <li>
+                                <p>员工电话：</p>
+                                <input type="text" name="tel" onkeydown="keydown()"/>
+                            </li>
+                            <li>
+                                <a id="search" class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="base:Employee:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="base:Employee:edit">
+                    <i class="fa fa-edit"></i> 修改
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="base:Employee:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('system:Employee:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('system:Employee:remove')}]];
+        var prefix = ctx + "base/employee";
+        var sexDatas=[[${@dict.getType('sys_user_sex')}]];
+        var statusDatas=[[${@dict.getType('base_normal_status')}]];
+        var deleteDatas=[[${@dict.getType('base_is_delete')}]];
+        var politiccountenanceDatas=[[${@dict.getType('base_politiccountenance')}]];
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                modalName: "员工",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field : 'id', 
+                    title : '序号',
+                    formatter:function (value, row, index) {
+                        return index+1;
+                    }
+                },
+                {
+                    field : 'employeecode', 
+                    title : '员工编码',
+                    // visible: false
+                },
+                {
+                    field : 'employeename', 
+                    title : '员工姓名'
+                },
+                {
+                    field : 'sex', 
+                    title : '员工性别',
+                    formatter:function (value, row, index) {
+                        return $.table.selectDictLabel(sexDatas,value);
+                    }
+                },
+                {
+                    field : 'deptcode', 
+                    title : '部门编码',
+                    visible:false
+                },
+                {
+                    field : 'deptname', 
+                    title : '部门名称',
+                    // visible:false
+                },
+                {
+                    field : 'postName',
+                    title : '岗位',
+
+                },
+                {
+                    field : 'tel', 
+                    title : '员工电话'
+                },
+                {
+                    field : 'age',
+                    title : '员工年龄',
+                },
+                {
+                    field : 'politiccountenance', 
+                    title : '政治面貌',
+                    formatter:function (value, row, index) {
+                        return $.table.selectDictLabel(politiccountenanceDatas,value);
+                    }
+                    // visible:false
+                },
+                {
+                    field : 'email', 
+                    title : '邮箱',
+                    // visible:false
+                },
+                {
+                    field : 'address', 
+                    title : '家庭住址',
+                    // visible:false
+                },
+                {
+                    field : 'memo', 
+                    title : '备注',
+                    // visible:false
+                },
+                {
+                    field : 'createuser', 
+                    title : '创建人',
+                    visible:false
+                },
+                {
+                    field : 'createdate', 
+                    title : '创建时间',
+                    visible:false
+                },
+                {
+                    field : 'modifyuser', 
+                    title : '修改人',
+                    visible:false
+                },
+                {
+                    field : 'modifydate', 
+                    title : '修改时间',
+                    visible:false
+                },
+                {
+                    field : 'isenable', 
+                    title : '状态',
+                    formatter:function(value, row, index){
+                        return $.table.selectDictLabel(statusDatas,value);
+                    }
+                },
+                {
+                    field : 'isdelete', 
+                    title : '是否删除',
+                    formatter:function(value, row, index){
+                        return $.table.selectDictLabel(deleteDatas,value);
+                    },
+                    visible:false
+                },
+                {
+                    field : 'f1', 
+                    title : '备用字段',
+                    visible:false
+                },
+                {
+                    field : 'f2', 
+                    title : '备用字段',
+                    visible:false
+                },
+                {
+                    field : 'f3', 
+                    title : '备用字段',
+                    visible:false
+                },
+                {
+                    field : 'f4', 
+                    title : '备用字段',
+                    visible:false
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+
+            $('#search').bind('keypress', function (event) {
+                if (event.keyCode == "13") {
+                    $("#search").click();
+                }
+            })
+        });
+    </script>
+</body>
+</html>

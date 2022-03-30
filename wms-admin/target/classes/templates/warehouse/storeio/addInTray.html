@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增入库')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-StoreIo-add">
+            <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>任务类型：</label>
+                <div class="col-sm-4">
+                    <select id="tasktype" name="tasktype" class="form-control m-b" th:with="type=${@dict.getType('warehouse_task_type')}" disabled>
+                        <option value="">请选择</option>
+                        <option th:each="dict:${type}" th:if="${dict.dictSort eq 5}" th:selected="selected" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" ></option>
+                    </select>
+                </div>
+                 <label class="col-sm-2 control-label"><span style="color: red; ">*</span>仓库名称：</label>
+                <div class="col-sm-4">
+                    <select id="whcode" name="whcode" class="form-control m-b">
+                        <option th:each="ware:${whList}" th:value="${ware.whcode}" th:text="${ware.whname}"></option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="form-group">
+                 <label class="col-sm-2 control-label">任务名称：</label>
+                <div class="col-sm-4">
+                    <input name="taskname" id="taskname" class="form-control" type="text">
+                </div>
+                <label class="col-sm-2 control-label">任务描述：</label>
+                <div class="col-sm-4">
+                    <input name="productdetail" id="productdetail" class="form-control" type="text">
+                </div>
+
+            </div>
+            <div class="form-group">
+                <!--<label class="col-sm-2 control-label">供应商信息：</label>-->
+                <!--<div class="col-sm-4">-->
+                    <!--<input name="veninfo" id="veninfo" class="form-control" type="text">-->
+                <!--</div>-->
+                <label class="col-sm-2 control-label">制单人：</label>
+                <div class="col-sm-4">
+                    <input name="maker" id="maker" class="form-control" type="text">
+                </div>
+                <label class="col-sm-2 control-label">备注：</label>
+                <div class="col-sm-4">
+                    <input name="memo" id="memo" class="form-control" type="text">
+                </div>
+            </div>
+            <!--<div class="form-group">-->
+                <!--<label class="col-sm-2 control-label">生产订单编号：</label>-->
+                <!--<div class="col-sm-4">-->
+                    <!--<input name="mpocode" id="mpocode" class="form-control" type="text">-->
+                <!--</div>-->
+                <!--<label class="col-sm-2 control-label">采购订单编号：</label>-->
+                <!--<div class="col-sm-4">-->
+                    <!--<input name="ordercode" id="ordercode" class="form-control" type="text">-->
+                <!--</div>-->
+            <!--</div>-->
+            <div class="form-group">    
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>总数量：</label>
+                <div class="col-sm-4">
+                    <input name="quantity" id="quantity" class="form-control" type="number" value="0" >
+                </div>
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>放置层数：</label>
+                <div class="col-sm-4">
+                    <select id="layer" name="layer" class="form-control m-b" th:with="type=${@dict.getType('base_storeio_layer')}">
+                        <option th:each="dict:${type}"  th:selected="selected" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" ></option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <th:block th:include="include :: select2-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "warehouse/storeio";
+        $("#form-StoreIo-add").validate({
+            focusCleanup: true,
+            rules:{
+                tasktype:{
+                    required:true
+                },
+                // taskname :{
+                //     required:true
+                // },
+                whcode :{
+                    required:true
+                },
+                quantity:{
+                    required:true,
+                    digits:true
+                },
+            }
+
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                var params={
+                    tasktype:$('#tasktype').find('option:selected').val(),
+                    whcode :$('#whcode').find('option:selected').val(),
+                    taskname :$('#taskname').val(),
+                    productdetail :$('#productdetail').val(),
+                    veninfo :$('#veninfo').val(),
+                    maker :$('#maker').val(),
+                    mpocode :$('#mpocode').val(),
+                    ordercode:$('#ordercode').val(),
+                    quantity :$('#quantity').val(),
+                    memo:$('#memo').val(),
+                    layer:$('#layer').val(),
+                    list:''
+                }
+                $.operate.save(prefix + "/add",params);
+            }
+        }
+
+    </script>
+</body>
+</html>

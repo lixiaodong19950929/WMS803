@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('条码明细维护')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+    <style type="text/css">
+        /*.fixed-table-pagination .pagination-detail, .fixed-table-pagination div.pagination{*/
+            /*display: none;*/
+        /*}*/
+        /*#layerBox{*/
+        /*display: block;*/
+        /*width: 35%;*/
+        /*height: 106px;*/
+        /*position: absolute;*/
+        /*z-index: 9;*/
+        /*background: rgba(15,15,15,0.4);*/
+        /*left: 30%;*/
+        /*top: 100px;*/
+        /*padding: 16px;*/
+        /*}*/
+    </style>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <p>需维护数量：  <span id="weihuNum"></span>  个</p>
+    <div>
+        条码接收：<input id="scanTM" style="width: 300px;height: 35px;" />
+    </div>
+    <form class="form-horizontal m" id="form-CodeDetailInfo-edit">
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <!--<a class="btn btn-success" onclick="addCode()">-->
+                <!--<i class="fa fa-plus"></i> 添加条码-->
+            <!--</a>-->
+            <a class="btn btn-warning">
+                <input type="file" ref="upload" id="upload" style="opacity: 0;width: 0;height: 0;" accept=".xls, .xlsx" class="importBtn" onchange="readExcel()" />
+                <i class="fa fa-plus"></i> <label for="upload" style="margin: 0;cursor: pointer;">批量导入</label>
+            </a>
+            <!--<a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="warehouse:StoreIo:export">-->
+                <!--<i class="fa fa-download"></i> 导出-->
+            <!--</a>-->
+            <a class="btn btn-warning" onclick="downLoadExcel()" shiro:hasPermission="warehouse:StoreIo:export">
+                <i class="fa fa-download"></i> 下载模板
+            </a>
+        </div>
+
+        <!--<div id="layerBox" style="display: none;">-->
+        <!--<select id="layer" name="layer" class="form-control m-b" style="" th:with="type=${@dict.getType('base_storeio_layer')}">-->
+        <!--<option th:each="dict:${type}"  th:selected="selected" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" ></option>-->
+        <!--</select>-->
+        <!--<div class="btn-group-sm" role="group" style="text-align: center;margin-top: 13px;">-->
+        <!--<a class="btn btn-success" onclick="layerOk()">-->
+        <!--<i class="fa fa-plus"></i> 确定-->
+        <!--</a>-->
+        <!--<a class="btn btn-danger" onclick="layerCancel()">-->
+        <!--<i class="fa fa-remove"></i> 取消-->
+        <!--</a>-->
+        <!--</div>-->
+        <!--</div>-->
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+<th:block th:include="include :: select2-js" />
+
+<script src="../../../static/js/bootstrap.min.js" th:src="@{/js/xlsx.js}"></script>
+<script th:inline="javascript">
+    var prefix = ctx + "warehouse/storeio";
+    var rowId = [[${rowid}]];
+    var taskstate = [[${taskstate}]];
+    var taskCode = [[${taskcode}]];
+    var productCode = [[${productCode}]];
+    var productName = [[${productName}]];
+    var productBatch = [[${productBatch}]];
+    var clickListIndex = '';
+    $("#form-CodeDetailInfo-edit").validate({
+        focusCleanup: true,
+        rules:{
+            // taskCode:{
+            //     required:true
+            // }
+        }
+    });
+    var modelDatas = [[${@dict.getType("base_product_model")}]];
+
+    var removeFlag = [[${@permission.hasPermi('warehouse:storeio:remove')}]];
+    var layerDatas=[[${@dict.getType('base_storeio_layer')}]]
+
+    $(function() {
+        var Barcodelist = '[[${Barcodelist}]]';
+        $('#weihuNum').text([[${quantity}]])
+        //给扫描input框加enter事件
+        $("#scanTM").bind("keypress",function(event){
+            if(event.keyCode=="13"){
+                if($("#scanTM").val().indexOf('$') != -1){
+                    addCode($("#scanTM").val())
+                    $("#scanTM").val("")
+                }else{
+                    $.modal.msgError("条码格式错误");
+                }
+                $("#scanTM").focus()
+            }
+        })
+        var options = {
+            url:ctx+"warehouse/storeio/sernInfo2list",
+            exportUrl: prefix + "/sernInfo2list/exportIn?rowId="+rowId+'&taskCode='+taskCode,
+            modalName: "条码明细",
+            queryParams: function(params) {
+                return{
+                    // 传递参数查询参数
+                    pageSize:       params.limit,
+                    pageNum:        params.offset / params.limit + 1,
+                    searchValue:    params.search,
+                    orderByColumn:  params.sort,
+                    isAsc:          params.order,
+                    taskCode:taskCode,
+                    rowId:rowId
+                };
+            },
+            showSearch: false,
+            showRefresh: false,
+            showColumns: false,
+            showToggle: false,
+            showExport: false,
+            uniqueId:"num",
+            columns: [
+                {
+                    field : 'num',
+                    title : '序号',
+                    formatter:function (value, row, index) {
+                        row.num=index+1;
+                        return index+1;
+                    }
+                },
+                {
+                    field : 'rowId',
+                    title : '行号'
+                },
+                {
+                    field : 'productCode',
+                    title : '产品型号'
+                },
+                {
+                    field : 'productName',
+                    title : '产品名称'
+                },
+                {
+                    field : 'taskCode',
+                    title : '任务号'
+                },
+                {
+                    field : 'productBatch',
+                    title : '任务批次'
+                },
+                {
+                    field : 'batch',
+                    title : '扫描批次'
+                },
+                {
+                    field : 'xhao',
+                    title : '箱号'
+                },
+                {
+                    field : 'sern',
+                    title : '产品条码',
+                },
+                // {
+                //     field : 'layer',
+                //     title : '放置层数',
+                //     formatter:function (value, row, index) {
+                //         return $.table.selectDictLabel(layerDatas,value);
+                //     }
+                // },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        if(taskstate==0){
+                            actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="delet(\'' + row.num + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        }
+                        return actions.join('');
+                    }
+                }
+            ],
+            onDblClickCell: function (field, value, row, $element) {
+                console.log(field)
+                var indexRow = $element[0].parentElement.rowIndex - 1;
+                // if (field == 'quantity' || field == 'memo') {
+                if (field == 'sern') {
+                    $element.attr('contenteditable', true);
+                    $element.blur(function () {
+                        let tdValue = $element.text();
+                        if((field == 'guid' || field == 'sern') && $.common.isNotEmpty(tdValue) ){
+                            var rows=$('#bootstrap-table').bootstrapTable("getData");
+                            for (var i=0;i<rows.length;i++){
+                                if (i!=indexRow && rows[i].sern==tdValue){
+                                    $.modal.msgError("产品条码已存在");
+                                    $('#bootstrap-table').bootstrapTable("updateCell", {
+                                        index: indexRow,
+                                        field: field,
+                                        value: ""
+                                    });
+                                    return ;
+                                }
+                            }
+                        }
+                        $('#bootstrap-table').bootstrapTable("updateCell", {
+                            index: indexRow,
+                            field: field,
+                            value: tdValue
+                        });
+                        //数量可变的时候使用此处
+                        // var rows=$('#bootstrap-table').bootstrapTable("getData");
+                        // var sum=0;
+                        // for (var i=0;i<rows.length;i++){
+                        //     sum+=Number(rows[i].quantity);
+                        // }
+                        // $('#quantity').val(sum);
+                    })
+                }
+
+                //如果点击层数弹出下拉框
+                // if(field == 'layer') {
+                //     clickListIndex = $element[0].parentElement.rowIndex - 1;
+                //     $("#layerBox").css('display','block')
+                // }
+
+            }
+        };
+        $.table.init(options);
+        // if(JSON.parse(Barcodelist).length>0){
+        //     for(var i=0;i<JSON.parse(Barcodelist).length;i++){
+        //         var row=$("#bootstrap-table").bootstrapTable("getData");
+        //         $("#bootstrap-table").bootstrapTable("insertRow",{
+        //             index:row.length+1,
+        //             row:{
+        //                 num:row.length+1,
+        //                 rowId:JSON.parse(Barcodelist)[i].rowId,
+        //                 taskCode :JSON.parse(Barcodelist)[i].taskCode,
+        //                 sern:JSON.parse(Barcodelist)[i].sern
+        //             }
+        //         });
+        //     }
+        //
+        // }
+
+    })
+    function delet(num){
+        if(taskstate==0){
+            var row=$("#bootstrap-table").bootstrapTable("getData");
+            $("#bootstrap-table").bootstrapTable('removeByUniqueId', num);
+            console.log($("#bootstrap-table").bootstrapTable("getData"))
+        }else{
+            $.modal.msgError("只有未下发的任务可删除");
+        }
+
+    }
+    function addCode(sern){
+        if(taskstate==0){
+            var row=$("#bootstrap-table").bootstrapTable("getData");
+            var rowId = '[[${rowid}]]';
+            var taskCode = '[[${taskcode}]]';
+            var quantity = '[[${quantity}]]';
+            if(row.length>=quantity){
+                $.modal.alertError("已达到任务指定数量！");
+            }else{
+                if(sern){
+                    //解析条码
+                    // var sern = 'CP007$2101$123456$code123456,code1234567$2021-11-01';
+                    var sernArr = sern.split('$')
+                    //当条码数量为2时
+                    if(sernArr[3].split(',').length==2){
+                        for(var i=0;i<sernArr[3].split(',').length;i++){
+                            //插入前验重
+                            var issame = row.some(function(item){
+                                return item.sern == sernArr[3].split(',')[i]
+                            })
+                            if(issame){
+                                $.modal.alertError("条码"+sern+"重复，添加失败！");
+                            }else{
+                                $("#bootstrap-table").bootstrapTable("insertRow",{
+                                    index:row.length+1,
+                                    row:{
+                                        num:row.length+1,
+                                        rowId:parseInt(rowId),
+                                        productCode:productCode.replace(/\"/g, ""),
+                                        productName:productName.replace(/\"/g, ""),
+                                        productBatch:productBatch.replace(/\"/g, ""),
+                                        xhao:sernArr[2],
+                                        batch:sernArr[1],
+                                        taskCode :taskCode.replace(/\"/g, ""),
+                                        sern:sernArr[3].split(',')[i],
+                                        layer:'',
+                                        fullSern:sern
+                                    }
+                                });
+                            }
+                        }
+                    }else{
+                        //如果只有一条条码
+                        //插入前验重
+                        var issame = row.some(function(item){
+                            return item.sern == sernArr[3]
+                        })
+                        if(issame){
+                            $.modal.alertError("条码"+sern+"重复，添加失败！");
+                        }else{
+                            $("#bootstrap-table").bootstrapTable("insertRow",{
+                                index:row.length+1,
+                                row:{
+                                    num:row.length+1,
+                                    rowId:parseInt(rowId),
+                                    productCode:productCode.replace(/\"/g, ""),
+                                    productName:productName.replace(/\"/g, ""),
+                                    productBatch:productBatch.replace(/\"/g, ""),
+                                    xhao:sernArr[2],
+                                    batch:sernArr[1],
+                                    taskCode :taskCode.replace(/\"/g, ""),
+                                    sern:sernArr[3],
+                                    layer:'',
+                                    fullSern:sern
+                                }
+                            });
+                        }
+                    }
+                }
+
+                // //插入前验重
+                // var issame = row.some(function(item){
+                //     return item.sern == sern
+                // })
+                // if(issame){
+                //     $.modal.alertError("条码"+sern+"重复，添加失败！");
+                // }else{
+                //     $("#bootstrap-table").bootstrapTable("insertRow",{
+                //         index:row.length+1,
+                //         row:{
+                //             num:row.length+1,
+                //             rowId:parseInt(rowId),
+                //             productCode:productCode.replace(/\"/g, ""),
+                //             productName:productName.replace(/\"/g, ""),
+                //             productBatch:productBatch.replace(/\"/g, ""),
+                //             xhao:'',
+                //             batch:'',
+                //             taskCode :taskCode.replace(/\"/g, ""),
+                //             sern:sern?sern:'',
+                //             layer:''
+                //         }
+                //     });
+                // }
+            }
+        }else{
+            $.modal.msgError("只有未下发的任务可编辑");
+        }
+    }
+
+    // function layerOk(){
+    //     $('#bootstrap-table').bootstrapTable("updateCell", {
+    //         index: clickListIndex,
+    //         field: 'layer',
+    //         value: $('#layer').val()
+    //     });
+    //     $("#layerBox").css('display','none')
+    // }
+    // function layerCancel(){
+    //     $("#layerBox").css('display','none')
+    // }
+
+    function submitHandler() {
+        if(taskstate==0){
+            var rows=$('#bootstrap-table').bootstrapTable("getData");
+            var detailArray=new Array();
+            for (var i=0;i<rows.length;i++){
+                if (rows[i].sern==""){
+                    $.modal.msgError("条码不能为空");
+                    return ;
+                }
+                var param = {
+                    rowId:rows[i].rowId,
+                    productCode:rows[i].productCode,
+                    productName:rows[i].productName,
+                    productBatch:rows[i].productBatch,
+                    xhao:rows[i].xhao,
+                    batch:rows[i].batch,
+                    taskCode:rows[i].taskCode,
+                    sern:rows[i].sern,
+                    fullSern:rows[i].fullSern
+                }
+                detailArray.push(param)
+            }
+            // $.modal.close();
+            if(rows.length>0){
+                var params={
+                    list:JSON.stringify(detailArray)
+                }
+            }else{
+                var param = {
+                    rowId:parseInt(rowId),
+                    taskCode :taskCode.replace(/\"/g, ""),
+                    sern:''
+                }
+                detailArray.push(param)
+                var params={
+                    list:JSON.stringify(detailArray)
+                }
+            }
+            $.operate.save(prefix + "/sernInfoAdd",params);
+        }else{
+            $.modal.close();
+        }
+    }
+
+    //批量导入
+    function readExcel(){
+        if(taskstate==0){
+            var that = this;
+            var files = $('#upload')[0].files;
+            console.log(files)
+            var fileReader = new FileReader();
+            fileReader.onload = function(ev){
+                try {
+                    var data = ev.target.result;
+                    var workbook = XLSX.read(data,{
+                        type:"binary"
+                    })
+                    var wsname = workbook.SheetNames[6];
+                    var ws = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]);//将excel数据解析为json串
+                    console.log(ws)
+                    //将解析出来的数组逐个调用添加条码插入到table中
+                    ws.forEach(function(item) {
+                        addCode(item['条码'])
+                    })
+                }catch (e) {
+                    console.log(e)
+                }
+            }
+
+            fileReader.readAsBinaryString(files[0])
+            document.getElementById('upload').value = ''
+        }else{
+            $.modal.msgError("只有未下发的任务可编辑");
+        }
+
+    }
+
+    function downLoadExcel(){
+        window.open('','_self').location.href="/file/tiaoma.xls"
+    }
+
+</script>
+</body>
+</html>

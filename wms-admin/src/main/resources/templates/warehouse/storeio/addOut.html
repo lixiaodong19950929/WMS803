@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增出库')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-StoreIo-add">
+            <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>任务类型：</label>
+                <div class="col-sm-4">
+                    <select id="tasktype" name="tasktype" class="form-control m-b" th:with="type=${@dict.getType('warehouse_task_type')}" disabled>
+                        <option value="">请选择</option>
+                        <option th:each="dict:${type}" th:if="${dict.dictSort eq 2}" th:selected="selected" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" ></option>
+                    </select>
+                </div>
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>仓库名称：</label>
+                <div class="col-sm-4">
+                    <select id="whcode" name="whcode" class="form-control m-b">
+                        <option th:each="ware:${whList}" th:value="${ware.whcode}" th:text="${ware.whname}"></option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="form-group">
+                 <label class="col-sm-2 control-label">任务名称：</label>
+                <div class="col-sm-4">
+                    <input name="taskname" id="taskname" class="form-control" type="text">
+                </div>
+                <label class="col-sm-2 control-label">任务描述：</label>
+                <div class="col-sm-4">
+                    <input name="productdetail" id="productdetail" class="form-control" type="text">
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">制单人：</label>
+                <div class="col-sm-4">
+                    <input name="maker" id="maker" class="form-control" type="text">
+                </div>
+                <label class="col-sm-2 control-label">备注：</label>
+                <div class="col-sm-4">
+                    <input name="memo" id="memo" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>总数量：</label>
+                <div class="col-sm-4">
+                    <input name="quantity" id="quantity" class="form-control" type="number" value="0"  disabled>
+                </div>
+                <label class="col-sm-2 control-label">客户：</label>
+                <div class="col-sm-4">
+                    <input name="customername" id="customername" class="form-control" type="hidden">
+                    <select id="customercode" name="customercode" class="form-control m-b" onchange="customerChange()">
+                        <option value="">请选择</option>
+                        <option th:each="ware:${customerList}" th:value="${ware.customercode}" th:text="${ware.customername}"></option>
+                    </select>
+                </div>
+            </div>
+            <!--<div class="form-group">-->
+                <!--<label class="col-sm-2 control-label"><span style="color: red; ">*</span>出库方式：</label>-->
+                <!--<div class="col-sm-4">-->
+                    <!--<select id="ckfs" name="layer" class="form-control m-b" onchange="ckfsSelect()" >-->
+                        <!--<option  value="1" >按产品出</option>-->
+                        <!--<option  value="2" >按库位出</option>-->
+                    <!--</select>-->
+                <!--</div>-->
+                <!--<div id="ckgzBox">-->
+                    <!--<label class="col-sm-2 control-label"><span style="color: red; ">*</span>出库规则：</label>-->
+                    <!--<div class="col-sm-4">-->
+                        <!--<select id="ckgz" name="layer" class="form-control m-b" th:with="type=${@dict.getType('base_warehouse_rules')}">-->
+                            <!--<option th:each="dict:${type}" th:selected="selected" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" ></option>-->
+                        <!--</select>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="add()">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="removeAll()">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <th:block th:include="include :: select2-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "warehouse/storeio"
+        $("#form-StoreIo-add").validate({
+            focusCleanup: true,
+            rules:{
+                tasktype:{
+                    required:true
+                },
+                // taskname :{
+                //     required:true
+                // },
+                quantity:{
+                    required:true,
+                    digits:true
+                },
+            }
+
+        });
+        var modelDatas = [[${@dict.getType("base_product_model")}]];
+        $(function() {
+            var options = {
+                createUrl: prefix + "/add",
+                removeUrl: prefix + "/remove",
+                modalName: "出库子表",
+                showSearch: false,
+                showRefresh: false,
+                showColumns: false,
+                showToggle: false,
+                showExport: false,
+                columns: [{
+                    checkbox: true
+                },
+                    {
+                        field : 'num',
+                        title : '序号',
+                        formatter:function (value, row, index) {
+                            row.num=index+1;
+                            return index+1;
+                        }
+                    },
+                    {
+                        field : 'id',
+                        title : 'id',
+                        visible:false
+                    },
+                    {
+                        field : 'rowid',
+                        title : 'rowid',
+                        visible:false,
+                        formatter:function (value, row, index) {
+                            row.rowid=index+1;
+                            return row.rowid;
+                        },
+                    },
+                    {
+                        field : 'productcode',
+                        title : '产品型号'
+                    },
+                    {
+                        field : 'productname',
+                        title : '产品名称'
+                    },
+                    {
+                        field : 'productbatch',
+                        title : '产品批次'
+                    },
+                    // {
+                    //     field : 'productmodel',
+                    //     title : '产品型号',
+                    //     formatter : function (value, row, index) {
+                    //         return $.table.selectDictLabel(modelDatas, value)
+                    //     }
+                    // },
+                    // {
+                    //     field : 'guid',
+                    //     title : '产品条码',
+                    //     visible:false
+                    // },
+                    {
+                        field : 'quantity',
+                        title : '数量'
+                    },
+                    {
+                        field : 'sums',
+                        title : '剩余库存'
+                    },
+                    // {
+                    //     field : 'memo',
+                    //     title : '备注'
+                    // }
+                ],
+                onDblClickCell: function (field, value, row, $element) {
+                    var indexRow = $element[0].parentElement.rowIndex - 1;
+                    if (field == 'quantity' || field == 'memo' || field == 'productbatch') {
+                        $element.attr('contenteditable', true);
+                        $element.blur(function () {
+                            //console.log(row)
+                            let tdValue = $element.text();
+                            if ( field == 'quantity' && tdValue>row.sums){
+                                $.modal.msgError("数量超过库存数量！");
+                                $('#bootstrap-table').bootstrapTable("updateCell", {
+                                    index: indexRow,
+                                    field: field,
+                                    value: 0
+                                });
+                                return ;
+                            }
+                            $('#bootstrap-table').bootstrapTable("updateCell", {
+                                index: indexRow,
+                                field: field,
+                                value: tdValue
+                            });
+                            var rows=$('#bootstrap-table').bootstrapTable("getData");
+                            var sum=0;
+                            for (var i=0;i<rows.length;i++){
+                                sum+=Number(rows[i].quantity);
+                            }
+                            $('#quantity').val(sum);
+                        })
+                    }
+
+                }
+
+            };
+
+            $.table.init(options);
+
+        });
+
+        var customerList = [[${customerList}]];
+
+        function customerChange(){
+            for(var i=0;i<customerList.length;i++){
+                if(customerList[i].customercode==$("#customercode").val()){
+                    $("#customername").val(customerList[i].customername);
+                    return
+                }else{
+                    $("#customername").val('');
+                }
+            }
+        }
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                var rows=$('#bootstrap-table').bootstrapTable("getData");
+                if (rows.length==0){
+                    $.modal.msgError("请添加产品");
+                    return ;
+                }
+                var detailArray=new Array();
+                for (var i=0;i<rows.length;i++){
+                    if ($.common.isEmpty(rows[i].quantity) || !$.common.isNum(rows[i].quantity)|| rows[i].quantity<=0){
+                        $.modal.msgError("第"+rows[i].num+"行，产品数量不正确");
+                        return ;
+                    }
+                    if($.common.isEmpty(rows[i].productbatch)){
+                        $.modal.msgError("第"+rows[i].num+"行，产品批次必输");
+                        return ;
+                    }
+                    var param={
+                        rowid:rows[i].num,
+                        productcode:rows[i].productcode,
+                        productname :rows[i].productname,
+                        productmodel :rows[i].productmodel,
+                        productbatch:rows[i].productbatch,
+                        quantity :rows[i].quantity,
+                        startcode:rows[i].storehousecode,
+                        otherProductCode:rows[i].otherProductCode,
+                        memo:rows[i].memo,
+                    }
+                    detailArray.push(param);
+                }
+                var params={
+                    tasktype:$('#tasktype').find('option:selected').val(),
+                    whcode :$('#whcode').find('option:selected').val(),
+                    taskname :$('#taskname').val(),
+                    productdetail :$('#productdetail').val(),
+                    veninfo :$('#veninfo').val(),
+                    maker :$('#maker').val(),
+                    mpocode :$('#mpocode').val(),
+                    ordercode:$('#ordercode').val(),
+                    quantity :$('#quantity').val(),
+                    memo:$('#memo').val(),
+                    // outtype:$('#ckfs').find('option:selected').val(),
+                    // outrule:$('#ckfs').find('option:selected').val()==1? $('#ckgz').find('option:selected').val():0,
+                    customercode:$('#customercode').val(),
+                    customername:$('#customername').val(),
+                    list:JSON.stringify(detailArray)
+                }
+                $.operate.save(prefix + "/add",params);
+            }
+        }
+
+
+        function add(){
+            if($.common.isEmpty($("#whcode").find('option:selected').val())){
+                $.modal.msgError("请先选择仓库");
+                retrun ;
+            }
+            table.set();
+            $.modal.open("添加产品",prefix+'/productOut/'+$('#whcode').find('option:selected').val(),null,null,callback);
+        }
+
+        callback = function(index, layero) {
+            var iframeWin = layero.find('iframe')[0];
+            var data=iframeWin.contentWindow.submitHandler(index, layero);
+            var row=$("#bootstrap-table").bootstrapTable("getData");
+            var msg="";
+            for (var i=0;i<data.length;i++){
+                var isBool=true;
+                for (var j=0;j<row.length;j++){
+                    if (data[i].productcode==row[j].productcode && data[i].productbatch==row[j].productbatch){
+                        msg+=data[i].productname+",";
+                        isBool=false;
+                        break;
+                    }
+
+                }
+                if (isBool){
+                    $("#bootstrap-table").bootstrapTable("insertRow",{
+                        index:row.length+i,
+                        row:{
+                            // num:row.length+i,
+                            // regioncode:data[i].regioncode,
+                            // storehousecode:data[i].storehousecode,
+                            // storehousename:data[i].storehousename,
+                            productcode:data[i].productcode,
+                            productname :data[i].productname,
+                            // productmodel:data[i].productmodel,
+                            productbatch:data[i].productbatch,
+                            // productmodelname:data[i].productmodelname,
+                            quantity :data[i].quantity,
+                            // otherProductCode :data[i].otherProductCode,
+                            sums:data[i].sums,
+                            memo:'',
+                        }
+                    })
+                }
+            }
+            if ($("#bootstrap-table").bootstrapTable("getData").length>0){
+                $('#whcode').attr('disabled',true);
+                var rows=$('#bootstrap-table').bootstrapTable("getData");
+                var sum=0;
+                for (var i=0;i<rows.length;i++){
+                    sum+=Number(rows[i].quantity);
+                }
+                $('#quantity').val(sum);
+            }
+            if (msg!=""){
+                $.modal.alertError("产品名称:"+msg+"此批次已存在");
+            }
+            layer.close(index);
+
+        }
+
+        function removeAll(){
+            var data=$("#bootstrap-table").bootstrapTable("getSelections");
+            if (data.length==0){
+                $.modal.alertError("请至少选择一条记录");
+                return ;
+            }
+            for (var i=0;i<data.length;i++){
+                $('#bootstrap-table').bootstrapTable("remove",{field:'num',values:[data[i].num]});
+            }
+            if ($("#bootstrap-table").bootstrapTable("getData").length<=0){
+                $('#whcode').attr('disabled',false);
+            }
+            var row=$("#bootstrap-table").bootstrapTable("getData");
+            var ronum=0;
+            for (var i=0;i<row.length;i++){
+                ronum+=Number(row[i].quantity);
+            }
+            $('#quantity').val(ronum);
+        }
+
+        function ckfsSelect(){
+            var selectVal = $('#ckfs').find("option:selected").val();
+            if(selectVal==2){
+                $("#ckgzBox").hide()
+            }else{
+                $("#ckgzBox").show()
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+#kanban{
+    height: 100%;
+    background-size:100% 100%;
+    overflow: scroll;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    /*background-image: url("../img/kanban/backImg2.jpg");*/
+}
+.col-md-4{
+    height: 100%;
+    margin-top:2%;
+}
+.topBox{
+    height: 180px;
+    display: flex;
+    margin: 20px 0;
+    justify-content: space-around;
+}
+.topItem{
+    height: 100%;
+    background-color: rgb(8,102,198);
+    width: 25%;
+    /*margin-left: 2.4%;*/
+    overflow: hidden;
+    padding: 0 20px;
+    border-radius:5px;
+    display: flex;
+}
+.topItemChart{
+    height: 100%;
+    width: 25%;
+    overflow: hidden;
+    padding: 0 20px;
+    border-radius:5px;
+    display: flex;
+    background: rgba(8,102,89,0.1);
+}
+.topItem .left{
+    width: 30%;
+    height: 110px;
+    border: 2px solid rgb(69,144,218);
+    margin-top: 35px;
+    text-align: center;
+    line-height: 110px;
+}
+.topItem .left>img{
+    width: 55px;
+    height: 55px;
+}
+.topItem .right{
+    height: 110px;
+    margin-top: 35px;
+    color: white;
+    margin-left: 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+/*center Box*/
+.centerBox{
+    width: 100%;
+    height: 400px;
+    display: flex;
+    justify-content: space-around;
+}
+.centerBox .left,.centerBox .right{
+    width: 45%;
+    height: 100%;
+    background-color: white;
+    border-radius:10px;
+}
+#centerBox_left{
+    /*background-color: red;*/
+}
+
+
+/*bottom box*/
+.bottomBox{
+    height: 180px;
+    display: flex;
+}
+.bottomBox .item{
+    height: 100%;
+    background-color: white;
+    width: 22%;
+    margin-left: 2.4%;
+    overflow: hidden;
+}

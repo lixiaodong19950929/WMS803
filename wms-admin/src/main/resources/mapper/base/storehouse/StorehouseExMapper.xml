@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.base.storehouse.mapper.StorehouseExMapper">
+    <resultMap type="StorehouseEx" id="StorehouseResultEx">
+        <result property="id" column="Id"/>
+        <result property="whCode" column="WhCode"/>
+        <result property="regionCode" column="RegionCode"/>
+        <result property="storehouseCode" column="StorehouseCode"/>
+        <result property="storehouseName" column="StorehouseName"/>
+        <result property="storehouseState" column="StorehouseState"/>
+        <result property="trayCode" column="TrayCode"/>
+        <result property="storehouseExplain" column="StorehouseExplain"/>
+        <result property="storehouseMemo" column="StorehouseMemo"/>
+        <result property="createUser" column="CreateUser"/>
+        <result property="createDate" column="CreateDate"/>
+        <result property="isEnable" column="IsEnable"/>
+        <result property="isDelete" column="IsDelete"/>
+        <result property="f1" column="F1"/>
+        <result property="f2" column="F2"/>
+        <result property="f3" column="F3"/>
+        <result property="f4" column="F4"/>
+    </resultMap>
+
+    <select id="selectStorehousePage" parameterType="StorehouseEx" resultMap="StorehouseResultEx">
+        SELECT s.Id, s.WhCode, s.RegionCode, StorehouseCode, s.StorehouseName, StorehouseState,
+        s.TrayCode, s.StorehouseExplain, s.Memo as StorehouseMemo, s.CreateUser, s.CreateDate, s.IsEnable, s.IsDelete, s.F1, s.F2, s.F3,
+        s.F4
+        FROM T_Base_Storehouse s
+        <where>
+            s.IsDelete = 0
+        </where>
+        ORDER BY s.Id DESC
+        offset ${(pageIndex-1) * pageSize} rows fetch next #{pageSize} rows only
+    </select>
+
+    <select id="selectStorehouseTotalCount" resultType="Integer">
+        SELECT COUNT(*) FROM T_Base_Storehouse
+        WHERE
+        IsDelete=0
+    </select>
+</mapper>

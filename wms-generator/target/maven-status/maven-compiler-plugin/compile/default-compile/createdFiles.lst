@@ -1,0 +1,13 @@
+com\wms\generator\util\VelocityUtils.class
+com\wms\generator\controller\GenController.class
+com\wms\generator\mapper\GenTableColumnMapper.class
+com\wms\generator\util\GenUtils.class
+com\wms\generator\service\impl\GenTableColumnServiceImpl.class
+com\wms\generator\service\IGenTableColumnService.class
+com\wms\generator\domain\GenTable.class
+com\wms\generator\service\impl\GenTableServiceImpl.class
+com\wms\generator\util\VelocityInitializer.class
+com\wms\generator\domain\GenTableColumn.class
+com\wms\generator\service\IGenTableService.class
+com\wms\generator\config\GenConfig.class
+com\wms\generator\mapper\GenTableMapper.class

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.infoquery.querystockin.mapper.InsertOrderIdMapper">
+
+    <insert id="insertOuterOrderId" parameterType="String">
+        insert T_Base_Order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="outerOrderId != null  ">OuterOrderId,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="outerOrderId != null  ">#{outerOrderId},</if>
+        </trim>
+    </insert>
+</mapper>

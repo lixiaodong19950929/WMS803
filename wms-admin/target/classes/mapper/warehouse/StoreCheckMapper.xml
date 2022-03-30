@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.warehouse.storecheck.mapper.StoreCheckMapper">
+    
+    <resultMap type="StoreCheck" id="StoreCheckResult">
+        <result property="id"    column="Id"    />
+        <result property="tasktype"    column="TaskType"    />
+        <result property="taskcode"    column="TaskCode"    />
+        <result property="taskname"    column="TaskName"    />
+        <result property="productdetail"    column="ProductDetail"    />
+        <result property="maker"    column="Maker"    />
+        <result property="whcode"    column="WhCode"    />
+        <result property="quantity"    column="Quantity"    />
+        <result property="taskstate"    column="TaskState"    />
+        <result property="note"    column="Note"    />
+        <result property="createuser"    column="CreateUser"    />
+        <result property="createdate"    column="CreateDate"    />
+        <result property="f1"    column="F1"    />
+        <result property="f2"    column="F2"    />
+        <result property="f3"    column="F3"    />
+        <result property="f4"    column="F4"    />
+        <result property="isenable"    column="IsEnable"    />
+        <result property="isdelete"    column="IsDelete"    />
+    </resultMap>
+    <resultMap type="CheckResult" id="StoreCheckResultResult">
+        <result property="id"    column="Id"    />
+        <result property="TaskCode"    column="TaskCode"    />
+        <result property="StorehouseCode"    column="StorehouseCode"    />
+        <result property="TrayCode"    column="TrayCode"    />
+        <result property="Xhao"    column="Xhao"    />
+        <result property="Batch"    column="Batch"    />
+        <result property="FullSern"    column="FullSern"    />
+        <result property="PdResult"    column="PdResult"    />
+        <result property="CreateDate"    column="CreateDate"    />
+        <result property="CreateUser"    column="CreateUser"    />
+    </resultMap>
+
+    <sql id="selectStoreCheckVo">
+        select Id, TaskType, TaskCode, TaskName, ProductDetail, Maker, WhCode, Quantity, TaskState, Note, CreateUser, CreateDate, F1, F2, F3, F4, IsEnable, IsDelete from T_Base_StoreCheck
+    </sql>
+
+    <select id="selectStoreCheckList" parameterType="StoreCheck" resultMap="StoreCheckResult">
+        <include refid="selectStoreCheckVo"/>
+        <where>
+            and IsEnable = 1
+            and IsDelete = 0
+            <if test="id != null "> and Id = #{id}</if>
+            <if test="taskname != null  and taskname != ''"> and TaskName like concat('%', #{taskname}, '%')</if>
+            <if test="productdetail != null  and productdetail != ''"> and ProductDetail = #{productdetail}</if>
+            <if test="maker != null  and maker != ''"> and Maker = #{maker}</if>
+            <if test="whcode != null  and whcode != ''"> and WhCode = #{whcode}</if>
+            <if test="quantity != null "> and Quantity = #{quantity}</if>
+            <if test="taskstate != null  and taskstate != ''"> and TaskState = #{taskstate}</if>
+            <if test="note != null  and note != ''"> and Note = #{note}</if>
+            <if test="createuser != null  and createuser != ''"> and CreateUser = #{createuser}</if>
+            <if test="f1 != null  and f1 != ''"> and F1 = #{f1}</if>
+            <if test="f2 != null  and f2 != ''"> and F2 = #{f2}</if>
+            <if test="f3 != null  and f3 != ''"> and F3 = #{f3}</if>
+            <if test="f4 != null "> and F4 = #{f4}</if>
+            <if test="params.beginCreatedate!=null and params.beginCreatedate!=''">
+                and CONVERT(char(10),CreateDate,120) <![CDATA[ >=]]> #{params.beginCreatedate}
+            </if>
+            <if test="params.endCreatedate!=null and params.endCreatedate!=''">
+                and CONVERT(char(10),CreateDate,120) <![CDATA[ <=]]> #{params.endCreatedate}
+            </if>
+        </where>
+        order by CreateDate desc
+    </select>
+    
+    <select id="selectStoreCheckById" parameterType="String" resultMap="StoreCheckResult">
+        <include refid="selectStoreCheckVo"/>
+        where TaskCode = #{taskcode}
+    </select>
+
+    <select id="selectCheckResultList" parameterType="String" resultMap="StoreCheckResultResult">
+        select * from T_Base_StoreCheckResult
+        where TaskCode = #{taskcode}
+    </select>
+        
+    <insert id="insertStoreCheck" parameterType="StoreCheck">
+        insert into T_Base_StoreCheck
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null ">Id,</if>
+            <if test="tasktype != null  and tasktype != ''">TaskType,</if>
+            <if test="taskcode != null  and taskcode != ''">TaskCode,</if>
+            <if test="taskname != null  and taskname != ''">TaskName,</if>
+            <if test="productdetail != null  and productdetail != ''">ProductDetail,</if>
+            <if test="maker != null  and maker != ''">Maker,</if>
+            <if test="whcode != null  and whcode != ''">WhCode,</if>
+            <if test="quantity != null ">Quantity,</if>
+            <if test="taskstate != null  and taskstate != ''">TaskState,</if>
+            <if test="note != null  and note != ''">Note,</if>
+            <if test="createuser != null  and createuser != ''">CreateUser,</if>
+            <if test="createdate != null ">CreateDate,</if>
+            <if test="f1 != null  and f1 != ''">F1,</if>
+            <if test="f2 != null  and f2 != ''">F2,</if>
+            <if test="f3 != null  and f3 != ''">F3,</if>
+            <if test="f4 != null ">F4,</if>
+            <if test="isenable != null ">IsEnable,</if>
+            <if test="isdelete != null ">IsDelete,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null ">#{id},</if>
+            <if test="tasktype != null  and tasktype != ''">#{tasktype},</if>
+            <if test="taskcode != null  and taskcode != ''">#{taskcode},</if>
+            <if test="taskname != null  and taskname != ''">#{taskname},</if>
+            <if test="productdetail != null  and productdetail != ''">#{productdetail},</if>
+            <if test="maker != null  and maker != ''">#{maker},</if>
+            <if test="whcode != null  and whcode != ''">#{whcode},</if>
+            <if test="quantity != null ">#{quantity},</if>
+            <if test="taskstate != null  and taskstate != ''">#{taskstate},</if>
+            <if test="note != null  and note != ''">#{note},</if>
+            <if test="createuser != null  and createuser != ''">#{createuser},</if>
+            <if test="createdate != null ">#{createdate},</if>
+            <if test="f1 != null  and f1 != ''">#{f1},</if>
+            <if test="f2 != null  and f2 != ''">#{f2},</if>
+            <if test="f3 != null  and f3 != ''">#{f3},</if>
+            <if test="f4 != null ">#{f4},</if>
+            <if test="isenable != null ">#{isenable},</if>
+            <if test="isdelete != null ">#{isdelete},</if>
+         </trim>
+    </insert>
+
+    <update id="updateStoreCheck" parameterType="StoreCheck">
+        update T_Base_StoreCheck
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tasktype != null  and tasktype != ''">TaskType = #{tasktype},</if>
+            <if test="taskname != null  and taskname != ''">TaskName = #{taskname},</if>
+            <if test="productdetail != null  and productdetail != ''">ProductDetail = #{productdetail},</if>
+            <if test="maker != null  and maker != ''">Maker = #{maker},</if>
+            <if test="whcode != null  and whcode != ''">WhCode = #{whcode},</if>
+            <if test="quantity != null ">Quantity = #{quantity},</if>
+            <if test="taskstate != null  and taskstate != ''">TaskState = #{taskstate},</if>
+            <if test="note != null  and note != ''">Note = #{note},</if>
+            <if test="createuser != null  and createuser != ''">CreateUser = #{createuser},</if>
+            <if test="createdate != null ">CreateDate = #{createdate},</if>
+            <if test="f1 != null  and f1 != ''">F1 = #{f1},</if>
+            <if test="f2 != null  and f2 != ''">F2 = #{f2},</if>
+            <if test="f3 != null  and f3 != ''">F3 = #{f3},</if>
+            <if test="f4 != null ">F4 = #{f4},</if>
+            <if test="isenable != null ">IsEnable = #{isenable},</if>
+            <if test="isdelete != null ">IsDelete = #{isdelete},</if>
+        </trim>
+        where TaskCode = #{taskcode}
+    </update>
+
+    <delete id="deleteStoreCheckById" parameterType="String">
+        delete from T_Base_StoreCheck where TaskCode = #{taskcode}
+    </delete>
+
+    <update id="deleteStoreCheckByIds" parameterType="String">
+        UPDATE T_Base_StoreCheck
+         set IsDelete=1
+         where TaskCode in
+        <foreach item="taskcode" collection="array" open="(" separator="," close=")">
+            #{taskcode}
+        </foreach>
+    </update>
+    <resultMap type="StoreCheck" id="StoreCheckSonResult">
+        <result property="id"    column="Id"    />
+        <result property="tasktype"    column="TaskType"    />
+        <result property="taskcode"    column="TaskCode"    />
+        <result property="taskname"    column="TaskName"    />
+        <result property="productdetail"    column="ProductDetail"    />
+        <result property="maker"    column="Maker"    />
+        <result property="whcode"    column="WhCode"    />
+        <result property="quantity"    column="Quantity"    />
+        <result property="taskstate"    column="TaskState"    />
+        <result property="note"    column="Note"    />
+        <result property="createuser"    column="CreateUser"    />
+        <result property="createdate"    column="CreateDate"    />
+        <result property="f1"    column="F1"    />
+        <result property="f2"    column="F2"    />
+        <result property="f3"    column="F3"    />
+        <result property="f4"    column="F4"    />
+        <result property="maxRowId"    column="maxRowId"    />
+        <collection property="storeCheckSonList" ofType="com.wms.warehouse.storecheck.domain.StoreCheckSon" column="taskcode" javaType="java.util.List">
+            <result property="id"    column="sid"    />
+            <result property="rowid"    column="RowId"    />
+            <result property="taskcode"    column="TaskCode"    />
+            <result property="taskname"    column="TaskName"    />
+            <result property="whcode"    column="WhCode"    />
+            <result property="regioncode"    column="RegionCode"    />
+            <result property="storehousecode"    column="StorehouseCode"    />
+            <result property="productcode"    column="ProductCode"    />
+            <result property="productname"    column="ProductName"    />
+            <result property="productmodel"    column="ProductModel"    />
+            <result property="quantity"    column="Quantity"    />
+            <result property="pdresult"    column="PdResult"    />
+            <result property="memo"    column="Memo"    />
+            <result property="createuser"    column="CreateUser"    />
+            <result property="createdate"    column="CreateDate"    />
+            <result property="f1"    column="F1"    />
+            <result property="f2"    column="F2"    />
+            <result property="f3"    column="F3"    />
+            <result property="f4"    column="F4"    />
+            <result property="isenable"    column="IsEnable"    />
+            <result property="isdelete"    column="IsDelete"    />
+        </collection>
+    </resultMap>
+
+    <select id="selectStoreCheckByIdAndList" parameterType="StoreCheck" resultMap="StoreCheckSonResult">
+        select c.id, c.tasktype, c.taskcode, c.taskname, c.productdetail, c.maker, c.whcode, c.quantity,
+         c.taskstate, c.note, c.createuser, c.createdate, c.f1, c.f2, c.f3, c.f4, c.isenable, c.isdelete,
+          s.id as sid, s.rowid, s.taskcode, s.taskname, s.whcode, s.regioncode, s.storehousecode,
+          s.productcode, s.productname, s.productmodel, s.quantity, s.pdresult, s.memo, s.createuser,
+          s.createdate, s.f1, s.f2, s.f3, s.f4, s.isenable, s.isdelete,(select max(RowId) from T_Base_StoreCheckSon t where t.TaskCode=#{taskcode}) as maxRowId
+        from T_Base_StoreCheck c
+        left join T_Base_StoreCheckSon s on c.TaskCode=s.TaskCode
+        <where>
+            and c.IsDelete=0
+            and c.IsEnable=1
+            and s.IsDelete=0
+            and s.IsEnable=1
+            <if test="id != null "> and c.Id = #{id}</if>
+            <if test="taskcode != null  and taskcode != ''"> and c.TaskCode = #{taskcode}</if>
+        </where>
+        order by c.CreateDate desc
+    </select>
+    <update id="cancelStoreCheckByTaskCodes" parameterType="String" >
+        update T_Base_StoreCheck
+        set TaskState=-1
+        where TaskCode in
+        <foreach collection="array" item="taskcode" open="(" separator="," close=")">
+            #{taskcode}
+        </foreach>
+    </update>
+
+    <update id="restartStoreCheckByTaskCodes" parameterType="String" >
+        update T_Base_StoreCheck
+        set TaskState=0
+        where TaskCode in
+        <foreach collection="array" item="taskcode" open="(" separator="," close=")">
+            #{taskcode}
+        </foreach>
+    </update>
+
+    <insert id="insertStoreCheckList" parameterType="java.util.List">
+        insert into T_Base_StoreCheck (TaskType, TaskCode, TaskName, ProductDetail, Maker, WhCode, Quantity, Note, CreateUser, CreateDate)
+        <foreach collection="list" item="item" open="VALUES(" separator="),(" close=")">
+            #{item.tasktype}, #{item.taskcode}, #{item.taskname}, #{item.productdetail}, #{item.maker}, #{item.whcode}, #{item.quantity}, #{item.note}, #{item.createuser}, #{item.createdate}
+        </foreach>
+    </insert>
+
+    <select id="selectStoreCheckAndSonList" parameterType="StoreCheck" resultType="com.wms.warehouse.storecheck.domain.StoreCheckExcel">
+        select c.id, c.tasktype, c.taskcode, c.taskname, c.productdetail, c.maker, c.whcode,w.WhName, c.quantity, c.taskstate,ds.dict_label as taskstatename, c.note, c.createuser, c.createdate, s.rowid,s.regioncode,r.RegionName, s.storehousecode,h.StorehouseName, s.productcode, s.productname, s.productmodel, dm.dict_label as productmodelname, s.Quantity as productQuantity, s.memo as productMemo,d.dict_label as pdresult
+        from T_Base_StoreCheck c
+        left join T_Base_StoreCheckSon s on s.IsEnable=1 and s.IsDelete=0 and  c.TaskCode=s.TaskCode
+        left join T_Base_Region r on r.IsEnable=1 and r.IsDelete=0 and r.RegionCode=s.RegionCode
+        left join T_Base_Storehouse h on h.IsDelete=0 and h.IsEnable=1 and h.StorehouseCode=s.StorehouseCode
+        left join T_Base_Warehouse w on w.IsEnable=1 and w.IsDelete=0 and w.WhCode=c.WhCode
+        left join sys_dict_data d on d.dict_type='base_check_result' and d.dict_value=s.PdResult
+        left join sys_dict_data ds on ds.dict_type='warehouse_task_status' and ds.dict_value=c.TaskState
+        left join sys_dict_data dm on dm.dict_type='base_product_model' and dm.dict_value=s.ProductModel
+        <where>
+            and c.IsEnable = 1
+            and c.IsDelete = 0
+            <if test="id != null "> and c.Id = #{id}</if>
+            <if test="taskname != null  and taskname != ''"> and c.TaskName like concat('%', #{taskname}, '%')</if>
+            <if test="productdetail != null  and productdetail != ''"> and c.ProductDetail = #{productdetail}</if>
+            <if test="maker != null  and maker != ''"> and c.Maker = #{maker}</if>
+            <if test="whcode != null  and whcode != ''"> and c.WhCode = #{whcode}</if>
+            <if test="quantity != null "> and c.Quantity = #{quantity}</if>
+            <if test="taskstate != null  and taskstate != ''"> and c.TaskState = #{taskstate}</if>
+            <if test="note != null  and note != ''"> and c.Note = #{note}</if>
+            <if test="createuser != null  and createuser != ''"> and c.CreateUser = #{createuser}</if>
+            <if test="f1 != null  and f1 != ''"> and c.F1 = #{f1}</if>
+            <if test="f2 != null  and f2 != ''"> and c.F2 = #{f2}</if>
+            <if test="f3 != null  and f3 != ''"> and c.F3 = #{f3}</if>
+            <if test="f4 != null "> and c.F4 = #{f4}</if>
+            <if test="params.beginCreatedate!=null and params.beginCreatedate!=''">
+                and CONVERT(char(10),c.CreateDate,120) <![CDATA[ >=]]> #{params.beginCreatedate}
+            </if>
+            <if test="params.endCreatedate!=null and params.endCreatedate!=''">
+                and CONVERT(char(10),c.CreateDate,120) <![CDATA[ <=]]> #{params.endCreatedate}
+            </if>
+        </where>
+        order by c.CreateDate desc
+    </select>
+
+    <update id="executeStoreCheckByTaskCodes" parameterType="String">
+        update T_Base_StoreCheck
+                set TaskState=1
+                where TaskCode in
+               <foreach collection="array" item="taskcode" open="(" separator="," close=")">
+                   #{taskcode}
+               </foreach>
+    </update>
+</mapper>

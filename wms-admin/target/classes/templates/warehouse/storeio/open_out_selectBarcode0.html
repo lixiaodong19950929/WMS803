@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('选择要维护的产品类型')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+</head>
+<style type="text/css">
+    .fixed-table-pagination{
+        display: none!important;
+    }
+</style>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <p>需维护数量：  <span id="weihuNum"></span>  个</p>
+    <form class="form-horizontal m" id="form-CodeDetailInfo-edit">
+        <input name="taskcode" id="taskcode" class="form-control" type="hidden">
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+<th:block th:include="include :: select2-js" />
+<script th:inline="javascript">
+    var prefix = ctx + "warehouse/storeio";
+    var taskcode = [[${taskcode}]];
+    var rowid = [[${rowid}]];
+    var productcode = [[${productcode}]];
+    var productbatch = [[${productbatch}]];
+    var quantity = [[${quantity}]];
+    $("#form-CodeDetailInfo-edit").validate({
+        focusCleanup: true,
+        rules:{
+            // taskCode:{
+            //     required:true
+            // }
+        }
+    });
+    var modelDatas = [[${@dict.getType("base_product_model")}]];
+    $(function() {
+        $('#weihuNum').text([[${quantity}]])
+        var options = {
+            url:ctx+"warehouse/storeio/get_out_selectBarcode",
+            modalName: "库存条码明细",
+            queryParams: function(params) {
+                return{
+                    // 传递参数查询参数
+                    // pageSize:       params.limit,
+                    // pageNum:        params.offset / params.limit + 1,
+                    // searchValue:    params.search,
+                    // orderByColumn:  params.sort,
+                    // isAsc:          params.order,
+                    productcode:productcode,
+                    Productbatch:productbatch,
+                };
+            },
+            showSearch: false,
+            showRefresh: false,
+            showColumns: false,
+            showToggle: false,
+            showExport: false,
+            uniqueId:"num",
+            clickToSelect:true,
+            onClickCell:function(row,$element){
+
+            },
+            columns: [
+                {
+                    checkbox: true
+                },
+                {
+                    field : 'num',
+                    title : '序号',
+                    formatter:function (value, row, index) {
+                        row.num=index+1;
+                        return index+1;
+                    }
+                },
+                {
+                    field : 'productcode',
+                    title : '产品型号'
+                },
+                {
+                    field : 'productname',
+                    title : '产品名称'
+                },
+                {
+                    field : 'productbatch',
+                    title : '产品批次'
+                },
+                {
+                    field : 'sern',
+                    title : '产品条码',
+                },
+                {
+                    field : 'storehousecode',
+                    title : '库位',
+                },
+                {
+                    field : 'xhao',
+                    title : '箱号',
+                },
+                {
+                    field : 'batch',
+                    title : '扫描批次',
+                },
+                // {
+                //     title: '操作',
+                //     align: 'center',
+                //     formatter: function(value, row, index) {
+                //         var actions = [];
+                //         actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="delet(\'' + row.num + '\')"><i class="fa fa-remove"></i>删除</a>');
+                //         return actions.join('');
+                //     }
+                // }
+            ],
+            onLoadSuccess:function (){
+                let tablerows=$('#bootstrap-table').bootstrapTable("getData");
+                var checkArr = new Array();
+                var config = {
+                    url: ctx+"warehouse/storeio/get_out_selectBarcode_YXZ",
+                    type: "post",
+                    dataType: "json",
+                    data:{
+                        taskCode:taskcode,
+                        rowId:rowid
+                    },
+                    beforeSend: function () {
+                        $.modal.loading("正在处理中，请稍后...");
+                        // $.modal.disable();
+                    },
+                    success: function(result) {
+                        $.modal.closeLoading();
+                        $("#YXZNum").text(result.rows.length)
+                        for (var i=0;i<result.rows.length;i++){
+                            checkArr.push(result.rows[i].sern)
+                        }
+                        $("#bootstrap-table").bootstrapTable("checkBy",{field: 'sern', values:checkArr});
+                        // $.operate.ajaxSuccess(result);
+                    }
+                };
+                $.ajax(config)
+
+            }
+        };
+        $.table.init(options);
+
+        //上面：如果已经存过barcodelist那就获取到 并自动勾选
+
+    })
+
+
+
+    function submitHandler() {
+        var rows = $("#bootstrap-table").bootstrapTable('getSelections')
+        if(rows.length>quantity){
+            $.modal.msgError("超出任务指定数量"+(rows.length-quantity)+"个");
+            return
+        }else if(rows.length<quantity){
+            $.modal.msgError("未达到任务指定数量，还差"+(quantity-rows.length)+"个");
+            return
+        }else{
+            var detailArray=new Array();
+            for (var i=0;i<rows.length;i++){
+                console.log(rows[i])
+                var param = {
+                    rowId:rowid,
+                    taskCode:taskcode,
+                    productCode:rows[i].productcode,
+                    productName:rows[i].productname,
+                    productBatch:rows[i].productbatch,
+                    sern:rows[i].sern,
+                    storehouseCode:rows[i].storehousecode,
+                    xhao:rows[i].xhao,
+                    batch:rows[i].batch,
+                    fullSern:rows[i].fullSern
+                }
+                console.log(param)
+                detailArray.push(param)
+            }
+            console.log(JSON.stringify(detailArray))
+            if(rows.length>0){
+                var params={
+                    list:JSON.stringify(detailArray)
+                }
+            }else{
+                var param = {
+                    taskCode :taskcode.replace(/\"/g, ""),
+                    rowId:rowid,
+                    sern:''
+                }
+                detailArray.push(param)
+                var params={
+                    list:JSON.stringify(detailArray)
+                }
+            }
+            $.operate.save(prefix + "/out_select_Barcode_Add",params);
+        }
+
+    }
+
+</script>
+</body>
+</html>

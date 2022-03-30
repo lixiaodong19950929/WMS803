@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改出入库')" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-StoreIo-edit" th:object="${storeIo}">
+            <input name="taskcode" id="taskcode" th:field="*{taskcode}" type="hidden">
+            <input name="id" th:field="*{id}" type="hidden">
+             <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>任务类型：</label>
+                <div class="col-sm-4">
+                    <select id="tasktype" name="tasktype" class="form-control m-b" th:field="*{tasktype}" th:with="type=${@dict.getType('warehouse_task_type')}" disabled>
+                        <option th:each="dict:${type}"  th:value="${dict.dictValue}" th:text="${dict.dictLabel}" ></option>
+                    </select>
+                </div>
+                 <label class="col-sm-2 control-label"><span style="color: red; ">*</span>仓库名称：</label>
+                <div class="col-sm-4">
+                    <select id="whcode" name="whcode" class="form-control m-b" th:field="*{whcode}">
+                        <option th:each="ware:${whList}" th:value="${ware.whcode}" th:text="${ware.whname}"></option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="form-group">
+                 <label class="col-sm-2 control-label">任务名称：</label>
+                <div class="col-sm-4">
+                    <input name="taskname" class="form-control" type="text" th:field="*{taskname}">
+                </div>
+                <label class="col-sm-2 control-label">任务描述：</label>
+                <div class="col-sm-4">
+                    <input name="productdetail" class="form-control" type="text" th:field="*{productdetail}">
+                </div>
+
+            </div>
+            <div class="form-group">
+                <!--<label class="col-sm-2 control-label">供应商信息：</label>-->
+                <!--<div class="col-sm-4">-->
+                    <!--<input name="veninfo" class="form-control" type="text" th:field="*{veninfo}">-->
+                <!--</div>-->
+                <label class="col-sm-2 control-label">制单人：</label>
+                <div class="col-sm-4">
+                    <input name="maker" class="form-control" type="text" th:field="*{maker}">
+                </div>
+                <label class="col-sm-2 control-label">备注：</label>
+                <div class="col-sm-4">
+                    <input name="memo" class="form-control" type="text" th:field="*{memo}">
+                </div>
+            </div>
+            <!--<div class="form-group">-->
+                <!--<label class="col-sm-2 control-label">生产订单编号：</label>-->
+                <!--<div class="col-sm-4">-->
+                    <!--<input name="mpocode" class="form-control" type="text" th:field="*{mpocode}">-->
+                <!--</div>-->
+                <!--<label class="col-sm-2 control-label">采购订单编号：</label>-->
+                <!--<div class="col-sm-4">-->
+                    <!--<input name="ordercode" class="form-control" type="text" th:field="*{ordercode}">-->
+                <!--</div>-->
+
+            <!--</div>-->
+            <div class="form-group">
+                <label class="col-sm-2 control-label"><span style="color: red; ">*</span>总数量：</label>
+                <div class="col-sm-4">
+                    <input name="quantity" class="form-control" type="text" th:field="*{quantity}" disabled>
+                </div>
+                <div id="fzcsBox">
+                    <label class="col-sm-2 control-label"><span style="color: red; ">*</span>放置层数：</label>
+                    <div class="col-sm-4">
+                        <select id="layer" name="layer" class="form-control m-b" th:field="*{layer}" th:with="type=${@dict.getType('base_storeio_layer')}" disabled>
+                            <option th:each="dict:${type}" th:value="${dict.dictValue}" th:text="${dict.dictLabel}" ></option>
+                        </select>
+                    </div>
+                </div>
+                <div id="kehuBox">
+                    <label class="col-sm-2 control-label">客户：</label>
+                    <div class="col-sm-4">
+                        <input name="customername" id="customername" class="form-control" th:field="*{customername}" type="hidden">
+                        <select id="customercode" name="customercode" class="form-control m-b" th:field="*{customercode}" onchange="customerChange()">
+                            <option value="">请选择</option>
+                            <option th:each="ware:${customerList}" th:value="${ware.customercode}" th:text="${ware.customername}"></option>
+                        </select>
+                    </div>
+                </div>
+                <!--<div class="form-group">-->
+                    <label class="col-sm-2 control-label"><span style="color: red; ">*</span>入库方式：</label>
+                    <div class="col-sm-4">
+                        <select id="rkfs" name="rkfs" class="form-control m-b" th:field="*{intype}" disabled>
+                            <option  value="1" >自动入库</option>
+                            <!--<option  value="2" >指定库位</option>-->
+                        </select>
+                    </div>
+                <!--</div>-->
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="add()">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="removeAll()">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <th:block th:include="include :: select2-js" />
+    <script th:inline="javascript">
+        console.log([[${storeIo}]])
+        //因为改成入库时，当前任务只能入同种产品 所以 不允许在编辑时添加产品
+        if([[${storeIo}]].tasktype==1){
+            $("#toolbar").hide()
+            $("#fzcsBox").hide()
+            $('#layer').val('')
+        }
+        if([[${storeIo}]].tasktype==2){
+            $("#fzcsBox").hide()
+            $('#layer').val('')
+        }else{
+            $("#kehuBox").hide()
+            $('#customercode').val('')
+            $('#customername').val('')
+        }
+        var prefix = ctx + "warehouse/storeio";
+        var rowid=0;
+        $("#form-StoreIo-edit").validate({
+            focusCleanup: true,
+            rules:{
+                tasktype:{
+                    required:true
+                },
+                // taskname :{
+                //     required:true
+                // },
+                // veninfo :{
+                //     required:true
+                // },
+                // maker :{
+                //     required:true
+                // },
+                // mpocode :{
+                //     required:true
+                // },
+                // ordercode :{
+                //     required:true
+                // },
+                // whcode :{
+                //     required:true
+                // },
+                quantity:{
+                    required:true,
+                    digits:true
+                },
+            }
+        });
+        var modelDatas = [[${@dict.getType("base_product_model")}]];
+        $(function() {
+            var options = {
+                url:ctx+"warehouse/storeIoSon/listIo",
+                createUrl: prefix + "/add",
+                removeUrl: prefix + "/remove",
+                modalName: "入库子表",
+                queryParams: function(params) {
+                    return{
+                        // 传递参数查询参数
+                        pageSize:       params.limit,
+                        pageNum:        params.offset / params.limit + 1,
+                        searchValue:    params.search,
+                        orderByColumn:  params.sort,
+                        isAsc:          params.order,
+                        taskcode:$('#taskcode').val()
+                    };
+                },
+                showSearch: false,
+                showRefresh: false,
+                showColumns: false,
+                showToggle: false,
+                showExport: false,
+                columns: [{
+                    checkbox: true
+                },
+                    {
+                        field : 'num',
+                        title : '序号',
+                        formatter:function (value, row, index) {
+                           row.num=index+1;
+                           return row.num;
+                        }
+                    },
+                    {
+                        field : 'id',
+                        title : 'id',
+                        visible:false
+                    },
+                    {
+                        field : 'rowid',
+                        title : 'rowid',
+                        visible:false
+                    },
+                    {
+                        field : 'startcode',
+                        title : '库位编码',
+                        visible:false
+                    },
+                    // {
+                    //     field : 'storehouseName',
+                    //     title : '库位名称',
+                    //     visible:false
+                    // },
+                    // {
+                    //     field : 'otherProductCode',
+                    //     title : '产品条码',
+                    //     visible:false
+                    // },
+                    {
+                        field : 'productcode',
+                        title : '产品型号'
+                    },
+                    {
+                        field : 'productname',
+                        title : '产品名称'
+                    },
+                    // {
+                    //     field : 'productmodel',
+                    //     title : '产品型号',
+                    //     formatter : function (value, row, index) {
+                    //         return $.table.selectDictLabel(modelDatas, value)
+                    //     }
+                    // },
+                    {
+                        field : 'productbatch',
+                        title : '产品批次'
+                    },
+                    {
+                        field : 'guid',
+                        title : '产品条码',
+                        visible:false
+                    },
+                    {
+                        field : 'quantity',
+                        title : '数量'
+                    },
+                    {
+                        field : 'quantityInfo',
+                        title : '库存数量',
+                        visible:function () {
+                            return true
+                        }
+                    },
+
+                    {
+                        field : 'memo',
+                        title : '备注'
+                    }
+                ],
+                onDblClickCell: function (field, value, row, $element) {
+                    var indexRow = $element[0].parentElement.rowIndex - 1;
+                    //，为入库时，可修改产品编码
+                    // 去除：为出库时可修改数量 ($("#tasktype").find('option:selected').val()==2 && field == 'quantity')||
+                    if (($("#tasktype").find('option:selected').val()==1 &&(field == 'guid')) || field == 'memo' || field == 'quantity' || field == 'productbatch') {
+                        $element.attr('contenteditable', true);
+                        $element.blur(function () {
+                            let tdValue = $element.text();
+                            if ($("#tasktype").find('option:selected').val()==2 && field == 'quantity' && tdValue>row.quantityInfo){
+                                $.modal.msgError("数量超过库存数量！");
+                                $('#bootstrap-table').bootstrapTable("updateCell", {
+                                    index: indexRow,
+                                    field: field,
+                                    value: 0
+                                });
+                                return ;
+                            }
+                            $('#bootstrap-table').bootstrapTable("updateCell", {
+                                index: indexRow,
+                                field: field,
+                                value: tdValue
+                            });
+                            //数量设置可变的时候，使用此处
+                            var rows=$('#bootstrap-table').bootstrapTable("getData");
+                            var sum=0;
+                            for (var i=0;i<rows.length;i++){
+                                sum+=Number(rows[i].quantity);
+                            }
+                            $('#quantity').val(sum);
+                        })
+                    }
+
+                },
+                onLoadSuccess:function (data) {
+                    if ($("#bootstrap-table").bootstrapTable("getData").length>0){
+                        $('#whcode').attr('disabled',true);
+                    }
+                    rowid=$("#bootstrap-table").bootstrapTable("getData").length;
+                }
+
+            };
+            $.table.init(options);
+
+        });
+
+        var customerList = [[${customerList}]];
+
+        function customerChange(){
+            for(var i=0;i<customerList.length;i++){
+                if(customerList[i].customercode==$("#customercode").val()){
+                    $("#customername").val(customerList[i].customername);
+                    return
+                }else{
+                    $("#customername").val('');
+                }
+            }
+        }
+
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                var rows=$('#bootstrap-table').bootstrapTable("getData");
+                if (rows.length==0){
+                    $.modal.msgError("请添加产品");
+                    return ;
+                }
+                var detailArray=new Array();
+                for (var i=0;i<rows.length;i++){
+                    if ($.common.isEmpty(rows[i].quantity) || !$.common.isNum(rows[i].quantity)|| rows[i].quantity<=0){
+                        $.modal.msgError("第"+rows[i].num+"行，产品数量不正确");
+                        return ;
+                    }
+                    var param={
+                        id:rows[i].id,
+                        rowid:$.common.isEmpty(rows[i].id)?++rowid:rows[i].rowid,
+                        productcode:rows[i].productcode,
+                        productname :rows[i].productname,
+                        productmodel :rows[i].productmodel,
+                        productbatch:rows[i].productbatch,
+                        guid :rows[i].guid,
+                        quantity :rows[i].quantity,
+                        startcode :rows[i].startcode,
+                        otherProductCode:rows[i].otherProductCode,
+                        memo:rows[i].memo,
+                    }
+                    detailArray.push(param);
+                }
+                var params={
+                    id :$('#id').val(),
+                    taskcode :$('#taskcode').val(),
+                    tasktype:$('#tasktype').find('option:selected').val(),
+                    whcode :$('#whcode').find('option:selected').val(),
+                    taskname :$('#taskname').val(),
+                    productdetail :$('#productdetail').val(),
+                    veninfo :$('#veninfo').val(),
+                    maker :$('#maker').val(),
+                    mpocode :$('#mpocode').val(),
+                    ordercode:$('#ordercode').val(),
+                    quantity :$('#quantity').val(),
+                    memo:$('#memo').val(),
+                    otherProductCode:$('#otherProductCode').val(),
+                    layer:$('#layer').val(),
+                    customercode:$('#customercode').val(),
+                    customername:$('#customername').val(),
+                    intype:$('#rkfs').val(),
+                    list:JSON.stringify(detailArray)
+                }
+                $.operate.save(prefix + "/edit",params);
+            }
+        }
+
+        function add(){
+            if($.common.isEmpty($("#whcode").find('option:selected').val())){
+                $.modal.msgError("请先选择仓库");
+                retrun ;
+            }
+            table.set();
+            if ($('#tasktype').find("option:selected").val()==1){
+                $.modal.open("添加产品",prefix+'/product',null,null,callback);
+            }else{
+                $.modal.open("添加产品",prefix+'/productOut/'+$('#whcode').find('option:selected').val(),null,null,callbackOut);
+            }
+
+        }
+
+        callback = function(index, layero) {
+            var iframeWin = layero.find('iframe')[0];
+            var data = iframeWin.contentWindow.submitHandler(index, layero);
+            var row = $("#bootstrap-table").bootstrapTable("getData");
+            var msg = "";
+            for (var i = 0; i < data.length; i++) {
+                var isBool = true;
+                //为出库时，校验产品编码相同时不允许重复
+                if ($('#tasktype').find("option:selected").val() == 2 || $('#tasktype').find("option:selected").val() == 1) {
+                    for (var j = 0; j < row.length; j++) {
+                        if (data[i].productcode == row[j].productcode) {
+                            msg += data[i].productname + ",";
+                            isBool = false;
+                            break;
+                        }
+
+                    }
+                }
+                if (isBool) {
+                    if ($('#tasktype').find("option:selected").val() == 1) {
+                        $("#bootstrap-table").bootstrapTable("insertRow", {
+                            index: row.length + i,
+                            row: {
+                                // num:row.length+i,
+                                productcode: data[i].productcode,
+                                productname: data[i].productname,
+                                productmodel: data[i].productmodel,
+                                quantityInfo:data[i].sums,
+                                productbatch:'',
+                                quantity: 1,
+                                memo: '',
+                            }
+                        });
+                        //数量设置为1时，使用此处
+                        $('#quantity').val($('#bootstrap-table').bootstrapTable("getData").length);
+                    } else {
+                        $("#bootstrap-table").bootstrapTable("insertRow", {
+                            index: row.length + i,
+                            row: {
+                                // num:row.length+i,
+                                productcode: data[i].productcode,
+                                productname: data[i].productname,
+                                productmodel: data[i].productmodel,
+                                quantityInfo: data[i].quantity,
+                                memo: '',
+                            }
+                        })
+                    }
+                }
+            }
+            if ($("#bootstrap-table").bootstrapTable("getData").length > 0) {
+                $('#whcode').attr('disabled', true);
+            }
+            if (msg != "") {
+                $.modal.alertError("产品名称:" + msg + "已存在");
+            }
+            layer.close(index);
+
+        }
+
+        callbackOut = function(index, layero) {
+            var iframeWin = layero.find('iframe')[0];
+            var data=iframeWin.contentWindow.submitHandler(index, layero);
+            var row=$("#bootstrap-table").bootstrapTable("getData");
+            var msg="";
+            for (var i=0;i<data.length;i++){
+                var isBool=true;
+                for (var j=0;j<row.length;j++){
+                    if (data[i].productcode==row[j].productcode && data[i].productbatch==row[j].productbatch){
+                        msg+=data[i].productname+",";
+                        isBool=false;
+                        break;
+                    }
+
+                }
+                if (isBool){
+                    $("#bootstrap-table").bootstrapTable("insertRow",{
+                        index:row.length+i,
+                        row:{
+                            // num:row.length+i,
+                            // regioncode:data[i].regioncode,
+                            // startcode:data[i].storehousecode,
+                            // storehouseName:data[i].storehousename,
+                            productcode:data[i].productcode,
+                            productname :data[i].productname,
+                            productbatch:data[i].productbatch,
+                            // productmodel:data[i].productmodel,
+                            // productmodelname:data[i].productmodelname,
+                            quantity :data[i].quantity,
+                            quantityInfo:data[i].sums
+                            // otherProductCode :data[i].otherProductCode,
+                            // memo:'',
+                        }
+                    })
+                }
+            }
+            if ($("#bootstrap-table").bootstrapTable("getData").length>0){
+                $('#whcode').attr('disabled',true);
+                var rows=$('#bootstrap-table').bootstrapTable("getData");
+                var sum=0;
+                for (var i=0;i<rows.length;i++){
+                    sum+=Number(rows[i].quantity);
+                }
+                $('#quantity').val(sum);
+            }
+            if (msg!=""){
+                $.modal.alertError("产品名称:"+msg+"此批次已存在");
+            }
+            layer.close(index);
+
+        }
+
+        function removeAll(){
+            var data=$("#bootstrap-table").bootstrapTable("getSelections");
+            if (data.length==0){
+                $.modal.alertError("请至少选择一条记录");
+                return ;
+            }
+            for (var i=0;i<data.length;i++){
+                $('#bootstrap-table').bootstrapTable("remove",{field:'num',values:[data[i].num]});
+            }
+            if ($("#bootstrap-table").bootstrapTable("getData").length<=0){
+                $('#whcode').attr('disabled',false);
+            }
+            var row=$("#bootstrap-table").bootstrapTable("getData");
+            var ronum=0;
+            for (var i=0;i<row.length;i++){
+                ronum+=Number(row[i].quantity);
+            }
+            $('#quantity').val(ronum);
+        }
+    </script>
+</body>
+</html>

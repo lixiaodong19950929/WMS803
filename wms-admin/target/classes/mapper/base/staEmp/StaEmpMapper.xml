@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.base.staEmp.mapper.StaEmpMapper">
+    
+    <resultMap type="StaEmp" id="StaEmpResult">
+        <result property="id"    column="Id"    />
+        <result property="stationcode"    column="StationCode"    />
+        <result property="stationname"    column="StationName"    />
+        <result property="employeecode"    column="EmployeeCode"    />
+        <result property="employeename"    column="EmployeeName"    />
+        <result property="isenable"    column="IsEnable"    />
+        <result property="note"    column="Note"    />
+        <result property="createuser"    column="CreateUser"    />
+        <result property="createdate"    column="CreateDate"    />
+        <result property="linecode"    column="LineCode"    />
+    </resultMap>
+
+    <sql id="selectStaEmpVo">
+        select Id, StationCode, StationName, EmployeeCode, EmployeeName, IsEnable, Note, CreateUser, CreateDate, LineCode from T_Base_Sta_Emp
+    </sql>
+
+    <select id="selectStaEmpList" parameterType="StaEmp" resultMap="StaEmpResult">
+        <include refid="selectStaEmpVo"/>
+        <where>  
+            <if test="stationcode != null  and stationcode != ''"> and StationCode = #{stationcode}</if>
+            <if test="stationname != null  and stationname != ''"> and StationName like concat('%', #{stationname}, '%')</if>
+            <if test="employeecode != null  and employeecode != ''"> and EmployeeCode = #{employeecode}</if>
+            <if test="employeename != null  and employeename != ''"> and EmployeeName like concat('%', #{employeename}, '%')</if>
+            <if test="isenable != null "> and IsEnable = #{isenable}</if>
+            <if test="note != null  and note != ''"> and Note = #{note}</if>
+            <if test="createuser != null  and createuser != ''"> and CreateUser = #{createuser}</if>
+            <if test="createdate != null "> and CreateDate = #{createdate}</if>
+            <if test="linecode != null  and linecode != ''"> and LineCode = #{linecode}</if>
+        </where>
+    </select>
+    
+    <select id="selectStaEmpById" parameterType="Long" resultMap="StaEmpResult">
+        <include refid="selectStaEmpVo"/>
+        where Id = #{id}
+    </select>
+        
+    <insert id="insertStaEmp" parameterType="StaEmp">
+        insert into T_Base_Sta_Emp
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null ">Id,</if>
+            <if test="stationcode != null  and stationcode != ''">StationCode,</if>
+            <if test="stationname != null  and stationname != ''">StationName,</if>
+            <if test="employeecode != null  and employeecode != ''">EmployeeCode,</if>
+            <if test="employeename != null  and employeename != ''">EmployeeName,</if>
+            <if test="isenable != null ">IsEnable,</if>
+            <if test="note != null  and note != ''">Note,</if>
+            <if test="createuser != null  and createuser != ''">CreateUser,</if>
+            <if test="createdate != null ">CreateDate,</if>
+            <if test="linecode != null  and linecode != ''">LineCode,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null ">#{id},</if>
+            <if test="stationcode != null  and stationcode != ''">#{stationcode},</if>
+            <if test="stationname != null  and stationname != ''">#{stationname},</if>
+            <if test="employeecode != null  and employeecode != ''">#{employeecode},</if>
+            <if test="employeename != null  and employeename != ''">#{employeename},</if>
+            <if test="isenable != null ">#{isenable},</if>
+            <if test="note != null  and note != ''">#{note},</if>
+            <if test="createuser != null  and createuser != ''">#{createuser},</if>
+            <if test="createdate != null ">#{createdate},</if>
+            <if test="linecode != null  and linecode != ''">#{linecode},</if>
+         </trim>
+    </insert>
+
+    <update id="updateStaEmp" parameterType="StaEmp">
+        update T_Base_Sta_Emp
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="stationcode != null  and stationcode != ''">StationCode = #{stationcode},</if>
+            <if test="stationname != null  and stationname != ''">StationName = #{stationname},</if>
+            <if test="employeecode != null  and employeecode != ''">EmployeeCode = #{employeecode},</if>
+            <if test="employeename != null  and employeename != ''">EmployeeName = #{employeename},</if>
+            <if test="isenable != null ">IsEnable = #{isenable},</if>
+            <if test="note != null  and note != ''">Note = #{note},</if>
+            <if test="createuser != null  and createuser != ''">CreateUser = #{createuser},</if>
+            <if test="createdate != null ">CreateDate = #{createdate},</if>
+            <if test="linecode != null  and linecode != ''">LineCode = #{linecode},</if>
+        </trim>
+        where Id = #{id}
+    </update>
+
+    <delete id="deleteStaEmpById" parameterType="Long">
+        delete from T_Base_Sta_Emp where Id = #{id}
+    </delete>
+
+    <delete id="deleteStaEmpByIds" parameterType="String">
+        delete from T_Base_Sta_Emp where Id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

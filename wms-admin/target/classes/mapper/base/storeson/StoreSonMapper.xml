@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wms.base.storeson.mapper.StoreSonMapper">
+    
+    <resultMap type="StoreSon" id="StoreSonResult">
+        <result property="id"    column="Id"    />
+        <result property="rowid"    column="RowId"    />
+        <result property="taskcode"    column="TaskCode"    />
+        <result property="storehousecode"    column="StorehouseCode"    />
+        <result property="productcode"    column="ProductCode"    />
+        <result property="productname"    column="ProductName"    />
+        <result property="quantity"    column="Quantity"    />
+        <result property="actualquantity"    column="ActualQuantity"    />
+        <result property="taskstate"    column="TaskState"    />
+        <result property="createdate"    column="CreateDate"    />
+        <result property="rgvdevicecode"    column="RgvDeviceCode"    />
+        <result property="devicecode"    column="DeviceCode"    />
+        <result property="traycode"    column="TrayCode"    />
+        <result property="f1"    column="F1"    />
+        <result property="f2"    column="F2"    />
+        <result property="f3"    column="F3"    />
+        <result property="f4"    column="F4"    />
+    </resultMap>
+
+    <sql id="selectStoreSonVo">
+        select Id, RowId, TaskCode, StorehouseCode, ProductCode, ProductName, Quantity, ActualQuantity, TaskState,RgvDeviceCode,DeviceCode,CreateDate, F1, F2, F3, F4,TrayCode from T_Base_StoreSon
+    </sql>
+
+    <select id="selectStoreSonList" parameterType="StoreSon" resultMap="StoreSonResult">
+        <include refid="selectStoreSonVo"/>
+        <where>  
+            <if test="id != null "> and Id = #{id}</if>
+            <if test="rowid != null "> and RowId = #{rowid}</if>
+            <if test="taskcode != null  and taskcode != ''"> and TaskCode = #{taskcode}</if>
+            <if test="storehousecode != null  and storehousecode != ''"> and StorehouseCode = #{storehousecode}</if>
+            <if test="productcode != null  and productcode != ''"> and ProductCode = #{productcode}</if>
+            <if test="productname != null  and productname != ''"> and ProductName like concat('%', #{productname}, '%')</if>
+            <if test="quantity != null "> and Quantity = #{quantity}</if>
+            <if test="actualquantity != null "> and ActualQuantity = #{actualquantity}</if>
+            <if test="taskstate != null  and taskstate != ''"> and TaskState = #{taskstate}</if>
+            <if test="createdate != null "> and CreateDate = #{createdate}</if>
+            <if test="rgvdevicecode != null  and rgvdevicecode != ''"> and RgvDeviceCode = #{rgvdevicecode}</if>
+            <if test="devicecode != null  and devicecode != ''"> and DeviceCode = #{devicecode}</if>
+            <if test="f1 != null  and f1 != ''"> and F1 = #{f1}</if>
+            <if test="f2 != null  and f2 != ''"> and F2 = #{f2}</if>
+            <if test="f3 != null  and f3 != ''"> and F3 = #{f3}</if>
+            <if test="f4 != null  and f4 != ''"> and F4 = #{f4}</if>
+        </where>
+        order by CreateDate desc
+    </select>
+    
+    <select id="selectStoreSonById" parameterType="Long" resultMap="StoreSonResult">
+        <include refid="selectStoreSonVo"/>
+        where Id = #{id}
+    </select>
+        
+    <insert id="insertStoreSon" parameterType="StoreSon">
+        insert into T_Base_StoreSon
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null ">Id,</if>
+            <if test="rowid != null ">RowId,</if>
+            <if test="taskcode != null  and taskcode != ''">TaskCode,</if>
+            <if test="storehousecode != null  and storehousecode != ''">StorehouseCode,</if>
+            <if test="productcode != null  and productcode != ''">ProductCode,</if>
+            <if test="productname != null  and productname != ''">ProductName,</if>
+            <if test="quantity != null ">Quantity,</if>
+            <if test="actualquantity != null ">ActualQuantity,</if>
+            <if test="taskstate != null  and taskstate != ''">TaskState,</if>
+            <if test="createdate != null ">CreateDate,</if>
+            <if test="rgvdevicecode != null  and rgvdevicecode != ''">RgvDeviceCode,</if>
+            <if test="devicecode != null  and devicecode != ''">DeviceCode,</if>
+            <if test="f1 != null  and f1 != ''">F1,</if>
+            <if test="f2 != null  and f2 != ''">F2,</if>
+            <if test="f3 != null  and f3 != ''">F3,</if>
+            <if test="f4 != null  and f4 != ''">F4,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null ">#{id},</if>
+            <if test="rowid != null ">#{rowid},</if>
+            <if test="taskcode != null  and taskcode != ''">#{taskcode},</if>
+            <if test="storehousecode != null  and storehousecode != ''">#{storehousecode},</if>
+            <if test="productcode != null  and productcode != ''">#{productcode},</if>
+            <if test="productname != null  and productname != ''">#{productname},</if>
+            <if test="quantity != null ">#{quantity},</if>
+            <if test="actualquantity != null ">#{actualquantity},</if>
+            <if test="taskstate != null  and taskstate != ''">#{taskstate},</if>
+            <if test="createdate != null ">#{createdate},</if>
+            <if test="rgvdevicecode != null  and rgvdevicecode != ''"> and RgvDeviceCode = #{rgvdevicecode}</if>
+            <if test="devicecode != null  and devicecode != ''"> and DeviceCode = #{devicecode}</if>
+            <if test="f1 != null  and f1 != ''">#{f1},</if>
+            <if test="f2 != null  and f2 != ''">#{f2},</if>
+            <if test="f3 != null  and f3 != ''">#{f3},</if>
+            <if test="f4 != null  and f4 != ''">#{f4},</if>
+         </trim>
+    </insert>
+
+    <update id="updateStoreSon" parameterType="StoreSon">
+        update T_Base_StoreSon
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="rowid != null ">RowId = #{rowid},</if>
+            <if test="taskcode != null  and taskcode != ''">TaskCode = #{taskcode},</if>
+            <if test="storehousecode != null  and storehousecode != ''">StorehouseCode = #{storehousecode},</if>
+            <if test="productcode != null  and productcode != ''">ProductCode = #{productcode},</if>
+            <if test="productname != null  and productname != ''">ProductName = #{productname},</if>
+            <if test="quantity != null ">Quantity = #{quantity},</if>
+            <if test="actualquantity != null ">ActualQuantity = #{actualquantity},</if>
+            <if test="taskstate != null  and taskstate != ''">TaskState = #{taskstate},</if>
+            <if test="createdate != null ">CreateDate = #{createdate},</if>
+            <if test="rgvdevicecode != null  and rgvdevicecode != ''"> and RgvDeviceCode = #{rgvdevicecode}</if>
+            <if test="devicecode != null  and devicecode != ''"> and DeviceCode = #{devicecode}</if>
+            <if test="f1 != null  and f1 != ''">F1 = #{f1},</if>
+            <if test="f2 != null  and f2 != ''">F2 = #{f2},</if>
+            <if test="f3 != null  and f3 != ''">F3 = #{f3},</if>
+            <if test="f4 != null  and f4 != ''">F4 = #{f4},</if>
+        </trim>
+        where Id = #{id}
+    </update>
+
+    <delete id="deleteStoreSonById" parameterType="Long">
+        delete from T_Base_StoreSon where Id = #{id}
+    </delete>
+
+    <delete id="deleteStoreSonByIds" parameterType="String">
+        delete from T_Base_StoreSon where Id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getOutTaskInfoByTaskProduct" resultType="com.wms.base.storeson.domain.StoreSon" resultMap="StoreSonResult">
+        select a.RowId,a.TaskCode,a.StorehouseCode,a.ProductCode,a.ProductName,a.Quantity,a.ActualQuantity,a.TaskState,a.CreateDate,b.RGVDeviceCode,b.DeviceCode
+        from T_Base_StoreSon a,T_Base_Storehouse b where a.StorehouseCode=b.StorehouseCode
+        and a.TaskCode=#{taskcode} and a.ProductCode=#{productcode}
+    </select>
+
+    <select id="getInTaskInfoByTaskCode" resultType="com.wms.base.storeson.domain.StoreSon" resultMap="StoreSonResult">
+        select a.RowId,a.TaskCode,a.StorehouseCode,a.ProductCode,a.ProductName,a.Quantity,a.ActualQuantity,a.TaskState,a.CreateDate,b.RGVDeviceCode,b.DeviceCode
+        from T_Base_StoreSon a,T_Base_Storehouse b where a.StorehouseCode=b.StorehouseCode
+        and a.TaskCode=#{taskcode}
+    </select>
+
+    <insert id="insertStoreSons" parameterType="java.util.List">
+        insert into T_Base_StoreSon
+        (RowId,TaskCode,StorehouseCode,ProductCode,ProductName,Quantity,ActualQuantity,RgvDeviceCode,DeviceCode,TrayCode)
+        <foreach collection="list" item="item" open="VALUES(" separator="),(" close=")">
+            #{item.rowid},#{item.taskcode},#{item.storehousecode},#{item.productcode},#{item.productname},#{item.quantity},#{item.actualquantity},#{item.rgvdevicecode},#{item.devicecode},#{item.traycode}
+        </foreach>
+    </insert>
+
+    <select id="deleteStoreSonByTaskAndPro" >
+        delete from T_Base_StoreSon where TaskCode=#{taskcode} and ProductCode=#{productcode}
+    </select>
+
+    <update id="executeStoreSonByTaskCodes" parameterType="String">
+        update T_Base_StoreSon
+        set TaskState=1
+        where TaskCode in
+        <foreach collection="array" item="taskcode" open="(" separator="," close=")">
+            #{taskcode}
+        </foreach>
+    </update>
+</mapper>
